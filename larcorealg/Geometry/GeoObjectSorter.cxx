@@ -20,12 +20,12 @@ namespace geo{
     t1.LocalToWorld(local, xyz1);
     t2.LocalToWorld(local, xyz2);
 
-    if(xyz1[2]!=xyz2[2])
-      return xyz1[2]>xyz2[2];
-    else if(xyz1[1]!=xyz2[1])
-      return xyz1[1]>xyz2[1];
+    if(xyz1[2] != xyz2[2])
+      return xyz1[2] < xyz2[2];
+    else if(xyz1[1] != xyz2[1])
+      return xyz1[1] < xyz2[1];
     else
-      return xyz1[0]>xyz2[0];
+      return xyz1[0] < xyz2[0];
   }
 
   void GeoObjectSorter::SortOpDets(std::vector<geo::OpDetGeo> & opdet) const
