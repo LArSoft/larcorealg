@@ -4455,26 +4455,33 @@ namespace geo {
     // group features
     //
 
+    //@{
     /// Number of OpDets in the whole detector
     unsigned int NOpDets() const;
+    //@}
 
 
     //
     // access
     //
+    
+    //@{
     /**
      * @brief Returns the `geo::OpDetGeo` object for the given channel number.
      * @param OpChannel optical detector unique channel number
      * @see GeometryCoreOpDetGeometry "optical detector identification"
      */
     OpDetGeo const& OpDetGeoFromOpChannel(unsigned int OpChannel) const;
+    //@}
 
+    //@{
     /**
      * @brief Returns the `geo::OpDetGeo` object for the given detector number.
      * @param OpDet optical detector unique number
      * @see GeometryCoreOpDetGeometry "optical detector identification"
      */
     OpDetGeo const& OpDetGeoFromOpDet(unsigned int OpDet) const;
+    //@}
 
 
     //@{
@@ -4498,6 +4505,7 @@ namespace geo {
     // object description
     //
 
+    //@{
     /**
      * @brief Returns gdml string which gives sensitive opdet name
      * @param c ID of the cryostat the detector is in
@@ -4507,6 +4515,7 @@ namespace geo {
      * @todo Change to use CryostatID
      */
     std::string OpDetGeoName(unsigned int c = 0) const;
+    //@}
 
     /// @} Optical detector access and information
 
