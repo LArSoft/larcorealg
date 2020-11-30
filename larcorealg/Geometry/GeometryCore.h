@@ -4467,6 +4467,19 @@ namespace geo {
     
     //@{
     /**
+     * @brief Returns the optical detector with the specified ID.
+     * @param oid ID of the optical detector
+     * @return the optical detector `oid`
+     * @throw cet::exception (category `"GeometryCore"`) if `oid` ID is invalid
+     * @throw cet::exception (category `"GeometryCore"`) if `oid` does not
+     *        represent any optical detector
+     */
+    geo::OpDetGeo const& OpDet(geo::OpDetID const& oid) const;
+    //@}
+    
+    
+    //@{
+    /**
      * @brief Returns the `geo::OpDetGeo` object for the given channel number.
      * @param OpChannel optical detector unique channel number
      * @see GeometryCoreOpDetGeometry "optical detector identification"

@@ -1789,13 +1789,6 @@ namespace geo {
 
   //============================================================================
   //--------------------------------------------------------------------
-  // Return gdml string which gives sensitive opdet name
-  std::string GeometryCore::OpDetGeoName(unsigned int c) const
-  {
-    return Cryostat(c).OpDetGeoName();
-  }
-
-  //--------------------------------------------------------------------
   // Convert OpDet, Cryo into unique OpDet number
   unsigned int GeometryCore::OpDetFromCryo(unsigned int o, unsigned int c ) const
   {
@@ -1832,6 +1825,27 @@ namespace geo {
     return INT_MAX;
   }
 
+  
+  //--------------------------------------------------------------------
+  // Return gdml string which gives sensitive opdet name
+  std::string GeometryCore::OpDetGeoName(unsigned int c) const
+  {
+    return Cryostat(c).OpDetGeoName();
+  }
+
+  //--------------------------------------------------------------------
+  geo::OpDetGeo const& GeometryCore::OpDet(geo::OpDetID const& oid) const {
+    
+    if (!oid.isValid) {
+      throw cet::exception("GeometryCore")
+        << "geo::GeometryCore::OpDet(): invalid optical detector specified.\n";
+    }
+    
+    return Cryostat(oid).OpDet(oid);
+    
+  } // GeometryCore::OpDet()
+  
+  
   //--------------------------------------------------------------------
   const OpDetGeo& GeometryCore::OpDetGeoFromOpChannel(unsigned int OpChannel) const
   {

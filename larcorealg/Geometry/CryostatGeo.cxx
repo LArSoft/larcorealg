@@ -116,6 +116,17 @@ namespace geo{
 
 
   //......................................................................
+  OpDetGeo const& CryostatGeo::OpDet(geo::OpDetID const& opdetid) const {
+    if (!opdetid.isValid) {
+      throw cet::exception("CryostatGeo")
+        << "CryostatGeo::OpDet(): invalid optical detector ID.\n";
+    }
+    assert(opdetid.asCryostatID() == ID());
+    return OpDet(opdetid.OpDet);
+  } // CryostatGeo::OpDet(geo::OpDetID)
+
+
+  //......................................................................
   auto CryostatGeo::IterateElements() const -> ElementIteratorBox
     { return fTPCs; }
 

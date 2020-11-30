@@ -363,6 +363,32 @@ namespace geo {
     /// Return the iopdet'th optical detector in the cryostat
     const OpDetGeo&   OpDet(unsigned int iopdet)                const;
 
+    /**
+     * @brief Return the optical detector with the specified ID.
+     * @param opdetid ID of the requested optical detector
+     * @return the optical detector with the requested `opdetid`
+     * @throw cet::exception (category: "CryostatGeo") if the ID is invalid or
+     *        points to a optical detector that does not exist in this cryostat
+     * 
+     * If `opdetid` points to a different cryostat, behaviour is unspecified.
+     */
+    OpDetGeo const& OpDet(geo::OpDetID const& opdetid) const;
+
+    /**
+     * @brief Returns an object suitable for iterating through all optical
+     *        detectors.
+     * @see `IterateTPCs()`
+     *
+     * The returned value can be used in a range-for loop like:
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
+     * for (geo::OpDetGeo const& opDet: cryo.IterateOpDets()) { ... }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * The resulting sequence exposes the optical detectors within the cryostat
+     * in their ID order, from `OpDet` `0` to `NOpDet() - 1`.
+     */
+    auto const& IterateOpDets() const { return fOpDets; }
+    
+    
     /// Returns the index of the optical detector in this cryostat closest to
     /// `point`.
     unsigned int GetClosestOpDet(geo::Point_t const& point) const;
