@@ -25,6 +25,7 @@
 #include <limits> // std::numeric_limits<>
 #include <vector>
 #include <utility> // std::move()
+#include <cassert>
 
 
 namespace geo{
@@ -265,6 +266,32 @@ namespace geo{
   unsigned int CryostatGeo::GetClosestOpDet(double const* point) const
     { return GetClosestOpDet(geo::vect::makePointFromCoords(point)); }
 
+  //......................................................................
+  geo::TPCGeo const& CryostatGeo::GetClosestTPC(geo::Point_t const& point) const
+  {
+    
+    double min_distance2 = std::numeric_limits<double>::max();
+    geo::TPCGeo const* closestTPC = nullptr;
+    for (geo::TPCGeo const& TPC: IterateTPCs()) {
+      double const distance2 = (TPC.GetCenter<geo::Point_t>() - point).Mag2();
+      if (distance2 >= min_distance2) continue;
+      min_distance2 = distance2;
+      closestTPC = &TPC;
+    } // for
+    assert(closestTPC);
+    return *closestTPC;
+    
+  } // CryostatGeo::GetClosestTPC()
+  
+  
+  //......................................................................
+  geo::TPCGeo const& CryostatGeo::GetTPCclosestToOpDet
+    (geo::OpDetID const& opdetid) const
+  {
+    return GetClosestTPC(OpDet(opdetid).GetCenter());
+  } // CryostatGeo::GetTPCclosestToOpDet()
+  
+  
   //......................................................................
   void CryostatGeo::InitCryoBoundaries() {
 

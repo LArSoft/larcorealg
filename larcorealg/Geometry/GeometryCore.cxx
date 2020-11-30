@@ -1906,6 +1906,20 @@ namespace geo {
 
 
   //--------------------------------------------------------------------
+  geo::TPCGeo const& GeometryCore::GetTPCclosestToOpDet
+    (geo::OpDetID const& oid) const
+  {
+    if (!oid.isValid) {
+      throw cet::exception("GeometryCore")
+        << "geo::GeometryCore::GetTPCclosestToOpDet(): "
+        "invalid optical detector specified.\n";
+    }
+    
+    return Cryostat(oid).GetTPCclosestToOpDet(oid);
+    
+  } // GeometryCore::GetTPCclosestToOpDet()
+  
+  //--------------------------------------------------------------------
   bool GeometryCore::WireIDIntersectionCheck
     (const geo::WireID& wid1, const geo::WireID& wid2) const
   {

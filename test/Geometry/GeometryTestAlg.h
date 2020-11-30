@@ -33,6 +33,7 @@ namespace geo {
 
   // forward declarations
   class GeometryCore;
+  class CryostatGeo;
   class TPCGeo;
   class PlaneGeo;
   class AuxDetGeo;
@@ -143,6 +144,7 @@ namespace geo {
     void printAllGeometry() const;
     void testFindVolumes();
     void testCryostat();
+    void testOpticalDetectors() const;
     void testTPC(geo::CryostatID const& cid);
     void testPlaneDirections() const;
     void testWireOrientations() const;
@@ -221,6 +223,9 @@ namespace geo {
       (double const pos[3], unsigned int expectedDet, unsigned int expectedSens)
       const;
 
+    /// Performs the tests on all optical detectors in a cryostat.
+    void testCryoOpticalDetectors(geo::CryostatGeo const& cryo) const;
+    
     /// Performs the wire intersection test at a single point
     unsigned int testWireIntersectionAt
       (geo::TPCGeo const& TPC, TVector3 const& point) const;

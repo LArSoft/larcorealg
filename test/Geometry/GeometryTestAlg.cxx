@@ -24,6 +24,7 @@
 #include "larcorealg/Geometry/geo_vectors_utils.h"
 #include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcorealg/CoreUtils/DumpUtils.h" // lar::dump::vector3D(), ...
+#include "larcorealg/CoreUtils/enumerate.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 #include "larcoreobj/SimpleTypesAndConstants/readout_types.h"      // for ROPID
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
@@ -207,6 +208,12 @@ namespace geo{
       if (shouldRunTests("Cryostat")) {
         MF_LOG_INFO("GeometryTest") << "test Cryostat methods ...";
         testCryostat();
+        MF_LOG_INFO("GeometryTest") << "complete.";
+      }
+
+      if (shouldRunTests("OpticalDetectors")) {
+        MF_LOG_INFO("GeometryTest") << "test optical detector methods ...";
+        testOpticalDetectors();
         MF_LOG_INFO("GeometryTest") << "complete.";
       }
 
@@ -737,6 +744,194 @@ namespace geo{
   }
 
   //......................................................................
+  void GeometryTestAlg::testOpticalDetectors() const {
+    
+    for (auto const& cryo: geom->IterateCryostats()) {
+      testCryoOpticalDetectors(cryo);
+    }
+    
+  } // GeometryTestAlg::testOpticalDetectors()
+  
+  
+  //......................................................................
+  void GeometryTestAlg::testCryoOpticalDetectors
+    (geo::CryostatGeo const& cryo) const
+  {
+    
+    std::vector<std::string> errors;
+    
+    unsigned int const nOpDets = cryo.NOpDet();
+    for (auto const& [ iOpDet, thisOpDet ]
+      : util::enumerate(cryo.IterateOpDets()))
+    {
+    
+      geo::OpDetID const oid = thisOpDet.ID();
+      assert(oid.OpDet == iOpDet);
+      
+      // access from cryostat
+      try {
+        geo::OpDetGeo const& opDet = cryo.OpDet(iOpDet);
+        
+        if (opDet.ID() != oid) {
+          errors.push_back(
+            "geo::CryostatGeo[" + std::string(oid.asCryostatID())
+            + "::OpDet(" + std::to_string(iOpDet) + ") returned "
+            + std::string(opDet.ID()) + "!"
+            );
+        } // ID check
+        
+      }
+      catch (cet::exception const& e) {
+        errors.push_back(
+          "Unexpected exception from geo::CryostatGeo::OpDet("
+          + std::to_string(iOpDet) + "):\n" + e.what()
+          );
+      }
+      
+      // access from cryostat by full ID
+      try {
+        geo::OpDetGeo const& opDet = cryo.OpDet(oid);
+        if (opDet.ID() != oid) {
+          errors.push_back(
+            "geo::CryostatGeo[" + std::string(oid.asCryostatID())
+            + "::OpDet(" + std::string(oid) + ") returned "
+            + std::string(opDet.ID()) + "!"
+            );
+        }
+      }
+      catch (cet::exception const& e) {
+        errors.push_back(
+          "Unexpected exception from geo::CryostatGeo::OpDet("
+          + std::string(oid) + "):\n" + e.what()
+          );
+      }
+      
+      // access from geometry by full ID
+      try {
+        geo::OpDetGeo const& opDet = geom->OpDet(oid);
+        if (opDet.ID() != oid) {
+          errors.push_back(
+            "geo::GeometryCore::OpDet(" + std::string(oid) + ") returned "
+            + std::string(opDet.ID()) + "!"
+            );
+        }
+      }
+      catch (cet::exception const& e) {
+        errors.push_back(
+          "Unexpected exception from geo::GeometryCore::OpDet("
+          + std::string(oid) + "):\n" + e.what()
+          );
+      }
+      
+      
+    } // for optical detectors
+    
+    // test of access failures
+    try {
+      geo::OpDetGeo const& opDet = cryo.OpDet(nOpDets); // out of range
+      errors.push_back(
+        "geo::CryostatGeo[" + std::string(cryo.ID())
+        + "::OpDet(" + std::to_string(nOpDets) + ") returned "
+        + std::string(opDet.ID()) + ", but it should throw exception"
+        );
+    }
+    catch (cet::exception const& e) {
+      if (!hasCategory(e, "OpDetOutOfRange")) {
+        errors.push_back(
+          "Unexpected exception from geo::CryostatGeo::OpDet("
+          + std::to_string(nOpDets) + "):\n" + e.what()
+          );
+      }
+    }
+    
+    try {
+      geo::OpDetID const oid; // the default constructed OpDetID is invalid
+      assert(!oid.isValid);
+      geo::OpDetGeo const& opDet = cryo.OpDet(oid); // invalid
+      errors.push_back(
+        "geo::CryostatGeo[" + std::string(cryo.ID())
+        + "::OpDet(" + std::string(oid) + ") (invalid) returned "
+        + std::string(opDet.ID()) + "!"
+        );
+    }
+    catch (cet::exception const& e) {
+      if (!hasCategory(e, "CryostatGeo")) {
+        errors.push_back(
+          "Unexpected exception from geo::CryostatGeo::OpDet("
+          + std::string(geo::OpDetID{}) + "):\n" + e.what()
+          );
+      }
+    }
+    
+    try {
+      geo::OpDetID const oid { cryo.ID(), nOpDets }; // out of range
+      assert(oid.isValid); // this is a valid ID, but does not match any a OpDet
+      geo::OpDetGeo const& opDet = cryo.OpDet(oid); // invalid
+      errors.push_back(
+        "geo::CryostatGeo[" + std::string(cryo.ID())
+        + "::OpDet(" + std::string(oid) + ") (non-existing detector) returned "
+        + std::string(opDet.ID()) + "!"
+        );
+    }
+    catch (cet::exception const& e) {
+      if (!hasCategory(e, "OpDetOutOfRange")) {
+        errors.push_back(
+          "Unexpected exception from geo::CryostatGeo::OpDet("
+          + std::string(geo::OpDetID{ cryo.ID(), nOpDets }) + "):\n" + e.what()
+          );
+      }
+    }
+    
+    try {
+      geo::OpDetID const oid; // the default constructed OpDetID is invalid
+      assert(!oid.isValid);
+      geo::OpDetGeo const& opDet = geom->OpDet(oid); // invalid
+      errors.push_back(
+        "geo::GeometryCore::OpDet(" + std::string(oid) + ") (invalid) returned "
+        + std::string(opDet.ID()) + "!"
+        );
+    }
+    catch (cet::exception const& e) {
+      if (!hasCategory(e, "GeometryCore")) {
+        errors.push_back(
+          "Unexpected exception from geo::GeometryCore::OpDet("
+          + std::string(geo::OpDetID{}) + "):\n" + e.what()
+          );
+      }
+    }
+    
+    try {
+      geo::OpDetID const oid { cryo.ID(), nOpDets }; // out of range
+      assert(oid.isValid); // this is a valid ID, but does not match any a OpDet
+      geo::OpDetGeo const& opDet = geom->OpDet(oid); // invalid
+      errors.push_back(
+        "geo::GeometryCore::OpDet(" + std::string(oid)
+        + ") (non-existing detector) returned " + std::string(opDet.ID()) + "!"
+        );
+    }
+    catch (cet::exception const& e) {
+      if (!hasCategory(e, "OpDetOutOfRange")) {
+        errors.push_back(
+          "Unexpected exception from geo::GeometryCore::OpDet("
+          + std::string(geo::OpDetID{ cryo.ID(), nOpDets }) + "):\n" + e.what()
+          );
+      }
+    }
+    
+    
+    // "report"
+    if (!errors.empty()) {
+      cet::exception e { "OpticalDetectorTest" };
+      e << "testCryoOpticalDetectors(" << cryo.ID() << "): "
+        << errors.size() << " errors detected:";
+      for (std::string const& msg: errors) e << "\n * " << msg;
+      throw e << "\n";
+    }
+    
+  } // testCryoOpticalDetectors()
+  
+  
+  //......................................................................
   unsigned int GeometryTestAlg::testFindWorldVolumes() {
 
     unsigned int nErrors = 0;
@@ -897,6 +1092,16 @@ namespace geo{
 
       for(size_t p = 0; p < tpc.Nplanes(); ++p) {
         geo::PlaneGeo const& plane = tpc.Plane(p);
+        
+        geo::TPCID const closestTPCID
+          = cryo.GetClosestTPC(plane.GetCenter<geo::Point_t>()).ID();
+        if (closestTPCID != tpcid) {
+          throw cet::exception("GeometryTest") 
+            << "geo::CryostatGeo::GetClosestTPC() "
+              "reports the closest TPC to the center of "
+            << plane.ID() << ", " << plane.GetCenter() << ", to be "
+            << closestTPCID << "\n";
+        }
 
         // first line indented with two tabs, the others with two more spaces;
         // very verbose (8)

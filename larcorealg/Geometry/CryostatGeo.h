@@ -343,6 +343,21 @@ namespace geo {
     geo::TPCGeo const* PositionToTPCptr
       (geo::Point_t const& point, double wiggle) const;
 
+    /**
+     * @brief Returns the TPC whose center is the closest to `point`.
+     * @param point the location to test
+     * @return the TPC whose center is the closest to `point`
+     * @see `PositionToTPC()`
+     * 
+     * The TPC with center closest to `point` is returned.
+     * Differently from `PositionToTPC()`, the `point` is not required to be
+     * _inside_ any TPC, and a valid TPC is always returned.
+     * 
+     * If the specified `point` is exactly in the middle between TPC, one
+     * of them is returned, and it is not defined which one.
+     */
+    geo::TPCGeo const& GetClosestTPC(geo::Point_t const& point) const;
+    
     /// Returns the largest number of planes among the TPCs in this cryostat
     unsigned int MaxPlanes() const;
 
@@ -401,6 +416,10 @@ namespace geo {
 
     /// Get name of opdet geometry element
     std::string  OpDetGeoName()                                 const { return fOpDetGeoName; }
+
+    /// Returns the TPC closest (center-to-center) to `opDet` in this cryostat.
+    geo::TPCGeo const& GetTPCclosestToOpDet(geo::OpDetID const& opDet) const;
+    
 
     /// @}
     // END Optical detector access ---------------------------------------------

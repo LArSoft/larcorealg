@@ -4512,6 +4512,23 @@ namespace geo {
     unsigned int GetClosestOpDet(geo::Point_t const& point) const;
     unsigned int GetClosestOpDet(double const* point) const;
     //@}
+    
+    
+    //@{
+    /**
+     * @brief Returns the optical detector in the cryostat closest to `point`.
+     * @param oid ID of the optical detector
+     * @return the TPC closest to the optical detector `oid`
+     * @see `geo::CryostatGeo::GetTPCclosestToOpDet()`
+     * @throw cet::exception (category `"GeometryCore"`) if `oid` invalid
+     * 
+     * The TPC closest to the center of the specified optical detector is
+     * returned.
+     * 
+     * See `geo::CryostatGeo::GetTPCclosestToOpDet()` for details.
+     */
+    geo::TPCGeo const& GetTPCclosestToOpDet(geo::OpDetID const& oid) const;
+    //@}
 
 
     //
@@ -5749,10 +5766,13 @@ void geo::GeometryCore::Print
       } // for plane
     } // for TPC
 
-    unsigned int nOpDets = cryostat.NOpDet();
+    unsigned int const nOpDets = cryostat.NOpDet();
     for (unsigned int iOpDet = 0; iOpDet < nOpDets; ++iOpDet) {
       geo::OpDetGeo const& opDet = cryostat.OpDet(iOpDet);
-      out << "\n" << indent << "  [OpDet #" << iOpDet << "] ";
+      out << "\n" << indent << "  [OpDet #" << iOpDet << "] "
+        << "(closest: " << cryostat.GetTPCclosestToOpDet(opDet.ID()).ID()
+        << ") ";
+      
       opDet.PrintOpDetInfo
         (std::forward<Stream>(out), indent + "  ", opDet.MaxVerbosity);
     } // for
