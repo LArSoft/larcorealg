@@ -565,19 +565,29 @@ namespace geo{
 
 
   void GeometryTestAlg::printAllGeometry() const {
-    const unsigned int nCryostats = geom->Ncryostats();
     mf::LogVerbatim("GeometryTest") << "Detector " << geom->DetectorName()
-      << " has " << nCryostats << " cryostats:";
-    for(unsigned int c = 0; c < nCryostats; ++c) {
-      const geo::CryostatGeo& cryostat = geom->Cryostat(c);
+      << " has " << geom->Ncryostats() << " cryostats:";
+    for (geo::CryostatGeo const& cryostat: geom->IterateCryostats()) {
       const unsigned int nTPCs = cryostat.NTPC();
-      mf::LogVerbatim("GeometryTest") << "  cryostat #" << c << " at "
-        << lar::dump::vector3D(cryostat.GetCenter()) << " cm has "
-        << nTPCs << " TPC(s):";
-      for(unsigned int t = 0;  t < nTPCs; ++t) {
-        const geo::TPCGeo& tpc = cryostat.TPC(t);
+      mf::LogVerbatim("GeometryTest") << "  cryostat " << cryostat.ID()
+        << " at " << cryostat.GetCenter() << " cm has " << nTPCs << " TPC(s):";
+      for(geo::TPCGeo const& tpc: cryostat.IterateTPCs()) {
         printWiresInTPC(tpc, "    ");
       } // for TPC
+      
+      unsigned int const nOpDets = cryostat.NOpDet();
+      if (nOpDets > 0U) {
+        mf::LogVerbatim log { "GeometryTest" };
+        log << "  cryostat " << cryostat.ID()
+          << " has " << nOpDets << " optical detectors:";
+        for(geo::OpDetGeo const& opDet: cryostat.IterateOpDets())
+          opDet.PrintOpDetInfo(log << "\n    ", "", 1U);
+      }
+      else {
+        mf::LogVerbatim("GeometryTest") << "  cryostat " << cryostat.ID()
+          << " has no optical detector.";
+      }
+      
     } // for cryostat
     printAuxiliaryDetectors();
     mf::LogVerbatim("GeometryTest") << "End of detector "
