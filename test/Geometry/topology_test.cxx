@@ -17,7 +17,7 @@
 // utility libraries
 #include "cetlib/quiet_unit_test.hpp" // BOOST_AUTO_TEST_CASE()
 #include <boost/test/test_tools.hpp> // BOOST_CHECK()
-#include <boost/test/floating_point_comparison.hpp> // BOOST_CHECK_CLOSE()
+#include <boost/test/tools/floating_point_comparison.hpp> // BOOST_CHECK_CLOSE()
 
 // C/C++ standard libraries
 #include <vector>
