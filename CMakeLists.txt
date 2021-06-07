@@ -6,14 +6,12 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.19  FATAL_ERROR)
 
-project(larcorealg LANGUAGES CXX)
+project(larcorealg 09.01.01 LANGUAGES CXX)
 
-# cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
-
-list(APPEND CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules)
+find_package(cetmodules REQUIRED)
+find_package(canvas_root_io)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -43,7 +41,9 @@ add_subdirectory(larcorealg)
 add_subdirectory(test)
 
 # ups - table and config files
-add_subdirectory(ups)
+#add_subdirectory(ups)
 
 # packaging utility
-include(UseCPack)
+#include(UseCPack)
+add_subdirectory(cmakeConfig)
+

@@ -22,7 +22,7 @@ cet_make_library( LIBRARY_NAME GeometryTestLib
                         ${MF_MESSAGELOGGER}
                         ${FHICLCPP}
                         cetlib cetlib_except
-                        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                        Boost::unit_test_framework
           )
 
 
