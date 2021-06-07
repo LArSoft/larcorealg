@@ -19,8 +19,8 @@ cet_make_library( LIBRARY_NAME GeometryTestLib
                   LIBRARIES larcorealg_Geometry
                         larcorealg_TestUtils
                         canvas
-                        ${MF_MESSAGELOGGER}
-                        ${FHICLCPP}
+                        messagefacility::mf_messagelogger
+                        fhiclcpp::fhiclcpp fhiclcpp::types
                         cetlib cetlib_except
                         Boost::unit_test_framework
           )
@@ -34,8 +34,8 @@ cet_test(geometry_iterator_test
   SOURCES geometry_iterator_test.cxx
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
   USE_BOOST_UNIT
   DATAFILES test_geometry.fcl
@@ -48,8 +48,8 @@ cet_test(geometry_geoid_test
   SOURCES geometry_geoid_test.cxx
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
   USE_BOOST_UNIT
   DATAFILES test_geometry.fcl
@@ -63,8 +63,8 @@ cet_test(geometry_test
   TEST_ARGS ./test_geometry.fcl
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
 )
 
@@ -75,8 +75,8 @@ cet_test(geometry_loader_test
   TEST_ARGS ./test_geometry.fcl
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
 )
 
@@ -87,8 +87,8 @@ cet_test(geometry_iterator_loop_test
   TEST_ARGS ./test_geometry_iterator_loop.fcl
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
 )
 
@@ -98,8 +98,8 @@ cet_test(geometry_standardchannelmapping_test
   SOURCES geometry_standardchannelmapping_test.cxx
   LIBRARIES larcorealg_Geometry
             GeometryTestLib
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
   USE_BOOST_UNIT
   DATAFILES test_geometry.fcl
@@ -112,8 +112,8 @@ cet_test(geometry_standardchannelmapping_test
 cet_test(geometry_thirdplaneslope_test
   SOURCES geometry_thirdplaneslope_test.cxx
   LIBRARIES larcorealg_Geometry
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
   USE_BOOST_UNIT
   DATAFILES test_geometry.fcl
@@ -142,8 +142,8 @@ cet_test(driftvolumes_test
   DATAFILES test_geometry.fcl
   TEST_ARGS ./test_geometry.fcl
   LIBRARIES larcorealg_Geometry
-            ${MF_MESSAGELOGGER}
-            ${FHICLCPP}
+            messagefacility::mf_messagelogger
+            fhiclcpp::fhiclcpp fhiclcpp::types
             cetlib cetlib_except
   USE_BOOST_UNIT
   )
