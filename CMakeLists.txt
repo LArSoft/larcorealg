@@ -25,6 +25,7 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
+find_ups_product( messagefacility )
 find_ups_product( canvas )
 find_ups_product( larcoreobj )
 find_ups_root()
