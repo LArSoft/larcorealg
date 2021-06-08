@@ -52,9 +52,12 @@ cet_test(topology_test
 set( mrb_build_dir $ENV{MRB_BUILDDIR} )
 if( NOT mrb_build_dir )
   #message(STATUS "MRB_BUILDDIR is undefined, set FHICL_FILE_PATH and FW_SEARCH_PATH")
-  set_tests_properties( geometry_iterator_test geometry_test geometry_loader_test
-                        geometry_iterator_loop_test geometry_standardchannelmapping_test
-                        geometry_geoid_test geometry_thirdplaneslope_test
+  set_tests_properties( 
+                        geo_vectors_utils_test
+                        geometrydatacontainers_test
+                        geoidmapper_test
+                        readoutdatacontainers_test
+                        topology_test
                         PROPERTIES ENVIRONMENT
                         "FHICL_FILE_PATH=.:${CMAKE_BINARY_DIR}/job;FW_SEARCH_PATH=${CMAKE_BINARY_DIR}/gdml" )
 endif()
