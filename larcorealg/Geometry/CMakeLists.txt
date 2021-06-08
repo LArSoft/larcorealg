@@ -3,7 +3,7 @@ cet_make(
     "details"
   LIBRARIES
           larcoreobj_SimpleTypesAndConstants
-          messagefacility::mf_messagelogger
+          messagefacility::headers
           fhiclcpp::fhiclcpp fhiclcpp::types
           cetlib
           cetlib_except
