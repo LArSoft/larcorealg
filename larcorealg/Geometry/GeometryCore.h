@@ -4149,7 +4149,7 @@ namespace geo {
      * @brief Computes the intersection between two wires.
      * @param wid1 ID of the first wire
      * @param wid2 ID of the other wire
-     * @param intersection (output) the intersection point (global coordinates)
+     * @param[out] intersection the intersection point (global coordinates)
      * @return whether an intersection was found inside the TPC the wires belong
      *
      * The "intersection" refers to the projection of the wires into the same
@@ -4173,6 +4173,24 @@ namespace geo {
       (WireID const& wid1, WireID const& wid2, TVector3& intersection) const;
     //@}
 
+    //@{
+    /**
+     * @brief Computes the intersection between two wires.
+     * @param wire1 the first wire
+     * @param wire2 the other wire
+     * @return the intersection point (global coordinates)
+     *
+     * The "intersection" point lies on `wire1` and it is defined as the point
+     * on that wire closest to `wire2`.
+     * The two wires are assumed not to be parallel, and when this prerequisite
+     * is not met the behaviour is undefined. The caller can check that
+     * condition by requiring e.g. `!wire1.isParallelTo(wire2)`.
+     */
+    geo::Point_t WiresIntersect
+      (geo::WireGeo const& wire1, geo::WireGeo const& wire2) const;
+    //@}
+
+    //@{
     /**
      * @brief Computes the intersection between two wires.
      * @param wid1 ID of the first wire
@@ -4198,6 +4216,7 @@ namespace geo {
     bool WireIDsIntersect
       (WireID const& wid1, WireID const& wid2, WireIDIntersection& widIntersect)
       const;
+    //@}
 
     /**
      * @brief Returns the intersection point of two wires
