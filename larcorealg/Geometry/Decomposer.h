@@ -12,6 +12,7 @@
 
 // LArSoft libraries
 #include "larcorealg/Geometry/geo_vectors_utils.h" // geo::vect
+#include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h" // geo::Xaxis(), ...
 
 // C/C++ standard libraries
 #include <cmath> // std::abs()
@@ -43,7 +44,10 @@ namespace geo {
     /// Rounding threshold for vectors
     static constexpr double RoundingTol = 1e-4;
 
-    /// Constructor: assigns the axes
+    /// Default constructor: assigns main axis _x_ and secondary axis _y_.
+    PlaneBase() = default;
+    
+    /// Constructor: assigns the axes.
     PlaneBase(Vector_t const& main, Vector_t const& secondary)
       : fMain(PastorizeUnitVector(main))
       , fSecondary(PastorizeUnitVector(secondary))
@@ -72,9 +76,9 @@ namespace geo {
       { return geo::vect::rounded01(geo::vect::normalize(dir), RoundingTol); }
 
       private:
-    Vector_t fMain;      ///< Main axis on the plane
-    Vector_t fSecondary; ///< Secondary axis on the plane
-    Vector_t fNormal;    ///< Axis normal to the plane
+    Vector_t fMain      { geo::Xaxis<Vector_t>() }; ///< Main axis on the plane
+    Vector_t fSecondary { geo::Yaxis<Vector_t>() }; ///< Secondary axis on the plane
+    Vector_t fNormal    { geo::Zaxis<Vector_t>() }; ///< Axis normal to the plane
 
     /// Computes the normal to the plane
     Vector_t ComputeNormal() const
