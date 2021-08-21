@@ -22,7 +22,7 @@
 
 namespace {
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   template <typename Dest, typename Src>
   Dest& extendCollection(Dest& dest, Src&& src) {
     std::move(src.begin(), src.end(), std::back_inserter(dest));
@@ -30,7 +30,7 @@ namespace {
   } // extend()
 
 
-  //------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
 } // local namespace
 
@@ -116,25 +116,6 @@ geo::CryostatGeo geo::GeometryBuilderStandard::doMakeCryostat(Path_t& path) {
 
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::OpDets_t
-geo::GeometryBuilderStandard::doExtractOpDets(Path_t& path) {
-  return doExtractGeometryObjects<
-    geo::OpDetGeo,
-    &geo::GeometryBuilderStandard::isOpDetNode,
-    &geo::GeometryBuilderStandard::makeOpDet
-    >
-    (path);
-} // geo::GeometryBuilderStandard::doExtractOpDets()
-
-
-//------------------------------------------------------------------------------
-geo::OpDetGeo geo::GeometryBuilderStandard::doMakeOpDet(Path_t& path) {
-  return geo::OpDetGeo
-    (path.current(), path.currentTransformation<geo::TransformationMatrix>());
-} // geo::GeometryBuilderStandard::doMakeOpDet()
-
-
-//------------------------------------------------------------------------------
 geo::GeometryBuilderStandard::TPCs_t geo::GeometryBuilderStandard::doExtractTPCs
   (Path_t& path)
 {
@@ -175,7 +156,7 @@ geo::GeometryBuilderStandard::doExtractPlanes(Path_t& path)
 geo::PlaneGeo geo::GeometryBuilderStandard::doMakePlane(Path_t& path) {
   return geo::PlaneGeo(
     path.current(), path.currentTransformation<geo::TransformationMatrix>(),
-     extractWires(path)
+    extractWires(path)
     );
 } // geo::GeometryBuilderStandard::doMakePlane()
 
@@ -201,6 +182,25 @@ geo::WireGeo geo::GeometryBuilderStandard::doMakeWire(Path_t& path) {
     (path.current(), path.currentTransformation<geo::TransformationMatrix>());
 
 } // geo::GeometryBuilderStandard::doMakeWire()
+
+
+//------------------------------------------------------------------------------
+geo::GeometryBuilderStandard::OpDets_t
+geo::GeometryBuilderStandard::doExtractOpDets(Path_t& path) {
+  return doExtractGeometryObjects<
+    geo::OpDetGeo,
+    &geo::GeometryBuilderStandard::isOpDetNode,
+    &geo::GeometryBuilderStandard::makeOpDet
+    >
+    (path);
+} // geo::GeometryBuilderStandard::doExtractOpDets()
+
+
+//------------------------------------------------------------------------------
+geo::OpDetGeo geo::GeometryBuilderStandard::doMakeOpDet(Path_t& path) {
+  return geo::OpDetGeo
+    { path.current(), path.currentTransformation<geo::TransformationMatrix>() };
+} // geo::GeometryBuilderStandard::doMakeOpDet()
 
 
 //------------------------------------------------------------------------------

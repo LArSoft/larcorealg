@@ -227,37 +227,6 @@ namespace geo {
     // --- END Cryostat information --------------------------------------------
 
 
-    // --- BEGIN Optical detector information ----------------------------------
-    /// @name Optical detector information
-    /// @{
-
-    using OpDets_t = GeoColl_t<geo::OpDetGeo>;
-
-    /**
-     * @brief Looks for all optical detectors under the specified path.
-     * @param path path pointing to the starting node
-     * @return a list of fully constructed optical detector objects
-     */
-    OpDets_t extractOpDets(Path_t& path)
-      { auto localPath = path; return doExtractOpDets(localPath); }
-
-    /// Constructs a `geo::OpDetGeo` from the current node of the `path`.
-    geo::OpDetGeo makeOpDet(Path_t& path)
-      { return doMakeOpDet(path); }
-
-
-    /// Core implementation of `extractOpDets()`.
-    ///
-    /// The actual algorithm is specialization of `doExtractGeometryObjects()`.
-    virtual OpDets_t doExtractOpDets(Path_t& path);
-
-    /// Core implementation of `makeOpDet()`.
-    virtual geo::OpDetGeo doMakeOpDet(Path_t& path);
-
-    /// @}
-    // --- END Optical detector information ------------------------------------
-
-
     // --- BEGIN TPC information -----------------------------------------------
     /// @name TPC information
     /// @{
@@ -354,6 +323,38 @@ namespace geo {
 
     /// @}
     // --- END Wire information ------------------------------------------------
+
+
+    // --- BEGIN Optical detector information ----------------------------------
+    /// @name Optical detector information
+    /// @{
+
+    using OpDets_t = GeoColl_t<geo::OpDetGeo>;
+
+    /**
+     * @brief Looks for all optical detectors under the specified path.
+     * @param path path pointing to the starting node
+     * @param refFrame is non-null, use this as reference for directions
+     * @return a list of fully constructed optical detector objects
+     */
+    OpDets_t extractOpDets(Path_t& path)
+      { auto localPath = path; return doExtractOpDets(localPath); }
+
+    /// Constructs a `geo::OpDetGeo` from the current node of the `path`.
+    geo::OpDetGeo makeOpDet(Path_t& path)
+      { return doMakeOpDet(path); }
+
+
+    /// Core implementation of `extractOpDets()`.
+    ///
+    /// The actual algorithm is specialization of `doExtractGeometryObjects()`.
+    virtual OpDets_t doExtractOpDets(Path_t& path);
+
+    /// Core implementation of `makeOpDet()`.
+    virtual geo::OpDetGeo doMakeOpDet(Path_t& path);
+
+    /// @}
+    // --- END Optical detector information ------------------------------------
 
 
 
