@@ -27,6 +27,7 @@
 #include "TGeoNode.h"
 
 // C++ standard library
+#include <string>
 #include <string_view>
 #include <limits> // std::numeric_limits<>
 
@@ -399,11 +400,16 @@ namespace geo {
 
       private:
 
+    /// Trait for type check on `MakeObj` template parameter.
+    template <typename ObjGeo, typename T>
+    struct IsMakeObjMemberFunctionType;
+    
     /**
      * @brief Boilerplate implementation of `doExtractXxxx()` methods.
      * @tparam ObjGeo the geometry object being extracted (e.g. `geo::WireGeo`)
      * @tparam IsObj function to identify if a node is of the right type
      * @tparam MakeObj class method creating the target object from a path
+     * @tparam MakeObjArgs type of additional arguments for `MakeObj`
      * @param path the path to the node describing the object
      * @return a fully constructed object of type `ObjGeo`
      *
@@ -418,11 +424,13 @@ namespace geo {
     template <
       typename ObjGeo,
       bool (geo::GeometryBuilderStandard::*IsObj)(TGeoNode const&) const,
-      ObjGeo (geo::GeometryBuilderStandard::*MakeObj)(Path_t&)
+      auto MakeObj,
+      typename... MakeObjArgs
       >
-    GeoColl_t<ObjGeo> doExtractGeometryObjects(Path_t& path);
+    GeoColl_t<ObjGeo> doExtractGeometryObjects
+      (Path_t& path, MakeObjArgs&&... args);
 
-
+    
   }; // class GeometryBuilderStandard
 
 } // namespace geo

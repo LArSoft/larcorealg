@@ -15,6 +15,7 @@
 // ROOT libraries
 
 // C++ standard library
+#include <type_traits> // std::true_type...
 #include <algorithm> // std::move()
 #include <string_view>
 
@@ -254,23 +255,50 @@ bool geo::GeometryBuilderStandard::isWireNode(TGeoNode const& node) const {
 
 
 //------------------------------------------------------------------------------
+template <typename ObjGeo, typename T>
+struct geo::GeometryBuilderStandard::IsMakeObjMemberFunctionType
+  : std::false_type {};
+
+template <typename ObjGeo, typename... Args>
+struct geo::GeometryBuilderStandard::IsMakeObjMemberFunctionType<
+  ObjGeo,
+  ObjGeo(geo::GeometryBuilderStandard::*)
+    (geo::GeometryBuilder::Path_t&, Args...)
+  >
+  : std::true_type
+  {};
+
+template <typename ObjGeo, typename... Args>
+struct geo::GeometryBuilderStandard::IsMakeObjMemberFunctionType<
+  ObjGeo,
+  ObjGeo(geo::GeometryBuilderStandard::*)
+    (geo::GeometryBuilder::Path_t&, Args...) const
+  >
+  : std::true_type
+  {};
+
+
+//------------------------------------------------------------------------------
 template <
   typename ObjGeo,
   bool (geo::GeometryBuilderStandard::*IsObj)(TGeoNode const&) const,
-  ObjGeo (geo::GeometryBuilderStandard::*MakeObj)(geo::GeometryBuilder::Path_t&)
+  auto MakeObj,
+  typename... MakeObjArgs
   >
 geo::GeometryBuilder::GeoColl_t<ObjGeo>
 geo::GeometryBuilderStandard::doExtractGeometryObjects(
-  Path_t& path
+  Path_t& path, MakeObjArgs&&... args
 ) {
-
+  static_assert(IsMakeObjMemberFunctionType<ObjGeo, decltype(MakeObj)>(),
+    "The function specified for MakeObj is not compatible with this algorithm");
+  
   geo::GeometryBuilder::GeoColl_t<ObjGeo> objs;
 
   //
-  // if this is a wire, we are set
+  // if this is the target object, we are set
   //
   if ((this->*IsObj)(path.current())) {
-    objs.push_back((this->*MakeObj)(path));
+    objs.push_back((this->*MakeObj)(path, std::forward<MakeObjArgs>(args)...));
     return objs;
   }
 
@@ -283,7 +311,10 @@ geo::GeometryBuilderStandard::doExtractGeometryObjects(
   int const n = volume.GetNdaughters();
   for (int i = 0; i < n; ++i) {
     path.append(*(volume.GetNode(i)));
-    extendCollection(objs, doExtractGeometryObjects<ObjGeo, IsObj, MakeObj>(path));
+    extendCollection(objs,
+      doExtractGeometryObjects<ObjGeo, IsObj, MakeObj>
+        (path, std::forward<MakeObjArgs>(args)...)
+      );
     path.pop();
   } // for
 
