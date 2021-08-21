@@ -10,6 +10,7 @@
 #define LARCOREALG_GEOMETRY_OPDETGEO_H
 
 // LArSoft libraries
+#include "larcorealg/Geometry/Decomposer.h" // geo::PlaneBase<>
 #include "larcorealg/Geometry/TransformationMatrix.h"
 #include "larcorealg/Geometry/LocalTransformationGeo.h"
 #include "larcorealg/CoreUtils/RealComparisons.h"
@@ -66,6 +67,14 @@ namespace geo {
 
     ///@}
 
+    /**
+     * @brief Constructor: places detector in space and determines its shape.
+     * @param node ROOT node representing the sensitive volume of this detector
+     * @param trans transformation from local to world coordinates
+     * 
+     * The specified `node` is used to extract the location of the optical
+     * detector (nominal center and size).
+     */
     OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans);
 
     /// Returns the geometry ID of this optical detector.
@@ -200,8 +209,17 @@ namespace geo {
     /// @}
     // --- END -- detector shape -----------------------------------------------
 
-    /// Performs all updates after cryostat has sorted the optical detectors.
-    void UpdateAfterSorting(geo::OpDetID opdetid);
+    /**
+     * @brief Performs all updates after cryostat has sorted optical detectors.
+     * 
+     * The content of `directions` is directly used to "orient" the optical
+     * detector: `directions.MainDir()` becomes the width direction, and
+     * `directions.SecondaryDir()` becomes the height direction.
+     */
+    void UpdateAfterSorting(
+      geo::OpDetID opdetid,
+      geo::PlaneBase<geo::Vector_t> const* directions
+      );
 
 
     /**

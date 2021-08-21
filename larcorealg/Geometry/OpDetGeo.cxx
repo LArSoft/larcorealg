@@ -143,7 +143,10 @@ namespace geo{
     { return CosThetaFromNormal(geo::vect::makeFromCoords<geo::Point_t>(xyz)); }
 
   //......................................................................
-  void OpDetGeo::UpdateAfterSorting(geo::OpDetID opdetid) {
+  void OpDetGeo::UpdateAfterSorting(
+    geo::OpDetID opdetid,
+    geo::PlaneBase<geo::Vector_t> const* directions
+  ) {
 
     fID = opdetid;
 

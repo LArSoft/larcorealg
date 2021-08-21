@@ -9,6 +9,7 @@
 
 // LArSoft includes
 #include "larcorealg/Geometry/GeoObjectSorter.h"          // for GeoObjectSo...
+#include "larcorealg/CoreUtils/counter.h"
 
 // Framework includes
 #include "cetlib_except/exception.h"
@@ -26,6 +27,20 @@
 #include <vector>
 #include <utility> // std::move()
 
+
+namespace {
+  
+  //----------------------------------------------------------------------------
+  double computeMinDistSq
+    (geo::Point_t const& point, geo::BoxBoundedGeo const& box)
+  {
+    // TODO may be better to find the distance from the surface of the box
+    return (point - box.Center()).Mag2();
+  } // computeMinDistSq()
+  
+  //----------------------------------------------------------------------------
+  
+} // local namespace
 
 namespace geo{
 
@@ -78,13 +93,20 @@ namespace geo{
     // update the cryostat ID
     fID = cryoid;
 
-    // trigger all the optical detectors to update
-    for (unsigned int opdet = 0; opdet < NOpDet(); ++opdet)
-      fOpDets[opdet].UpdateAfterSorting(geo::OpDetID(fID, opdet));
-
     // trigger all the TPCs to update as well
     for (unsigned int tpc = 0; tpc < NTPC(); ++tpc)
       fTPCs[tpc].UpdateAfterSorting(geo::TPCID(fID, tpc));
+
+    // trigger update of all the optical detectors, providing them a reference
+    for (auto const iOpDet: util::counter(fOpDets.size())) {
+      geo::OpDetGeo& opDet = fOpDets[iOpDet];
+      
+      std::optional<RefFrame_t const> const refFrame
+        { referenceFromClosestTPC(opDet.GetCenter(), fTPCs) };
+      
+      opDet.UpdateAfterSorting
+        (geo::OpDetID(fID, iOpDet), refFrame? &*refFrame: nullptr);
+    }
 
   } // CryostatGeo::UpdateAfterSorting()
 
@@ -275,6 +297,44 @@ namespace geo{
       );
 
   } // CryostatGeo::InitCryoBoundaries()
+
+
+  //......................................................................
+  geo::TPCGeo const* CryostatGeo::findClosestTPC
+    (geo::Point_t const& point, TPCList_t const& TPCs)
+  {
+    geo::TPCGeo const* closestTPC = nullptr;
+    double minDist2 = std::numeric_limits<double>::max();
+    for (geo::TPCGeo const& TPC: TPCs) {
+      double const dist2 = computeMinDistSq(point, TPC);
+      if (dist2 > minDist2) continue;
+      closestTPC = &TPC;
+      minDist2 = dist2;
+    } // for
+    return closestTPC;
+  } // CryostatGeo::findClosestTPC()
+
+
+  //......................................................................
+  geo::PlaneGeo const* CryostatGeo::getReferencePlane(geo::TPCGeo const* TPC) {
+    return (!TPC || (TPC->Nplanes() == 0))? nullptr: &(TPC->FirstPlane());
+  } // CryostatGeo::getReferencePlane()
+
+
+  //......................................................................
+  auto CryostatGeo::referenceFromClosestTPC
+    (geo::Point_t const& point, TPCList_t const& TPCs)
+    -> std::optional<RefFrame_t>
+  {
+    geo::TPCGeo const* closestTPC = findClosestTPC(point, TPCs);
+    geo::PlaneGeo const* refPlane = getReferencePlane(closestTPC);
+    return refPlane
+      ? std::make_optional<RefFrame_t>
+        (refPlane->WidthDir<geo::Vector_t>(), refPlane->DepthDir<geo::Vector_t>())
+      : std::nullopt
+      ;
+    
+  } // CryostatGeo::referenceFromClosestTPC()
 
 
   //......................................................................

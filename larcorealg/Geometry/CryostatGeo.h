@@ -17,6 +17,7 @@
 #include "larcorealg/Geometry/GeoVectorLocalTransformation.h"  // for LocalT...
 #include "larcorealg/Geometry/LocalTransformationGeo.h"        // for LocalT...
 #include "larcorealg/Geometry/WireGeo.h"                       // for WireGeo
+#include "larcorealg/Geometry/Decomposer.h" // geo::PlaneBase
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h" // geo::Point_t
 
@@ -27,6 +28,7 @@
 #include "TGeoVolume.h"
 
 // C/C++ standard libraries
+#include <optional>
 #include <vector>
 #include <string>
 
@@ -465,6 +467,27 @@ namespace geo {
     /// Fill the boundary information of the cryostat
     void InitCryoBoundaries();
 
+    
+    // --- BEGIN -- Optical detector reference ---------------------------------
+    
+    /// Type to pass around a reference frame (directions only).
+    using RefFrame_t = geo::PlaneBase<geo::Vector_t>;
+    
+    /// Returns the one among `TPCs` which is the closest to the specified
+    /// `point` (`nullptr` if no TPC is in the list).
+    static geo::TPCGeo const* findClosestTPC
+      (geo::Point_t const& point, TPCList_t const& TPCs);
+    
+    /// Returns a reference wire plane from the specified TPC
+    /// (`nullptr` if no TPC or no plane in it).
+    static geo::PlaneGeo const* getReferencePlane(geo::TPCGeo const* TPC);
+      
+    /// Returns the reference frame of the first plane of the TPC (among `TPCs`)
+    /// that is the closest to the specified `point`.
+    static std::optional<RefFrame_t> referenceFromClosestTPC
+      (geo::Point_t const& point, TPCList_t const& TPCs);
+
+    // --- END -- Optical detector reference -----------------------------------
 
   private:
 
