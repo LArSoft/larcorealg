@@ -137,18 +137,24 @@ namespace lar {
 
 
     //--------------------------------------------------------------------------
-    /// Class comparing 2D vectors
+    /// Class comparing 2D vectors.
+    /// Requires component access by `X()` and `Y()`.
     template <typename RealType>
     struct Vector2DComparison {
 
-      using Comp_t = RealComparisons<RealType>;
+      using Value_t = RealType;
+      
+      /// Type of base value comparer.
+      using Comp_t = RealComparisons<Value_t>;
+
 
       /// Copy the specified comparison.
       constexpr Vector2DComparison(Comp_t const& comparer)
         : comparer(comparer) {}
 
       /// Steal the specified comparison.
-      Vector2DComparison(Comp_t&& comparer): comparer(std::move(comparer)) {}
+      constexpr Vector2DComparison(Comp_t&& comparer)
+        : comparer(std::move(comparer)) {}
 
       /// Use the specified threshold.
       constexpr Vector2DComparison(RealType threshold): comparer(threshold) {}
@@ -175,42 +181,94 @@ namespace lar {
       constexpr bool nonEqual(VectA const& a, VectB const& b) const
         { return !equal(a, b); }
 
+      /// Returns whether the specified vectors are parallel.
+      template <typename VectA, typename VectB>
+      constexpr bool parallel(VectA const& a, VectB const& b) const
+        { return parallel(a, normSq(a), b, normSq(b)); }
+
+      /// Returns whether the specified vectors are parallel.
+      /// The square of the norm of the two vectors is explicitly provided.
+      /// Null vectors (norm 0) are not parallel to anything.
+      template <typename VectA, typename VectB>
+      constexpr bool parallel(
+        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
+        {
+          Value_t const normSqProd = normSqA * normSqB;
+          return comp().nonZero(normSqProd)
+            && comp().equal(sqr(dot(a, b)), normSqProd); 
+        }
+
+      /// Returns whether the specified vectors are not parallel.
+      template <typename VectA, typename VectB>
+      constexpr bool nonParallel(VectA const& a, VectB const& b) const
+        { return !parallel(a, b); }
+
+      /// Returns whether the specified vectors are not parallel.
+      /// The square of the norm of the two vectors is explicitly provided.
+      template <typename VectA, typename VectB>
+      constexpr bool nonParallel(
+        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
+        { return !parallel(a, normSqA, b, normSqB); }
+
+      /// Returns whether the specified vectors are orthogonal.
+      template <typename VectA, typename VectB>
+      constexpr bool orthogonal(VectA const& a, VectB const& b) const
+        { return comp().zero(dot(a, b)); }
+
+      /// Returns whether the specified vectors are not orthogonal.
+      template <typename VectA, typename VectB>
+      constexpr bool nonOrthogonal(VectA const& a, VectB const& b) const
+        { return !orthogonal(a, b); }
+
         private:
       Comp_t const comparer; ///< Comparison object.
 
+      static constexpr Value_t sqr(Value_t v) { return v*v; }
+      
+      template <typename VectA, typename VectB>
+      static constexpr Value_t dot(VectA const& a, VectB const& b)
+        { return a.X()*b.X() + a.Y()*b.Y(); }
+      
+      template <typename Vect>
+      static constexpr Value_t normSq(Vect const& v) { return dot(v, v); }
+      
     }; // struct Vector2DComparison
 
 
     //--------------------------------------------------------------------------
     /// Creates a `Vector2DComparison` from a `RealComparisons` object.
     template <typename RealType>
-    auto makeVector2DComparison(RealType threshold)
+    constexpr auto makeVector2DComparison(RealType threshold)
       { return Vector2DComparison<RealType>(threshold); }
 
     /// Creates a `Vector2DComparison` from a `RealComparisons` object.
     template <typename RealType>
-    auto makeVector2DComparison
+    constexpr auto makeVector2DComparison
       (lar::util::RealComparisons<RealType> const& comp)
       { return Vector2DComparison<RealType>(comp); }
 
 
     //--------------------------------------------------------------------------
-    /// Class comparing 2D vectors.
+    /// Class comparing 3D vectors.
+    /// Requires component access by `X()`, `Y()` and `Z()`.
     template <typename RealType>
     struct Vector3DComparison {
 
+      using Value_t = RealType;
+      
       /// Type of base value comparer.
-      using Comp_t = RealComparisons<RealType>;
+      using Comp_t = RealComparisons<Value_t>;
 
       /// Type of 2D vector comparer.
-      using Comp2D_t = Vector2DComparison<typename Comp_t::Value_t>;
-
+      using Comp2D_t = Vector2DComparison<Value_t>;
+      
       /// Copy the specified comparison.
       constexpr Vector3DComparison(Comp_t const& comparer)
         : comparer(comparer) {}
 
       /// Steal the specified comparison.
-      Vector3DComparison(Comp_t&& comparer): comparer(std::move(comparer)) {}
+      constexpr Vector3DComparison(Comp_t&& comparer)
+        : comparer(std::move(comparer)) {}
 
       /// Use the specified threshold.
       constexpr Vector3DComparison(RealType threshold): comparer(threshold) {}
@@ -240,21 +298,76 @@ namespace lar {
       constexpr bool nonEqual(VectA const& a, VectB const& b) const
         { return !equal(a, b); }
 
+      /// Returns whether the specified vectors are parallel.
+      template <typename VectA, typename VectB>
+      constexpr bool parallel(VectA const& a, VectB const& b) const
+        { return parallel(a, normSq(a), b, normSq(b)); }
+
+      /// Returns whether the specified vectors are parallel.
+      /// The square of the norm of the two vectors is explicitly provided.
+      /// Null vectors (norm 0) are not parallel to anything.
+      template <typename VectA, typename VectB>
+      constexpr bool parallel(
+        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
+        {
+          Value_t const normSqProd = normSqA * normSqB;
+          return comp().nonZero(normSqProd)
+            && comp().equal(sqr(dot(a, b)), normSqProd); 
+        }
+
+      /// Returns whether the specified vectors are not parallel.
+      template <typename VectA, typename VectB>
+      constexpr bool nonParallel(VectA const& a, VectB const& b) const
+        { return !parallel(a, b); }
+
+      /// Returns whether the specified vectors are not parallel.
+      /// The square of the norm of the two vectors is explicitly provided.
+      template <typename VectA, typename VectB>
+      constexpr bool nonParallel(
+        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
+        { return !parallel(a, normSqA, b, normSqB); }
+
+      /// Returns whether the specified vectors are orthogonal.
+      template <typename VectA, typename VectB>
+      constexpr bool orthogonal(VectA const& a, VectB const& b) const
+        { return comp().zero(dot(a, b)); }
+
+      /// Returns whether the specified vectors are not orthogonal.
+      template <typename VectA, typename VectB>
+      constexpr bool nonOrthogonal(VectA const& a, VectB const& b) const
+        { return !orthogonal(a, b); }
+
         private:
       Comp2D_t comparer;
+      
+      static constexpr Value_t sqr(Value_t v) { return v*v; }
+      
+      template <typename VectA, typename VectB>
+      static constexpr Value_t dot(VectA const& a, VectB const& b)
+        { return a.X()*b.X() + a.Y()*b.Y() + a.Z()*b.Z(); }
+      
+      template <typename Vect>
+      static constexpr Value_t normSq(Vect const& v) { return dot(v, v); }
 
     }; // struct Vector3DComparison
+    
+    template <typename RealType>
+    Vector3DComparison(RealComparisons<RealType> const&)
+      -> Vector3DComparison<RealType>;
+    template <typename RealType>
+    Vector3DComparison(RealComparisons<RealType>&&)
+      -> Vector3DComparison<RealType>;
 
 
     //--------------------------------------------------------------------------
     /// Creates a `Vector3DComparison` from a `RealComparisons` object.
     template <typename RealType>
-    auto makeVector3DComparison(RealType threshold)
+    constexpr auto makeVector3DComparison(RealType threshold)
       { return Vector3DComparison<RealType>(threshold); }
 
     /// Creates a `Vector3DComparison` from a `RealComparisons` object.
     template <typename RealType>
-    auto makeVector3DComparison
+    constexpr auto makeVector3DComparison
       (lar::util::RealComparisons<RealType> const& comp)
       { return Vector3DComparison<RealType>(comp); }
 
