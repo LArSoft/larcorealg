@@ -4,11 +4,13 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
+
 // class header
 #include "larcorealg/Geometry/CryostatGeo.h"
 
 // LArSoft includes
 #include "larcorealg/Geometry/GeoObjectSorter.h"          // for GeoObjectSo...
+
 #include "larcorealg/CoreUtils/counter.h"
 
 // Framework includes
@@ -102,7 +104,7 @@ namespace geo{
       geo::OpDetGeo& opDet = fOpDets[iOpDet];
       
       std::optional<RefFrame_t const> const refFrame
-        { referenceFromClosestTPC(opDet.GetCenter(), fTPCs) };
+        { referenceFromClosestTPC(opDet.GetShapeCenter(), fTPCs) };
       
       opDet.UpdateAfterSorting
         (geo::OpDetID(fID, iOpDet), refFrame? &*refFrame: nullptr);

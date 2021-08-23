@@ -9,8 +9,13 @@
 #include "larcorealg/Geometry/OpDetGeo.h"
 
 // LArSoft libraries
+#include "larcorealg/Geometry/details/OpDetGeoSpecFillers.h"
 #include "larcorealg/Geometry/geo_vectors_utils.h" // geo::vect::makeFromCoords()
+#include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h" // util::pi()
+
+// Framework libraries
+#include "cetlib_except/exception.h"
 
 // ROOT libraries
 #include "TGeoManager.h"
@@ -24,23 +29,17 @@ namespace geo{
 
   //-----------------------------------------
   OpDetGeo::OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fTrans(std::move(trans))
-  {
-    fOpDetNode = &node;
-
-    fCenter = toWorldCoords(geo::origin<LocalPoint_t>());
-  }
-
+    : fTrans{ makeTrans(std::move(trans)) }
+    , fOpDetNode{ &node }
+    , fShape{ makeShape(*fOpDetNode) }
+    , fBoxCenter{ toWorldCoords(geo::origin<LocalPoint_t>()) }
+    {}
+  
   //......................................................................
 
-  /// Return the center position of an opdet
-  /// \param xyz : 3-D array. The returned location.
-  /// \param localz : Distance along the length of the volume
-  /// (cm). Default is center of wire
-  void OpDetGeo::GetCenter(double* xyz, double localz) const
+  void OpDetGeo::GetCenter(double* xyz, double offset) const
   {
-    double xyzLocal[3] = {0.,0.,localz};
-    this->LocalToWorld(xyzLocal, xyz);
+    geo::vect::fillCoords(xyz, GetCenter() + offset * LengthDir());
   }
 
   //......................................................................
@@ -56,30 +55,6 @@ namespace geo{
     else {
       throw std::bad_cast{};
     }
-  }
-
-  //......................................................................
-
-  double OpDetGeo::HalfL() const
-  {
-    TGeoBBox const* pBox = asBox();
-    return pBox? pBox->GetDZ(): 0.0;
-  }
-
-  //......................................................................
-
-  double OpDetGeo::HalfW() const
-  {
-    TGeoBBox const* pBox = asBox();
-    return pBox? pBox->GetDX(): 0.0;
-  }
-
-  //......................................................................
-
-  double OpDetGeo::HalfH() const
-  {
-    TGeoBBox const* pBox = asBox();
-    return pBox? pBox->GetDY(): 0.0;
   }
 
   //......................................................................
@@ -100,16 +75,8 @@ namespace geo{
   //......................................................................
   double OpDetGeo::ThetaZ() const
   {
-    auto const& center = GetCenter();
-    auto const& end = toWorldCoords(LocalPoint_t{ 0.0, 0.0, HalfL() });
-
-    // TODO change this into something generic
-    //either y or x will be 0, so adding both will always catch the right
-    //one
-    double angle = (end.Y()-center.Y()+end.X()-center.X()) /
-      std::abs(end.Y()-center.Y()+center.X()-end.X()) *
-      std::acos((end.Z() - center.Z())/HalfL());
-    if (angle < 0) angle += util::pi();
+    double angle = std::acos(geo::vect::dot(LengthDir(), geo::Zaxis()));
+    if (angle < 0.0) angle += util::pi();
     return angle;
   }
 
@@ -121,7 +88,7 @@ namespace geo{
 
   //......................................................................
   double OpDetGeo::DistanceToPoint(geo::Point_t const& point) const
-    { return (point - GetCenter()).R(); }
+    { return fromCenter(point).R(); }
   double OpDetGeo::DistanceToPoint(double const* xyz) const
     { return DistanceToPoint(geo::vect::makeFromCoords<geo::Point_t>(xyz)); }
 
@@ -135,13 +102,12 @@ namespace geo{
   } // OpDetGeo::OpDetInfo()
 
   //......................................................................
-  double OpDetGeo::CosThetaFromNormal(geo::Point_t const& point) const {
-    auto const& local = toLocalCoords(point);
-    return local.Z() / local.R();
-  }
+  double OpDetGeo::CosThetaFromNormal(geo::Point_t const& point) const
+    { return geo::vect::dot(LengthDir(), fromCenter(point)); }
   double OpDetGeo::CosThetaFromNormal(double const* xyz) const
     { return CosThetaFromNormal(geo::vect::makeFromCoords<geo::Point_t>(xyz)); }
 
+  
   //......................................................................
   void OpDetGeo::UpdateAfterSorting(
     geo::OpDetID opdetid,
@@ -149,10 +115,38 @@ namespace geo{
   ) {
 
     fID = opdetid;
+    fDirections = directions? *directions: standardDirections(fTrans);
+    fSpecs
+      = std::visit(details::OpDetGeoSpecFiller{ fTrans, fDirections }, fShape);
 
   } // OpDetGeo::UpdateAfterSorting()
 
 
+  //......................................................................
+  geo::PlaneBase<geo::Vector_t> OpDetGeo::standardDirections
+    (LocalTransformation_t const& trans)
+  {
+    return {
+      trans.toWorldCoords(geo::Xaxis<LocalVector_t>()), // main (width)
+      trans.toWorldCoords(geo::Yaxis<LocalVector_t>())  // secondary (height)
+      };
+  } // OpDetGeo::standardDirections()
+  
+  
+  //......................................................................
+  auto OpDetGeo::makeShape(TGeoNode const& node) -> Shape_t {
+    TGeoShape const* shape = node.GetVolume()->GetShape();
+    assert(shape); // supposedly ROOT guarantees a shape...
+    if (auto obj = dynamic_cast<TGeoSphere const*>(shape)) return { obj };
+    if (auto obj = dynamic_cast<TGeoTube const*>(shape)) return { obj };
+    if (auto obj = dynamic_cast<TGeoBBox const*>(shape)) return { obj };
+    throw cet::exception("Geometry")
+      << "geo::OpDetGeo does not support optical detectors of shape '"
+      << shape->GetName() << "'\n"
+      ;
+  } // OpDetGeo::makeShape()
+  
+  
   //......................................................................
 
 }
