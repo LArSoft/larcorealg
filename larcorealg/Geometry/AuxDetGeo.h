@@ -23,7 +23,6 @@
 #include "Math/GenVector/PositionVector3D.h"
 
 // C/C++ libraries
-#include <stddef.h>
 #include <string>
 #include <vector>
 #include <type_traits>

@@ -59,10 +59,10 @@ namespace geo {
      * instances of `geo::OpDetGeo` have the same type but are not compatible.
      */
 
-    /// Type of points in the local GDML TPC frame.
+    /// Type of points in the local GDML optical detector frame.
     using LocalPoint_t = geo::OpticalPoint_t;
 
-    /// Type of displacement vectors in the local GDML TPC frame.
+    /// Type of displacement vectors in the local GDML optical detector frame.
     using LocalVector_t = geo::OpticalVector_t;
 
     ///@}

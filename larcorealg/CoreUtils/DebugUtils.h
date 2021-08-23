@@ -260,7 +260,7 @@ namespace lar::debug {
    * @brief Class triggering a `static_assert` failure.
    * @tparam T type accompanying the assertion
    * @tparam Enable assertion will fail only if `Enable` expands to `true`
-   * @addtogroup MetaprogrammingBase
+   * @ingroup MetaprogrammingBase
    *
    * Instantiating this class anywhere (where it's legit) will trigger a static
    * assertion failure. Since the error message emitted by the compiler usually
@@ -273,6 +273,7 @@ namespace lar::debug {
    * We want to find out the exact type `element_type` of the collection type
    * passed to `OurClass`, but only when the collection type is, say, not
    * constant:
+   * 
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
    * template <typename Coll>
    * struct OurClass {
@@ -295,8 +296,10 @@ namespace lar::debug {
    * // this triggers a static assertion failure:
    * OurClass<std::unique_ptr<double[4]> const fourVectorData;
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
    * (a working example is provided in `DebugUtils_test.h`).
    * The output with GCC 7.2 is similar to the following:
+   * 
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * In file included from larcorealg/test/CoreUtils/DebugUtils_test.cc:17:0:
    * larcorealg/larcorealg/CoreUtils/DebugUtils.h: In instantiation of ‘struct lar::debug::details::THE_TYPE_IS<int [10]>’:
@@ -307,10 +310,12 @@ namespace lar::debug {
    *        static_assert(::util::always_false_v<T>,
    *        ^~~~~~~~~~~~~
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
    * The message of the assertion points to the key string ("THE_TYPE_IS"), and
    * it can be seen in the second line of this excerpt that the information is
    * printed as `struct lar::debug::details::THE_TYPE_IS<int [10]>`.
    * This is Clang 5.0:
+   * 
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * In file included from larcorealg/test/CoreUtils/DebugUtils_test.cc:17:
    * larcorealg/larcorealg/CoreUtils/DebugUtils.h:451:7: error: static_assert failed "static_assert_on<T>: check the error message (\"THE_TYPE_IS<>\") for expansion of type `T`."
@@ -326,6 +331,7 @@ namespace lar::debug {
    *   (void) OurClass<std::unique_ptr<int[10]> const>();
    *          ^
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
    * where the type can be read in the message of the first note.
    */
   template <typename T, bool Enable /* = true */>

@@ -18,7 +18,7 @@
 #include "Math/GenVector/Transform3D.h"
 
 // C/C++ standard libraries
-#include <stddef.h>
+#include <cstddef>
 #include <vector>
 
 // ROOT forward declaration (should be redundant)
