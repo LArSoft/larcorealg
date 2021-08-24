@@ -12,25 +12,10 @@
 // LArSoft libraries
 #include "larcorealg/Geometry/details/OpDetGeoSpecs.h"
 #include "larcorealg/Geometry/Decomposer.h" // geo::PlaneBase<>
-#include "larcorealg/Geometry/LocalTransformationGeo.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h" // geo::Point_t...
 
 // Framework libraries
 #include "cetlib_except/exception.h"
-
-#if 0
-// class header
-#include "larcorealg/Geometry/OpDetGeo.h"
-
-// LArSoft libraries
-#include "larcorealg/Geometry/geo_vectors_utils.h" // geo::vect::makeFromCoords()
-#include "larcorealg/CoreUtils/RealComparisons.h"
-#include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h" // util::pi()
-
-
-// C/C++ standard libraries
-#include <cmath>
-#endif // 0
 
 
 // -----------------------------------------------------------------------------

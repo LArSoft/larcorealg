@@ -19,14 +19,6 @@
 #include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h" // util::DegreesToRadians()
 
-#if 0
-#include "larcorealg/Geometry/geo_vectors_utils.h" // geo::vect::makeFromCoords()
-
-// Framework libraries
-#include "cetlib_except/exception.h"
-
-#endif // 0
-
 // C/C++ standard libraries
 #include <array>
 #include <cmath> // std::abs(), std::sqrt(), ...
