@@ -14,6 +14,7 @@
 #include "larcorealg/CoreUtils/counter.h"
 
 // Framework includes
+#include "cetlib/pow.h" // cet::square()
 #include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -36,8 +37,13 @@ namespace {
   double computeMinDistSq
     (geo::Point_t const& point, geo::BoxBoundedGeo const& box)
   {
-    // TODO may be better to find the distance from the surface of the box
-    return (point - box.Center()).Mag2();
+    // (squared) distance of the point from the closest face of the box
+    using cet::square;
+    return std::min({
+      square(point.X() - box.MinX()), square(point.X() - box.MaxX()),
+      square(point.Y() - box.MinY()), square(point.Y() - box.MaxY()),
+      square(point.Z() - box.MinZ()), square(point.Z() - box.MaxZ())
+      });
   } // computeMinDistSq()
   
   //----------------------------------------------------------------------------
