@@ -24,10 +24,10 @@ BOOST_AUTO_TEST_CASE(test_RealComparisons) {
 
   constexpr lar::util::RealComparisons check(1e-5f);
 
-  constexpr double const sqrt2 = std::sqrt(2);
+  double const sqrt2 = std::sqrt(2);
 
   // check zero()
-  constexpr double const epsilon = 2.0 - (sqrt2 * sqrt2);
+  double const epsilon = 2.0 - (sqrt2 * sqrt2);
   BOOST_TEST( check.zero(epsilon));
   BOOST_TEST( check.zero(0.0));
   BOOST_TEST( check.zero(1e-5));
