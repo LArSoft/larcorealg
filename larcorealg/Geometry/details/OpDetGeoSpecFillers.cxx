@@ -67,7 +67,7 @@ void geo::details::OpDetGeoSpecFillerFromTube::checkAlignment
   geo::Vector_t const& normalDir { dirs.NormalDir() };
   geo::Vector_t const shapeZdir
     = trans.toWorldCoords(geo::Zaxis<LocalVector_t>());
-  if (cmp.nonParallel(shapeZdir, normalDir)) {
+  if (!cmp.parallel(shapeZdir, normalDir)) {
     throw cet::exception{ "Geometry" }
       << "geo::details (disc) at " << extractCenter(disc)
       << " has axis " << shapeZdir
@@ -298,7 +298,7 @@ auto geo::details::OpDetGeoSpecFillerFromBox::matchDir
   SideInfo_t const* matched = nullptr;
   for (SideInfo_t const*& side: sides) {
     if (!side) continue;
-    if (cmp.nonParallel(side->dir, dir)) continue;
+    if (!cmp.parallel(side->dir, dir)) continue;
     std::swap(matched, side);
     break;
   }

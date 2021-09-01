@@ -238,40 +238,6 @@ BOOST_AUTO_TEST_CASE(Vector2DComparisons_testcase) {
   BOOST_TEST(!check.parallel(Ypos ,  1.0, XYpos,  1.0));
   BOOST_TEST(!check.parallel(Yneg ,  1.0, XYpos,  1.0));
   
-  // nonParallel()
-  BOOST_TEST( check.nonParallel(Orig , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , Xpos ));
-  BOOST_TEST( check.nonParallel(Xpos , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , Xneg ));
-  BOOST_TEST( check.nonParallel(Xneg , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , XYpos));
-  BOOST_TEST(!check.nonParallel(Xpos , Xpos ));
-  BOOST_TEST(!check.nonParallel(Xpos , Xneg ));
-  BOOST_TEST( check.nonParallel(Xpos , Ypos ));
-  BOOST_TEST( check.nonParallel(Xpos , Ypos2));
-  BOOST_TEST(!check.nonParallel(Ypos , Ypos ));
-  BOOST_TEST(!check.nonParallel(Ypos , Ypos2));
-  BOOST_TEST(!check.nonParallel(Yneg , Ypos2));
-  BOOST_TEST( check.nonParallel(Ypos , XYpos));
-  BOOST_TEST( check.nonParallel(Yneg , XYpos));
-  
-  // nonParallel()
-  BOOST_TEST( check.nonParallel(Orig ,  0.0, Orig ,  0.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, Xpos ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Orig ,  1.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, Xneg ,  1.0));
-  BOOST_TEST( check.nonParallel(Xneg ,  1.0, Orig ,  1.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, XYpos,  1.0));
-  BOOST_TEST(!check.nonParallel(Xpos ,  1.0, Xpos ,  1.0));
-  BOOST_TEST(!check.nonParallel(Xpos ,  1.0, Xneg ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Ypos ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Ypos2,  4.0));
-  BOOST_TEST(!check.nonParallel(Ypos ,  1.0, Ypos ,  1.0));
-  BOOST_TEST(!check.nonParallel(Ypos ,  1.0, Ypos2,  4.0));
-  BOOST_TEST(!check.nonParallel(Yneg ,  1.0, Ypos2,  4.0));
-  BOOST_TEST( check.nonParallel(Ypos ,  1.0, XYpos,  1.0));
-  BOOST_TEST( check.nonParallel(Yneg ,  1.0, XYpos,  1.0));
-  
   // orthogonal()
   BOOST_TEST(!check.orthogonal(Xpos , Xpos ));
   BOOST_TEST( check.orthogonal(Xpos , Ypos ));
@@ -289,24 +255,6 @@ BOOST_AUTO_TEST_CASE(Vector2DComparisons_testcase) {
   BOOST_TEST(!check.orthogonal(XYpos, Xpos ));
   BOOST_TEST(!check.orthogonal(XYpos, Ypos ));
   BOOST_TEST(!check.orthogonal(XYpos, Ypos2));
-  
-  // nonOrthogonal()
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xpos ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Ypos ));
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xneg ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Yneg ));
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xpos2));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Ypos2));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xpos ));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Ypos ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xneg ));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Yneg ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xpos2));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Ypos2));
-  BOOST_TEST( check.nonOrthogonal(XYpos, XYpos));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Xpos ));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Ypos ));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Ypos2));
   
 } // BOOST_AUTO_TEST_CASE(Vector2DComparisons_testcase)
 
@@ -452,48 +400,6 @@ BOOST_AUTO_TEST_CASE(Vector3DComparisons_testcase) {
   BOOST_TEST(!check.parallel(Zneg ,  1.0, Ypos2,  4.0));
   BOOST_TEST(!check.parallel(Zpos ,  1.0, XYpos, 25.0));
   
-  // nonParallel()
-  BOOST_TEST( check.nonParallel(Orig , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , Xpos ));
-  BOOST_TEST( check.nonParallel(Xpos , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , Xneg ));
-  BOOST_TEST( check.nonParallel(Xneg , Orig ));
-  BOOST_TEST( check.nonParallel(Orig , XYpos));
-  BOOST_TEST(!check.nonParallel(Xpos , Xpos ));
-  BOOST_TEST(!check.nonParallel(Xpos , Xneg ));
-  BOOST_TEST( check.nonParallel(Xpos , Ypos ));
-  BOOST_TEST( check.nonParallel(Xpos , Ypos2));
-  BOOST_TEST(!check.nonParallel(Ypos , Ypos ));
-  BOOST_TEST(!check.nonParallel(Ypos , Ypos2));
-  BOOST_TEST(!check.nonParallel(Yneg , Ypos2));
-  BOOST_TEST( check.nonParallel(Ypos , XYpos));
-  BOOST_TEST( check.nonParallel(Yneg , XYpos));
-  BOOST_TEST(!check.nonParallel(Zpos , Zpos ));
-  BOOST_TEST(!check.nonParallel(Zpos , Zpos2));
-  BOOST_TEST( check.nonParallel(Zneg , Ypos2));
-  BOOST_TEST( check.nonParallel(Zpos , XYpos));
-  
-  // nonParallel()
-  BOOST_TEST( check.nonParallel(Orig ,  0.0, Orig ,  0.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, Xpos ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Orig ,  1.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, Xneg ,  1.0));
-  BOOST_TEST( check.nonParallel(Xneg ,  1.0, Orig ,  1.0));
-  BOOST_TEST( check.nonParallel(Orig ,  1.0, XYpos,  1.0));
-  BOOST_TEST(!check.nonParallel(Xpos ,  1.0, Xpos ,  1.0));
-  BOOST_TEST(!check.nonParallel(Xpos ,  1.0, Xneg ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Ypos ,  1.0));
-  BOOST_TEST( check.nonParallel(Xpos ,  1.0, Ypos2,  4.0));
-  BOOST_TEST(!check.nonParallel(Ypos ,  1.0, Ypos ,  1.0));
-  BOOST_TEST(!check.nonParallel(Ypos ,  1.0, Ypos2,  4.0));
-  BOOST_TEST(!check.nonParallel(Yneg ,  1.0, Ypos2,  4.0));
-  BOOST_TEST( check.nonParallel(Ypos ,  1.0, XYpos,  1.0));
-  BOOST_TEST( check.nonParallel(Yneg ,  1.0, XYpos,  1.0));
-  BOOST_TEST(!check.nonParallel(Zpos ,  1.0, Zpos ,  1.0));
-  BOOST_TEST(!check.nonParallel(Zpos ,  1.0, Zpos2,  4.0));
-  BOOST_TEST( check.nonParallel(Zneg ,  1.0, Ypos2,  4.0));
-  BOOST_TEST( check.nonParallel(Zpos ,  1.0, XYpos, 25.0));
-  
   // orthogonal()
   BOOST_TEST(!check.orthogonal(Xpos , Xpos ));
   BOOST_TEST( check.orthogonal(Xpos , Ypos ));
@@ -527,40 +433,6 @@ BOOST_AUTO_TEST_CASE(Vector3DComparisons_testcase) {
   BOOST_TEST(!check.orthogonal(XYpos, Ypos ));
   BOOST_TEST(!check.orthogonal(XYpos, Ypos2));
   BOOST_TEST( check.orthogonal(XYpos, Zpos2));
-  
-  // nonOrthogonal()
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xpos ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Ypos ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Zpos ));
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xneg ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Yneg ));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Zneg ));
-  BOOST_TEST( check.nonOrthogonal(Xpos , Xpos2));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Ypos2));
-  BOOST_TEST(!check.nonOrthogonal(Xpos , Zpos2));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xpos ));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Ypos ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Zpos ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xneg ));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Yneg ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Zneg ));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Xpos2));
-  BOOST_TEST( check.nonOrthogonal(Ypos , Ypos2));
-  BOOST_TEST(!check.nonOrthogonal(Ypos , Zpos2));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Xpos ));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Ypos ));
-  BOOST_TEST( check.nonOrthogonal(Zpos , Zpos ));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Xpos2));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Ypos2));
-  BOOST_TEST( check.nonOrthogonal(Zpos , Zpos2));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Xneg2));
-  BOOST_TEST(!check.nonOrthogonal(Zpos , Yneg2));
-  BOOST_TEST( check.nonOrthogonal(Zpos , Zneg2));
-  BOOST_TEST( check.nonOrthogonal(XYpos, XYpos));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Xpos ));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Ypos ));
-  BOOST_TEST( check.nonOrthogonal(XYpos, Ypos2));
-  BOOST_TEST(!check.nonOrthogonal(XYpos, Zpos2));
   
 } // BOOST_AUTO_TEST_CASE(Vector3DComparisons_testcase)
 

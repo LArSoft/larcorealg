@@ -198,27 +198,10 @@ namespace lar {
             && comp().equal(sqr(dot(a, b)), normSqProd); 
         }
 
-      /// Returns whether the specified vectors are not parallel.
-      template <typename VectA, typename VectB>
-      constexpr bool nonParallel(VectA const& a, VectB const& b) const
-        { return !parallel(a, b); }
-
-      /// Returns whether the specified vectors are not parallel.
-      /// The square of the norm of the two vectors is explicitly provided.
-      template <typename VectA, typename VectB>
-      constexpr bool nonParallel(
-        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
-        { return !parallel(a, normSqA, b, normSqB); }
-
       /// Returns whether the specified vectors are orthogonal.
       template <typename VectA, typename VectB>
       constexpr bool orthogonal(VectA const& a, VectB const& b) const
         { return comp().zero(dot(a, b)); }
-
-      /// Returns whether the specified vectors are not orthogonal.
-      template <typename VectA, typename VectB>
-      constexpr bool nonOrthogonal(VectA const& a, VectB const& b) const
-        { return !orthogonal(a, b); }
 
         private:
       Comp_t const comparer; ///< Comparison object.
@@ -315,27 +298,11 @@ namespace lar {
             && comp().equal(sqr(dot(a, b)), normSqProd); 
         }
 
-      /// Returns whether the specified vectors are not parallel.
-      template <typename VectA, typename VectB>
-      constexpr bool nonParallel(VectA const& a, VectB const& b) const
-        { return !parallel(a, b); }
-
-      /// Returns whether the specified vectors are not parallel.
-      /// The square of the norm of the two vectors is explicitly provided.
-      template <typename VectA, typename VectB>
-      constexpr bool nonParallel(
-        VectA const& a, Value_t normSqA, VectB const& b, Value_t normSqB) const
-        { return !parallel(a, normSqA, b, normSqB); }
 
       /// Returns whether the specified vectors are orthogonal.
       template <typename VectA, typename VectB>
       constexpr bool orthogonal(VectA const& a, VectB const& b) const
         { return comp().zero(dot(a, b)); }
-
-      /// Returns whether the specified vectors are not orthogonal.
-      template <typename VectA, typename VectB>
-      constexpr bool nonOrthogonal(VectA const& a, VectB const& b) const
-        { return !orthogonal(a, b); }
 
         private:
       Comp2D_t comparer;
