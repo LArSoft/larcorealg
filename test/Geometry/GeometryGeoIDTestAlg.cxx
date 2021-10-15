@@ -13,7 +13,7 @@
 #include "larcorealg/Geometry/GeometryCore.h"
 
 // Boost libraries
-#include <cetlib/quiet_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 // C/C++ standard libraries
 #include <type_traits>

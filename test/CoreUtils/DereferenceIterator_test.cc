@@ -8,8 +8,7 @@
 
 // Boost libraries
 #define BOOST_TEST_MODULE ( DereferenceIterator_test )
-#include <cetlib/quiet_unit_test.hpp> // BOOST_AUTO_TEST_CASE()
-#include <boost/test/test_tools.hpp> // BOOST_CHECK(), BOOST_CHECK_EQUAL()
+#include <boost/test/unit_test.hpp>
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/DereferenceIterator.h"
@@ -20,8 +19,6 @@
 #include <utility> // std::move()
 #include <vector>
 #include <list>
-
-
 
 template <template <typename T, typename...> class SeqCont>
 void test_DereferenceIterator() {
@@ -35,7 +32,7 @@ void test_DereferenceIterator() {
 
   auto inserter = std::back_inserter(v);
   for (size_t i = 0; i < 10; ++i)
-    *(inserter++) = std::move(std::make_unique<size_t>(i));
+    *(inserter++) = std::make_unique<size_t>(i);
 
   //
   // test that we can loop and find the correct value in a forward loop
@@ -43,13 +40,13 @@ void test_DereferenceIterator() {
   auto begin = lar::util::beginDereferenceIterator(v);
   auto end = lar::util::endDereferenceIterator(v);
   auto it = begin;
-  BOOST_CHECK(it == begin);
+  BOOST_TEST((it == begin));
   for (size_t i = 0; i < 10; ++i, ++it) {
 
-    BOOST_CHECK_EQUAL(*it, i);
+    BOOST_TEST(*it == i);
 
   } // for i
-  BOOST_CHECK(it == end);
+  BOOST_TEST((it == end));
 
   //
   // test that we can loop and find the correct value in a reversed loop
@@ -57,13 +54,13 @@ void test_DereferenceIterator() {
   auto rbegin = lar::util::rbeginDereferenceIterator(v);
   auto rend = lar::util::rendDereferenceIterator(v);
   auto rit = rbegin;
-  BOOST_CHECK(rit == rbegin);
+  BOOST_TEST((rit == rbegin));
   for (size_t i = 0; i < 10; ++i, ++rit) {
 
-    BOOST_CHECK_EQUAL(*rit, v.size() - i - 1);
+    BOOST_TEST(*rit == v.size() - i - 1);
 
   } // for i
-  BOOST_CHECK(rit == rend);
+  BOOST_TEST((rit == rend));
 
   //
   // test that we can do a ranged-for loop
@@ -71,7 +68,7 @@ void test_DereferenceIterator() {
   size_t index = 0;
   for (size_t& i: lar::util::dereferenceIteratorLoop(v)) {
 
-    BOOST_CHECK_EQUAL(i, index);
+    BOOST_TEST(i == index);
 
     ++index;
   } // for i

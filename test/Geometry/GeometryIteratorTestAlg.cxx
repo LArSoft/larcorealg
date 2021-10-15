@@ -13,7 +13,7 @@
 #include "larcorealg/Geometry/GeometryCore.h"
 
 // Boost libraries
-#include <cetlib/quiet_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 // C/C++ standard libraries
 #include <string>
@@ -1487,7 +1487,7 @@ void geo::GeometryIteratorTestAlg::WireIDIteratorsTest() const {
       BOOST_CHECK_EQUAL(iWire->TPC,                geo::TPCID::TPCID_t(0));
       BOOST_CHECK_EQUAL(iWire->Plane,          geo::PlaneID::PlaneID_t(0));
       BOOST_CHECK_EQUAL(iWire->Wire,             geo::WireID::WireID_t(0));
-	 }
+         }
 
     // test iterator to last wire
     geo::WireID LastID(geom->Ncryostats() - 1, 0, 0, 0);
@@ -2186,5 +2186,3 @@ void geo::GeometryIteratorTestAlg::ROPIDIteratorsTest() const {
 
   }
 } // GeometryIteratorTestAlg::ROPIDIteratorsTest()
-
-

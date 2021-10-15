@@ -3,10 +3,10 @@ cet_make(
     "details"
   LIBRARIES
           larcoreobj_SimpleTypesAndConstants
-          ${MF_MESSAGELOGGER}
-          ${FHICLCPP}
-          cetlib
-          cetlib_except
+          messagefacility::MF_MessageLogger
+          fhiclcpp::fhiclcpp
+          cetlib::cetlib
+          cetlib_except::cetlib_except
           ROOT::Core
           ROOT::Physics
           ROOT::Geom

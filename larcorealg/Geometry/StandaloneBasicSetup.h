@@ -33,7 +33,6 @@
 // utility libraries
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "cetlib/filepath_maker.h" // cet::filepath_lookup_after1
 
 // C/C++ standard libraries
@@ -107,7 +106,7 @@ inline fhicl::ParameterSet lar::standalone::ParseConfiguration
   (std::string configPath, cet::filepath_maker& lookupPolicy)
 {
   fhicl::ParameterSet pset;
-  fhicl::make_ParameterSet(configPath, lookupPolicy, pset);
+  pset = fhicl::ParameterSet::make(configPath, lookupPolicy);
   return pset;
 } // ParseConfiguration(string, filepath_maker)
 

@@ -8,8 +8,7 @@
 
 // Boost libraries
 #define BOOST_TEST_MODULE ( geo_vectors_test )
-#include <cetlib/quiet_unit_test.hpp> // BOOST_AUTO_TEST_CASE()
-#include <boost/test/test_tools.hpp> // BOOST_CHECK(), BOOST_CHECK_CLOSE()
+#include <boost/test/unit_test.hpp>
 
 // LArSoft libraries
 #include "larcorealg/Geometry/geo_vectors_utils_TVector.h"
@@ -1088,6 +1087,8 @@ void test_fillCoords() {
 } // test_fillCoords()
 
 
+BOOST_AUTO_TEST_SUITE(geo_vectors_utils_test)
+
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(MiddlePointAccumulator_test) {
   test_MiddlePointAccumulator_defaultConstructor();
@@ -1203,3 +1204,5 @@ BOOST_AUTO_TEST_CASE(vectorCoordinateIteration_test) {
 } // BOOST_AUTO_TEST_CASE(vectorCoordinateIteration_test)
 
 //------------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_SUITE_END()

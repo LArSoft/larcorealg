@@ -110,7 +110,7 @@ namespace lar::standalone {
      * // read FHiCL configuration from a configuration file:
      * fhicl::ParameterSet pset;
      * cet::filepath_lookup_after1 policy("FHICL_FILE_PATH");
-     * fhicl::make_ParameterSet(configPath, policy, pset);
+     * pset = fhicl::_ParameterSet::make(configPath, policy);
      *
      * // set up message facility
      * mf::StartMessageFacility

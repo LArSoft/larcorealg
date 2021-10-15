@@ -10,8 +10,7 @@
 
 // Boost libraries
 #define BOOST_TEST_MODULE ( DebugUtils_test )
-#include <cetlib/quiet_unit_test.hpp> // BOOST_AUTO_TEST_CASE()
-#include <boost/test/test_tools.hpp> // BOOST_CHECK(), BOOST_CHECK_EQUAL()
+#include <boost/test/unit_test.hpp>
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/DebugUtils.h"

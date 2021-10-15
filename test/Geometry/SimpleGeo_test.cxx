@@ -15,8 +15,7 @@
 #include "larcorealg/Geometry/SimpleGeo.h"
 
 // Boost libraries
-#include <cetlib/quiet_unit_test.hpp> // BOOST_AUTO_TEST_CASE()
-#include "boost/test/test_tools.hpp" // BOOST_CHECK_XXX()
+#include <boost/test/unit_test.hpp>
 
 // C/C++ standard libraries
 #include <array>
@@ -186,7 +185,7 @@ void AreaTest() {
   BOOST_CHECK_EQUAL(A2.thinnestSize(), 3.0);
   BOOST_CHECK_EQUAL(A3.thinnestSize(), 0.0);
 
-  BOOST_CHECK((A1.thinnestSide() == 0) || (A1.thinnestSide() == 1));
+  BOOST_CHECK(((A1.thinnestSide() == 0) || (A1.thinnestSide() == 1)));
   BOOST_CHECK_EQUAL(A2.thinnestSide(), 0U);
   BOOST_CHECK_EQUAL(A3.thinnestSide(), 1U);
 
@@ -311,14 +310,14 @@ void VolumeTest() {
   BOOST_CHECK_EQUAL(A3.thinnestSize(), 0.0);
   BOOST_CHECK_EQUAL(A4.thinnestSize(), 0.0);
 
-  BOOST_CHECK(
+  BOOST_CHECK((
        (A1.thinnestSide() == 0)
     || (A1.thinnestSide() == 1)
     || (A1.thinnestSide() == 2)
-    );
+    ));
   BOOST_CHECK_EQUAL(A2.thinnestSide(), 0U);
   BOOST_CHECK_EQUAL(A3.thinnestSide(), 1U);
-  BOOST_CHECK((A4.thinnestSide() == 0) || (A4.thinnestSide() == 2));
+  BOOST_CHECK(((A4.thinnestSide() == 0) || (A4.thinnestSide() == 2)));
 
   BOOST_CHECK_EQUAL(A1.DeltaY(), 0.0);
   BOOST_CHECK_EQUAL(A2.DeltaY(), 4.0);

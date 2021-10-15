@@ -34,7 +34,6 @@
 // utility libraries
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include "fhiclcpp/types/Comment.h"
 #include "fhiclcpp/types/Name.h"
@@ -1086,7 +1085,7 @@ namespace testing {
     (std::string cfg)
   {
     fhicl::ParameterSet global_pset;
-    fhicl::make_ParameterSet(cfg, global_pset);
+    global_pset = fhicl::ParameterSet::make(cfg);
     return global_pset;
   } // BasicTesterEnvironment<>::CompileParameterSet()
 
@@ -1108,11 +1107,11 @@ namespace testing {
 
     // parse a configuration file; obtain intermediate form
     fhicl::intermediate_table table;
-    fhicl::parse_document(config_path, policy, table);
+    table = fhicl::parse_document(config_path, policy);
 
     // translate into a parameter set
     fhicl::ParameterSet global_pset;
-    fhicl::make_ParameterSet(table, global_pset);
+    global_pset = fhicl::ParameterSet::make(table);
 
     return global_pset;
   } // BasicTesterEnvironment<>::ParseParameters()

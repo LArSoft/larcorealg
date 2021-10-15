@@ -26,7 +26,7 @@
 #include "larcorealg/TestUtils/unit_test_base.h"
 
 // Boost libraries
-#include <cetlib/quiet_unit_test.hpp> // framework::master_test_suite()
+#include <boost/test/unit_test.hpp>
 
 // C/C++ standard libraries
 #include <string>

@@ -6,9 +6,9 @@
 #  buildtool [-I /install/path] -bt[i] -jN
 # ======================================================================
 
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-project(larcorealg LANGUAGES CXX)
+project(larcorealg VERSION 09.03.00 LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
@@ -27,9 +27,15 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( canvas )
-find_ups_product( larcoreobj )
+find_ups_boost()
 find_ups_root()
+
+find_ups_product( canvas )
+find_ups_product( cetlib )
+find_ups_product( cetlib_except )
+find_ups_product(messagefacility)
+find_ups_product( larcoreobj )
+find_ups_product(clhep)
 
 # macros for artdaq_dictionary and simple_plugin
 include(ArtDictionary)

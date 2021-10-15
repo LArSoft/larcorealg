@@ -8,8 +8,7 @@
 
 // Boost libraries
 #define BOOST_TEST_MODULE ( MetaUtils_test )
-#include <cetlib/quiet_unit_test.hpp> // BOOST_AUTO_TEST_CASE()
-#include <boost/test/test_tools.hpp> // BOOST_CHECK(), BOOST_CHECK_EQUAL()
+#include <boost/test/unit_test.hpp>
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/zip.h"
@@ -295,7 +294,7 @@ void referenced_address_test() {
 
 //------------------------------------------------------------------------------
 void referenced_addresser_documentation_test() {
-  
+
   /*
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * std::vector<int> data(4U, 0);
@@ -304,17 +303,17 @@ void referenced_addresser_documentation_test() {
    *   util::reference_addresser());
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
-  
+
   std::vector<int> data(4U, 0);
   std::vector<int const*> dataPtr;
   std::transform(data.cbegin(), data.cend(), std::back_inserter(dataPtr),
     util::reference_addresser());
-  
+
   // test
   for (auto&& [ data, dataPtr ]: util::zip(data, dataPtr)) {
     BOOST_CHECK_EQUAL(dataPtr, &data);
   } // for
-  
+
 } // referenced_addresser_documentation_testreferenced_addresser_documentation_test()
 
 

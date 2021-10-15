@@ -13,6 +13,7 @@
 
 // LArSoft includes
 #include "larcorealg/TestUtils/NameSelector.h"
+#include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
 // ROOT
 #include "TVector3.h"
@@ -33,6 +34,7 @@ namespace geo {
 
   // forward declarations
   class GeometryCore;
+  class CryostatGeo;
   class TPCGeo;
   class PlaneGeo;
   class AuxDetGeo;
@@ -220,6 +222,10 @@ namespace geo {
     bool CheckAuxDetSensitiveAtPosition
       (double const pos[3], unsigned int expectedDet, unsigned int expectedSens)
       const;
+
+    /// Helper function for `testWireIntersection()`.
+    bool isWireAlignedToPlaneDirections
+      (geo::PlaneGeo const& plane, geo::Vector_t const& wireDir) const;
 
     /// Performs the wire intersection test at a single point
     unsigned int testWireIntersectionAt

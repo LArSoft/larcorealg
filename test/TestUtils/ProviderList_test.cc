@@ -13,9 +13,9 @@
 // LArSoft libraries
 #include "larcorealg/TestUtils/ProviderList.h"
 
-// Boots libraries
+// Boost libraries
 #define BOOST_TEST_MODULE ProviderList_test
-#include <cetlib/quiet_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 // C/C++ standard library
 #include <set>
