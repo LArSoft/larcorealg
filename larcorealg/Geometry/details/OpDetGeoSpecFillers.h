@@ -42,7 +42,7 @@ struct geo::details::OpDetGeoSpecFillerBase {
   // no serviceable parts here
   
     protected:
-  friend class OpDetGeoSpecFiller;
+  friend struct OpDetGeoSpecFiller;
   
   /// Type for local transformation. 
   using LocalTransformation_t = OpDetGeoLocalTransformation;
