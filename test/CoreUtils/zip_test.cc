@@ -46,15 +46,15 @@ void test_zip() {
   unsigned int iLoop = 0;
   for (auto&& [ a, b ]: util::zip(twice, thrice)) {
 
-    BOOST_CHECK_EQUAL(a, twice[iLoop]);
-    BOOST_CHECK_EQUAL(&a, &(twice[iLoop]));
+    BOOST_TEST(a == twice[iLoop]);
+    BOOST_TEST(&a == &(twice[iLoop]));
 
-    BOOST_CHECK_EQUAL(b, thrice[iLoop]);
-    BOOST_CHECK_EQUAL(&b, &thrice[iLoop]);
+    BOOST_TEST(b == thrice[iLoop]);
+    BOOST_TEST(&b == &thrice[iLoop]);
 
     ++iLoop;
   } // for
-  BOOST_CHECK_EQUAL(iLoop, twice.size());
+  BOOST_TEST(iLoop == twice.size());
 
   //
   // iteration using the second element as lead
@@ -68,15 +68,15 @@ void test_zip() {
   iLoop = 0;
   for (auto&& [ a, b ]: util::zip<1>(twice, thrice)) {
 
-    BOOST_CHECK_EQUAL(a, twice[iLoop]);
-    BOOST_CHECK_EQUAL(&a, &(twice[iLoop]));
+    BOOST_TEST(a == twice[iLoop]);
+    BOOST_TEST(&a == &(twice[iLoop]));
 
-    BOOST_CHECK_EQUAL(b, thrice[iLoop]);
-    BOOST_CHECK_EQUAL(&b, &thrice[iLoop]);
+    BOOST_TEST(b == thrice[iLoop]);
+    BOOST_TEST(&b == &thrice[iLoop]);
 
     ++iLoop;
   } // for
-  BOOST_CHECK_EQUAL(iLoop, thrice.size());
+  BOOST_TEST(iLoop == thrice.size());
 
 
 } // test_zip()
@@ -88,7 +88,7 @@ void test_no_zip() {
   unsigned int iLoop = 0U;
   for (auto&& i [[gnu::unused]]: util::zip()) {}
 
-  BOOST_CHECK_EQUAL(iLoop, 0);
+  BOOST_TEST(iLoop == 0);
 
 } // test_no_zip()
 

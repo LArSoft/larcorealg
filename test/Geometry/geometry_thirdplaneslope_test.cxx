@@ -22,6 +22,8 @@
 
 // C/C++ standard libraries
 
+using boost::test_tools::tolerance;
+
 //------------------------------------------------------------------------------
 //---  The test environment
 //---
@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE( AllTests )
     "Slopes: s(u)=" << slope_u << " s(v)=" << slope_v << " => s(w)=" << slope_w
     );
 
-  BOOST_CHECK_CLOSE(slope_w, expected_slope_w, 0.01); // tolerance: 0.01%
+  BOOST_TEST(slope_w == expected_slope_w, 0.01% tolerance());
 
 } // BOOST_AUTO_TEST_CASE( AllTests )
 

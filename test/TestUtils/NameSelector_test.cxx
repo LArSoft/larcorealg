@@ -55,24 +55,24 @@ void CheckNames
   for (std::string const& name: names) {
     BOOST_TEST_MESSAGE("Testing '" << name << "'");
     if (name.find("throw") == 0U) {
-      BOOST_CHECK_EQUAL(selector.Query(name), testing::NameSelector::rsThrow);
+      BOOST_TEST(selector.Query(name) == testing::NameSelector::rsThrow);
       BOOST_CHECK_THROW(selector(name), art::Exception);
       BOOST_CHECK_THROW(selector.Accepted(name), art::Exception);
       BOOST_CHECK_THROW(selector.Rejected(name), art::Exception);
     }
     else if (name.find("reject") == 0U) {
-      BOOST_CHECK_EQUAL
-        (selector.Query(name), testing::NameSelector::rsRejected);
-      BOOST_CHECK(!selector(name));
-      BOOST_CHECK(!selector.Accepted(name));
-      BOOST_CHECK(selector.Rejected(name));
+      BOOST_TEST
+        (selector.Query(name) == testing::NameSelector::rsRejected);
+      BOOST_TEST(!selector(name));
+      BOOST_TEST(!selector.Accepted(name));
+      BOOST_TEST(selector.Rejected(name));
     }
     else { // accept
-      BOOST_CHECK_EQUAL
-        (selector.Query(name), testing::NameSelector::rsAccepted);
-      BOOST_CHECK(selector(name));
-      BOOST_CHECK(selector.Accepted(name));
-      BOOST_CHECK(!selector.Rejected(name));
+      BOOST_TEST
+        (selector.Query(name) == testing::NameSelector::rsAccepted);
+      BOOST_TEST(selector(name));
+      BOOST_TEST(selector.Accepted(name));
+      BOOST_TEST(!selector.Rejected(name));
     }
   } // for
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(SimpleTest) {
   //
   // verify that we did not miss anything
   //
-  BOOST_CHECK(selector.CheckQueryRegistry(std::cout));
+  BOOST_TEST(selector.CheckQueryRegistry(std::cout));
 
 } // BOOST_AUTO_TEST_CASE(SimpleTest)
 
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(MissingQuery) {
   //
   // verify that we did miss something
   //
-  BOOST_CHECK(!selector.CheckQueryRegistry(std::cout));
+  BOOST_TEST(!selector.CheckQueryRegistry(std::cout));
 
 } // BOOST_AUTO_TEST_CASE(MissingQuery)
 
@@ -369,5 +369,3 @@ BOOST_AUTO_TEST_CASE(ClearAllTest) {
     });
 
 } // BOOST_AUTO_TEST_CASE(ClearAllTest)
-
-

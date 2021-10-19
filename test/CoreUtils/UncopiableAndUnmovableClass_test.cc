@@ -55,23 +55,23 @@ static_assert(!std::is_move_assignable_v   <lar::PolymorphicUncopiableAndUnmovab
 BOOST_AUTO_TEST_CASE(UncopiableAndUnmovableClassTest) {
 
    // check lar::UncopiableAndUnmovableClass class itself
-   BOOST_CHECK
+   BOOST_TEST
      (!std::is_copy_constructible<lar::UncopiableAndUnmovableClass>::value);
-   BOOST_CHECK
+   BOOST_TEST
      (!std::is_copy_assignable<lar::UncopiableAndUnmovableClass>::value);
-   BOOST_CHECK
+   BOOST_TEST
      (!std::is_move_constructible<lar::UncopiableAndUnmovableClass>::value);
-   BOOST_CHECK
+   BOOST_TEST
      (!std::is_move_assignable<lar::UncopiableAndUnmovableClass>::value);
 
 
    // check a class derived from lar::UncopiableAndUnmovableClass class
    struct Derived: protected lar::UncopiableAndUnmovableClass {};
 
-   BOOST_CHECK(!std::is_copy_constructible<Derived>::value);
-   BOOST_CHECK(!std::is_copy_assignable   <Derived>::value);
-   BOOST_CHECK(!std::is_move_constructible<Derived>::value);
-   BOOST_CHECK(!std::is_move_assignable   <Derived>::value);
+   BOOST_TEST(!std::is_copy_constructible<Derived>::value);
+   BOOST_TEST(!std::is_copy_assignable   <Derived>::value);
+   BOOST_TEST(!std::is_move_constructible<Derived>::value);
+   BOOST_TEST(!std::is_move_assignable   <Derived>::value);
 
 
    // check a class derived from lar::UncopiableAndUnmovableClass class
@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE(UncopiableAndUnmovableClassTest) {
         lar::UncopiableAndUnmovableClass() {}
    };
 
-   BOOST_CHECK(!std::is_copy_constructible<MovableDerived>::value);
-   BOOST_CHECK(!std::is_copy_assignable   <MovableDerived>::value);
-   BOOST_CHECK( std::is_move_constructible<MovableDerived>::value);
-   BOOST_CHECK(!std::is_move_assignable   <MovableDerived>::value);
+   BOOST_TEST(!std::is_copy_constructible<MovableDerived>::value);
+   BOOST_TEST(!std::is_copy_assignable   <MovableDerived>::value);
+   BOOST_TEST( std::is_move_constructible<MovableDerived>::value);
+   BOOST_TEST(!std::is_move_assignable   <MovableDerived>::value);
 
 
    // check a class derived from lar::UncopiableAndUnmovableClass class
@@ -94,10 +94,10 @@ BOOST_AUTO_TEST_CASE(UncopiableAndUnmovableClassTest) {
       AssignableDerived& operator=(AssignableDerived&&) { return *this; }
    };
 
-   BOOST_CHECK(!std::is_copy_constructible<AssignableDerived>::value);
-   BOOST_CHECK( std::is_copy_assignable   <AssignableDerived>::value);
-   BOOST_CHECK(!std::is_move_constructible<AssignableDerived>::value);
-   BOOST_CHECK( std::is_move_assignable   <AssignableDerived>::value);
+   BOOST_TEST(!std::is_copy_constructible<AssignableDerived>::value);
+   BOOST_TEST( std::is_copy_assignable   <AssignableDerived>::value);
+   BOOST_TEST(!std::is_move_constructible<AssignableDerived>::value);
+   BOOST_TEST( std::is_move_assignable   <AssignableDerived>::value);
 
 } // BOOST_AUTO_TEST_CASE(UncopiableAndUnmovableClassTest)
 

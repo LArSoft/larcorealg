@@ -51,11 +51,11 @@ void test_span(Cont& v) {
   auto iV = v.cbegin();
   unsigned int n = 0;
   for (auto i: r) {
-    BOOST_CHECK_EQUAL(i, *iV);
+    BOOST_TEST(i == *iV);
     ++n;
     ++iV;
   } // for
-  BOOST_CHECK_EQUAL(n, v.size());
+  BOOST_TEST(n == v.size());
 
 } // test_span()
 
@@ -116,16 +116,16 @@ void test_adapted_span(Cont& v) {
     std::is_same<typename decltype(r)::value_type, typename Iter::value_type>()
     );
 
-  BOOST_CHECK_EQUAL(r.empty(), v.empty());
-  BOOST_CHECK_EQUAL(r.size(), v.size());
+  BOOST_TEST(r.empty() == v.empty());
+  BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
   for (auto&& [ rangeValue, value ]: util::zip(r, v)) {
-    BOOST_CHECK_EQUAL(&rangeValue, &value);
-    BOOST_CHECK_EQUAL(rangeValue, value);
+    BOOST_TEST(&rangeValue == &value);
+    BOOST_TEST(rangeValue == value);
     ++n;
   } // for
-  BOOST_CHECK_EQUAL(n, v.size());
+  BOOST_TEST(n == v.size());
 
 } // test_adapted_span()
 
@@ -156,16 +156,16 @@ void test_transformed_span(Cont& v) {
     std::is_same<typename decltype(r)::value_type, typename Iter::value_type>()
     );
 
-  BOOST_CHECK_EQUAL(r.empty(), v.empty());
-  BOOST_CHECK_EQUAL(r.size(), v.size());
+  BOOST_TEST(r.empty() == v.empty());
+  BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
   for (auto&& [ rangeValue, value ]: util::zip(r, v)) {
-    BOOST_CHECK_EQUAL(&rangeValue, &value);
-    BOOST_CHECK_EQUAL(rangeValue, value);
+    BOOST_TEST(&rangeValue == &value);
+    BOOST_TEST(rangeValue == value);
     ++n;
   } // for
-  BOOST_CHECK_EQUAL(n, v.size());
+  BOOST_TEST(n == v.size());
 
 } // test_transformed_span()
 
@@ -195,16 +195,16 @@ void test_transformed_span_with_unmoveable_values(Cont& v) {
   // check the type of the object
   static_assert(std::is_same<typename decltype(r)::value_type, value_t>());
 
-  BOOST_CHECK_EQUAL(r.empty(), v.empty());
-  BOOST_CHECK_EQUAL(r.size(), v.size());
+  BOOST_TEST(r.empty() == v.empty());
+  BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
   for (auto&& [ rangeValue, value ]: util::zip(r, v)) {
-    BOOST_CHECK_EQUAL(&rangeValue, &value);
-    BOOST_CHECK_EQUAL(rangeValue, value);
+    BOOST_TEST(&rangeValue == &value);
+    BOOST_TEST(rangeValue == value);
     ++n;
   } // for
-  BOOST_CHECK_EQUAL(n, v.size());
+  BOOST_TEST(n == v.size());
 
 } // test_transformed_span_with_unmoveable_values()
 
@@ -278,7 +278,7 @@ struct makeAdaptedSpanDocumentation1TestClass {
       float sum = accumulate(data);
       float const expectedSum = (N * (N - 1) / 2) * salt;
 
-      BOOST_CHECK_EQUAL(sum, expectedSum);
+      BOOST_TEST(sum == expectedSum);
 
     } // analyse()
 
@@ -339,7 +339,7 @@ struct makeTransformedSpanDocumentation1TestClass {
       float sum = accumulate(data);
       float const expectedSum = (N * (N - 1) / 2) * salt;
 
-      BOOST_CHECK_EQUAL(sum, expectedSum);
+      BOOST_TEST(sum == expectedSum);
 
     } // analyse_accumulate()
 
@@ -355,7 +355,7 @@ struct makeTransformedSpanDocumentation1TestClass {
       scale(data, factor);
 
       for (auto&& [ i, ptr ]: util::enumerate(data))
-        BOOST_CHECK_EQUAL(*ptr, factor * i);
+        BOOST_TEST(*ptr == factor * i);
 
     } // analyse_scale()
 

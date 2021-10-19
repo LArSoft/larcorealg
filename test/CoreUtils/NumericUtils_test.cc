@@ -41,8 +41,8 @@ void test_absDiff() {
   static_assert(std::is_same<decltype(absDeltaAB), D>(),
     "Results of |a-b| has unexpected type!");
 
-  BOOST_CHECK_EQUAL(absDeltaAB, D(1));
-  BOOST_CHECK_EQUAL(absDeltaBA, D(1));
+  BOOST_TEST(absDeltaAB == D(1));
+  BOOST_TEST(absDeltaBA == D(1));
 
   // test that a very large B compares kind-of-correctly with a small A
   // (the difference needs to be large)
@@ -51,8 +51,8 @@ void test_absDiff() {
   auto absDeltaAM = util::absDiff(a, m);
   auto absDeltaMA = util::absDiff(m, a);
 
-  BOOST_CHECK_GT(absDeltaAM, D(2*(a + b)));
-  BOOST_CHECK_GT(absDeltaMA, D(2*(a + b)));
+  BOOST_TEST(absDeltaAM > D(2*(a + b)));
+  BOOST_TEST(absDeltaMA > D(2*(a + b)));
 
 } // test_absDiff()
 
@@ -108,4 +108,3 @@ static_assert(5U < 6,                               "ERROR 4");
 static_assert(std::is_unsigned<decltype(5U - 6)>(), "ERROR 6");
 
 //------------------------------------------------------------------------------
-

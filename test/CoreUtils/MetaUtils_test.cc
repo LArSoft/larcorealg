@@ -284,10 +284,10 @@ void referenced_address_test() {
   auto       refw  = std::ref(v);
   auto       crefw = std::cref(v);
 
-  BOOST_CHECK_EQUAL(util::referenced_address(ref  ), std::addressof(v));
-  BOOST_CHECK_EQUAL(util::referenced_address(cref ), std::addressof(v));
-  BOOST_CHECK_EQUAL(util::referenced_address(refw ), std::addressof(v));
-  BOOST_CHECK_EQUAL(util::referenced_address(crefw), std::addressof(v));
+  BOOST_TEST(util::referenced_address(ref  ) == std::addressof(v));
+  BOOST_TEST(util::referenced_address(cref ) == std::addressof(v));
+  BOOST_TEST(util::referenced_address(refw ) == std::addressof(v));
+  BOOST_TEST(util::referenced_address(crefw) == std::addressof(v));
 
 } // referenced_address_test()
 
@@ -311,7 +311,7 @@ void referenced_addresser_documentation_test() {
 
   // test
   for (auto&& [ data, dataPtr ]: util::zip(data, dataPtr)) {
-    BOOST_CHECK_EQUAL(dataPtr, &data);
+    BOOST_TEST(dataPtr == &data);
   } // for
 
 } // referenced_addresser_documentation_testreferenced_addresser_documentation_test()
@@ -340,11 +340,11 @@ void lvalue_reference_into_wrapper_test() {
   static_assert(std::is_same_v<decltype(ref_refw ), util::lvalue_reference_into_wrapper_t<decltype(refw )>>);
   static_assert(std::is_same_v<decltype(ref_crefw), util::lvalue_reference_into_wrapper_t<decltype(crefw)>>);
 
-  BOOST_CHECK_EQUAL(util::referenced_address(ref_obj  ), util::referenced_address(obj));
-  BOOST_CHECK_EQUAL(util::referenced_address(ref_ref  ), util::referenced_address(obj));
-  BOOST_CHECK_EQUAL(util::referenced_address(ref_cref ), util::referenced_address(obj));
-  BOOST_CHECK_EQUAL(util::referenced_address(ref_refw ), util::referenced_address(obj));
-  BOOST_CHECK_EQUAL(util::referenced_address(ref_crefw), util::referenced_address(obj));
+  BOOST_TEST(util::referenced_address(ref_obj  ) == util::referenced_address(obj));
+  BOOST_TEST(util::referenced_address(ref_ref  ) == util::referenced_address(obj));
+  BOOST_TEST(util::referenced_address(ref_cref ) == util::referenced_address(obj));
+  BOOST_TEST(util::referenced_address(ref_refw ) == util::referenced_address(obj));
+  BOOST_TEST(util::referenced_address(ref_crefw) == util::referenced_address(obj));
 
 } // lvalue_reference_into_wrapper_test()
 

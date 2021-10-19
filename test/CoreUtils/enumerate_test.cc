@@ -46,17 +46,17 @@ void test_enumerate() {
   unsigned int iLoop = 0;
   for (auto&& [i, a, b]: util::enumerate(twice, thrice)) {
 
-    BOOST_CHECK_EQUAL(i, iLoop);
+    BOOST_TEST(i == iLoop);
 
-    BOOST_CHECK_EQUAL(a, twice[iLoop]);
-    BOOST_CHECK_EQUAL(&a, &(twice[iLoop]));
+    BOOST_TEST(a == twice[iLoop]);
+    BOOST_TEST(&a == &(twice[iLoop]));
 
-    BOOST_CHECK_EQUAL(b, thrice[iLoop]);
-    BOOST_CHECK_EQUAL(&b, &thrice[iLoop]);
+    BOOST_TEST(b == thrice[iLoop]);
+    BOOST_TEST(&b == &thrice[iLoop]);
 
     ++iLoop;
   } // for
-  BOOST_CHECK_EQUAL(iLoop, twice.size());
+  BOOST_TEST(iLoop == twice.size());
 
   //
   // iteration using the second element as lead
@@ -70,17 +70,17 @@ void test_enumerate() {
   iLoop = 0;
   for (auto&& [i, a, b]: util::enumerate<1>(twice, thrice)) {
 
-    BOOST_CHECK_EQUAL(i, iLoop);
+    BOOST_TEST(i == iLoop);
 
-    BOOST_CHECK_EQUAL(a, twice[iLoop]);
-    BOOST_CHECK_EQUAL(&a, &(twice[iLoop]));
+    BOOST_TEST(a == twice[iLoop]);
+    BOOST_TEST(&a == &(twice[iLoop]));
 
-    BOOST_CHECK_EQUAL(b, thrice[iLoop]);
-    BOOST_CHECK_EQUAL(&b, &thrice[iLoop]);
+    BOOST_TEST(b == thrice[iLoop]);
+    BOOST_TEST(&b == &thrice[iLoop]);
 
     ++iLoop;
   } // for
-  BOOST_CHECK_EQUAL(iLoop, thrice.size());
+  BOOST_TEST(iLoop == thrice.size());
 
 
 } // test_enumerate()

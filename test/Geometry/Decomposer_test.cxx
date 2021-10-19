@@ -33,6 +33,7 @@
 #include <utility> // std::move()
 #include <ostream>
 
+using boost::test_tools::tolerance;
 
 //------------------------------------------------------------------------------
 template <typename Vector, typename Point, typename Proj>
@@ -77,24 +78,24 @@ void StandardDecomposerTest() {
   //
 
   Decomposer_t defaultBase;
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), Origin);
+  BOOST_TEST(defaultBase.MainDir() ==        Xaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Yaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      Zaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == Origin);
 
   AffinePlaneBase_t rotatedBase(ReferencePoint, Yaxis, Zaxis);
 
   Decomposer_t rotatedBase1_1(rotatedBase);
-  BOOST_CHECK_EQUAL(rotatedBase1_1.MainDir(),        Yaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_1.SecondaryDir(),   Zaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_1.NormalDir(),      Xaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_1.ReferencePoint(), ReferencePoint);
+  BOOST_TEST(rotatedBase1_1.MainDir() ==        Yaxis);
+  BOOST_TEST(rotatedBase1_1.SecondaryDir() ==   Zaxis);
+  BOOST_TEST(rotatedBase1_1.NormalDir() ==      Xaxis);
+  BOOST_TEST(rotatedBase1_1.ReferencePoint() == ReferencePoint);
 
   Decomposer_t rotatedBase1_2(std::move(rotatedBase));
-  BOOST_CHECK_EQUAL(rotatedBase1_2.MainDir(),        Yaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_2.SecondaryDir(),   Zaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_2.NormalDir(),      Xaxis);
-  BOOST_CHECK_EQUAL(rotatedBase1_2.ReferencePoint(), ReferencePoint);
+  BOOST_TEST(rotatedBase1_2.MainDir() ==        Yaxis);
+  BOOST_TEST(rotatedBase1_2.SecondaryDir() ==   Zaxis);
+  BOOST_TEST(rotatedBase1_2.NormalDir() ==      Xaxis);
+  BOOST_TEST(rotatedBase1_2.ReferencePoint() == ReferencePoint);
 
 
   //
@@ -125,34 +126,34 @@ void StandardDecomposerTest() {
   //
   //
   defaultBase.SetBase(negativeBase);
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      -Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), ReferencePoint);
+  BOOST_TEST(defaultBase.MainDir() ==        Yaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Xaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      -Zaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == ReferencePoint);
 
   defaultBase.SetOrigin(Origin);
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      -Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), Origin);
+  BOOST_TEST(defaultBase.MainDir() ==        Yaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Xaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      -Zaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == Origin);
 
   defaultBase.SetMainDir(Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), Origin);
+  BOOST_TEST(defaultBase.MainDir() ==        Zaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Xaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      Yaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == Origin);
 
   defaultBase.SetSecondaryDir(Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      -Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), Origin);
+  BOOST_TEST(defaultBase.MainDir() ==        Zaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Yaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      -Xaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == Origin);
 
   defaultBase.SetMainDir(Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.MainDir(),        Xaxis);
-  BOOST_CHECK_EQUAL(defaultBase.SecondaryDir(),   Yaxis);
-  BOOST_CHECK_EQUAL(defaultBase.NormalDir(),      Zaxis);
-  BOOST_CHECK_EQUAL(defaultBase.ReferencePoint(), Origin);
+  BOOST_TEST(defaultBase.MainDir() ==        Xaxis);
+  BOOST_TEST(defaultBase.SecondaryDir() ==   Yaxis);
+  BOOST_TEST(defaultBase.NormalDir() ==      Zaxis);
+  BOOST_TEST(defaultBase.ReferencePoint() == Origin);
 
 
   //
@@ -183,14 +184,14 @@ void StandardDecomposerTest() {
   //    Vector_t const& NormalDir() const
   //
 
-  BOOST_CHECK_EQUAL(decomp.ReferencePoint(), ReferencePoint);
-  BOOST_CHECK_EQUAL(decomp.MainDir(),        Yaxis);
-  BOOST_CHECK_EQUAL(decomp.SecondaryDir(),   Zaxis);
-  BOOST_CHECK_EQUAL(decomp.NormalDir(),      Xaxis);
-  BOOST_CHECK_EQUAL(decomp.Base().Origin(),       ReferencePoint);
-  BOOST_CHECK_EQUAL(decomp.Base().MainDir(),      Yaxis);
-  BOOST_CHECK_EQUAL(decomp.Base().SecondaryDir(), Zaxis);
-  BOOST_CHECK_EQUAL(decomp.Base().NormalDir(),    Xaxis);
+  BOOST_TEST(decomp.ReferencePoint() == ReferencePoint);
+  BOOST_TEST(decomp.MainDir() ==        Yaxis);
+  BOOST_TEST(decomp.SecondaryDir() ==   Zaxis);
+  BOOST_TEST(decomp.NormalDir() ==      Xaxis);
+  BOOST_TEST(decomp.Base().Origin() ==       ReferencePoint);
+  BOOST_TEST(decomp.Base().MainDir() ==      Yaxis);
+  BOOST_TEST(decomp.Base().SecondaryDir() == Zaxis);
+  BOOST_TEST(decomp.Base().NormalDir() ==    Xaxis);
 
 
   //
@@ -222,21 +223,22 @@ void StandardDecomposerTest() {
   //    DecomposedVector_t DecomposePoint(Point_t const& point) const
   //
 
-  BOOST_CHECK_CLOSE(decomp.PointMainComponent     (point), 4.0, 1e-2);
-  BOOST_CHECK_CLOSE(decomp.PointSecondaryComponent(point), 5.0, 1e-2);
-  BOOST_CHECK_CLOSE(decomp.PointNormalComponent   (point), 3.0, 1e-2);
+  auto const tol = 0.01% tolerance();
+  BOOST_TEST(decomp.PointMainComponent     (point) == 4.0, tol);
+  BOOST_TEST(decomp.PointSecondaryComponent(point) == 5.0, tol);
+  BOOST_TEST(decomp.PointNormalComponent   (point) == 3.0, tol);
 
   {
     auto proj = decomp.ProjectPointOnPlane(point);
-    BOOST_CHECK_CLOSE(proj.X(), 4.0, 1e-2);
-    BOOST_CHECK_CLOSE(proj.Y(), 5.0, 1e-2);
+    BOOST_TEST(proj.X() == 4.0, tol);
+    BOOST_TEST(proj.Y() == 5.0, tol);
   }
 
   {
     auto decomposed = decomp.DecomposePoint(point);
-    BOOST_CHECK_CLOSE(decomposed.distance,       3.0, 1e-2);
-    BOOST_CHECK_CLOSE(decomposed.projection.X(), 4.0, 1e-2);
-    BOOST_CHECK_CLOSE(decomposed.projection.Y(), 5.0, 1e-2);
+    BOOST_TEST(decomposed.distance       == 3.0, tol);
+    BOOST_TEST(decomposed.projection.X() == 4.0, tol);
+    BOOST_TEST(decomposed.projection.Y() == 5.0, tol);
   }
 
 
@@ -277,21 +279,21 @@ void StandardDecomposerTest() {
   //    auto SecondaryComponent(Projection_t const& v) const
   //
 
-  BOOST_CHECK_CLOSE(decomp.VectorMainComponent     (vector), 3.0, 1e-2);
-  BOOST_CHECK_CLOSE(decomp.VectorSecondaryComponent(vector), 4.0, 1e-2);
-  BOOST_CHECK_CLOSE(decomp.VectorNormalComponent   (vector), 2.0, 1e-2);
+  BOOST_TEST(decomp.VectorMainComponent     (vector) == 3.0, tol);
+  BOOST_TEST(decomp.VectorSecondaryComponent(vector) == 4.0, tol);
+  BOOST_TEST(decomp.VectorNormalComponent   (vector) == 2.0, tol);
 
   {
     auto proj = decomp.ProjectVectorOnPlane(vector);
-    BOOST_CHECK_CLOSE(proj.X(), 3.0, 1e-2);
-    BOOST_CHECK_CLOSE(proj.Y(), 4.0, 1e-2);
+    BOOST_TEST(proj.X() == 3.0, tol);
+    BOOST_TEST(proj.Y() == 4.0, tol);
   }
 
   {
     auto decomposed = decomp.DecomposeVector(vector);
-    BOOST_CHECK_CLOSE(decomposed.distance,       2.0, 1e-2);
-    BOOST_CHECK_CLOSE(decomposed.projection.X(), 3.0, 1e-2);
-    BOOST_CHECK_CLOSE(decomposed.projection.Y(), 4.0, 1e-2);
+    BOOST_TEST(decomposed.distance ==       2.0, tol);
+    BOOST_TEST(decomposed.projection.X() == 3.0, tol);
+    BOOST_TEST(decomposed.projection.Y() == 4.0, tol);
   }
 
   //
@@ -299,8 +301,8 @@ void StandardDecomposerTest() {
   //
   Projection_t proj(3.0, 4.0);
 
-  BOOST_CHECK_CLOSE(decomp.MainComponent     (proj), 3.0, 1e-2);
-  BOOST_CHECK_CLOSE(decomp.SecondaryComponent(proj), 4.0, 1e-2);
+  BOOST_TEST(decomp.MainComponent     (proj) == 3.0, tol);
+  BOOST_TEST(decomp.SecondaryComponent(proj) == 4.0, tol);
 
 
   //
@@ -331,16 +333,16 @@ void StandardDecomposerTest() {
 
   {
     auto comp = decomp.ComposePoint(decomposed.distance, decomposed.projection);
-    BOOST_CHECK_CLOSE(comp.X(), -2.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Y(), 14.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Z(), 20.0, 1e-2);
+    BOOST_TEST(comp.X() == -2.0, tol);
+    BOOST_TEST(comp.Y() == 14.0, tol);
+    BOOST_TEST(comp.Z() == 20.0, tol);
   }
 
   {
     auto comp = decomp.ComposePoint(decomposed);
-    BOOST_CHECK_CLOSE(comp.X(), -2.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Y(), 14.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Z(), 20.0, 1e-2);
+    BOOST_TEST(comp.X() == -2.0, tol);
+    BOOST_TEST(comp.Y() == 14.0, tol);
+    BOOST_TEST(comp.Z() == 20.0, tol);
   }
 
 
@@ -351,16 +353,16 @@ void StandardDecomposerTest() {
   {
     auto comp = decomp.ComposeVector
       (decomposed.distance, decomposed.projection);
-    BOOST_CHECK_CLOSE(comp.X(), 3.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Y(), 4.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Z(), 5.0, 1e-2);
+    BOOST_TEST(comp.X() == 3.0, tol);
+    BOOST_TEST(comp.Y() == 4.0, tol);
+    BOOST_TEST(comp.Z() == 5.0, tol);
   }
 
   {
     auto comp = decomp.ComposeVector(decomposed);
-    BOOST_CHECK_CLOSE(comp.X(), 3.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Y(), 4.0, 1e-2);
-    BOOST_CHECK_CLOSE(comp.Z(), 5.0, 1e-2);
+    BOOST_TEST(comp.X() == 3.0, tol);
+    BOOST_TEST(comp.Y() == 4.0, tol);
+    BOOST_TEST(comp.Z() == 5.0, tol);
   }
 
 
@@ -386,4 +388,3 @@ BOOST_AUTO_TEST_CASE(GenVectorDecomposerTestCase) {
   StandardDecomposerTest<Vector_t, Point_t, Projection_t>();
 
 } // BOOST_AUTO_TEST_CASE(GenVectorDecomposerTestCase)
-

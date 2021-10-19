@@ -43,11 +43,11 @@ void geo::GeometryGeoIDTestAlg::CryostatGeoIDTest() const {
     geo::CryostatID const& ID = cryostat.ID();
 
     // the ID of this CryostatGeo is the expected one in a sequential scheme:
-    BOOST_CHECK_EQUAL(ID, *iCryo);
+    BOOST_TEST(ID == *iCryo);
 
     // the ID of this CryostatGeo is associated to the CryostatGeo itself
     auto const& cryostatFromID = geom->Cryostat(ID);
-    BOOST_CHECK_EQUAL(&cryostat, &cryostatFromID);
+    BOOST_TEST(&cryostat == &cryostatFromID);
 
 
     ++iCryo;
@@ -66,11 +66,11 @@ void geo::GeometryGeoIDTestAlg::TPCGeoIDTest() const {
     geo::TPCID const& ID = tpc.ID();
 
     // the ID of this TPCGeo is the expected one in a sequential scheme:
-    BOOST_CHECK_EQUAL(ID, *iTPC);
+    BOOST_TEST(ID == *iTPC);
 
     // the ID of this TPCGeo is associated to the TPCGeo itself
     auto const& TPCFromID = geom->TPC(ID);
-    BOOST_CHECK_EQUAL(&tpc, &TPCFromID);
+    BOOST_TEST(&tpc == &TPCFromID);
 
 
     ++iTPC;
@@ -89,11 +89,11 @@ void geo::GeometryGeoIDTestAlg::PlaneGeoIDTest() const {
     geo::PlaneID const& ID = plane.ID();
 
     // the ID of this PlaneGeo is the expected one in a sequential scheme:
-    BOOST_CHECK_EQUAL(ID, *iPlane);
+    BOOST_TEST(ID == *iPlane);
 
     // the ID of this PlaneGeo is associated to the PlaneGeo itself
     auto const& planeFromID = geom->Plane(ID);
-    BOOST_CHECK_EQUAL(&plane, &planeFromID);
+    BOOST_TEST(&plane == &planeFromID);
 
 
     ++iPlane;
@@ -115,11 +115,11 @@ void geo::GeometryGeoIDTestAlg::WireGeoIDTest() const {
     geo::WireID const& ID = wire.ID();
 
     // the ID of this WireGeo is the expected one in a sequential scheme:
-    BOOST_CHECK_EQUAL(ID, *iWire);
+    BOOST_TEST(ID == *iWire);
 
     // the ID of this WireGeo is associated to the WireGeo itself
     auto const& wireFromID = geom->Wire(ID);
-    BOOST_CHECK_EQUAL(&wire, &wireFromID);
+    BOOST_TEST(&wire == &wireFromID);
     */
 
     ++iWire;

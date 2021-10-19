@@ -31,19 +31,20 @@
 #include <stdexcept> // std::runtime_error
 #include <cmath> // std::nan
 
+using boost::test_tools::tolerance;
 
 //------------------------------------------------------------------------------
 template <typename PointA, typename PointB>
 void CheckPoint(PointA const& test, PointB const& ref, std::string tag = "")
 {
-  const double tol = 0.001; // percent!
+  auto const tol = 0.001% tolerance();
 
   if (!tag.empty()) BOOST_TEST_CHECKPOINT(tag);
 
   for (auto ic: geo::vect::indices(test)) {
     BOOST_TEST_CHECKPOINT("  coordinate #" << ic);
-    BOOST_CHECK_CLOSE
-      (geo::vect::coord(test, ic)(), geo::vect::coord(ref, ic)(), tol);
+    BOOST_TEST
+      (geo::vect::coord(test, ic)() == geo::vect::coord(ref, ic)(), tol);
   }
 
 } // CheckPoint()
@@ -65,24 +66,24 @@ void test_MiddlePointAccumulator_defaultConstructor() {
   // default construction, then bulk addition
   //
   geo::vect::MiddlePointAccumulator acc;
-  BOOST_CHECK(acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 0.0, 0.001);
+  BOOST_TEST(acc.empty());
+  BOOST_TEST(acc.weight() == 0.0, 0.001% tolerance());
   // add a single point
   acc.add(another);
-  BOOST_CHECK(!acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 1.0, 0.001);
+  BOOST_TEST(!acc.empty());
+  BOOST_TEST(acc.weight() == 1.0, 0.001% tolerance());
   CheckPoint(acc.middlePoint(), expected, "Single add");
   // add many points
   acc.add(points.begin(), points.end());
-  BOOST_CHECK(!acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 1.0 + points.size(), 0.001);
+  BOOST_TEST(!acc.empty());
+  BOOST_TEST(acc.weight() == 1.0 + points.size(), 0.001% tolerance());
   CheckPoint(acc.middlePoint(), expected, "Single add plus sequence");
 
   //
   // clear test
   //
   acc.clear();
-  BOOST_CHECK(acc.empty());
+  BOOST_TEST(acc.empty());
   acc.add(geo::Point_t{ expected.X() + 1.0, expected.Z(), expected.Y() });
   CheckPoint(
     acc.middlePoint(),
@@ -96,11 +97,11 @@ void test_MiddlePointAccumulator_defaultConstructor() {
   acc.clear();
   // add many points
   acc.add(points.begin(), points.end());
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence add");
   // add another one
   acc.add(another);
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence add plus single point");
 
 } // test_MiddlePointAccumulator_defaultConstructor()
@@ -121,11 +122,11 @@ void test_MiddlePointAccumulator_sequenceConstructor() {
   // sequence constructor
   //
   geo::vect::MiddlePointAccumulator acc(points.begin(), points.end());
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence construction");
   // add another one
   acc.add(another);
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence construction plus single");
 
 } // test_MiddlePointAccumulator_sequenceConstructor()
@@ -165,24 +166,24 @@ void test_MiddlePointAccumulator_generic() {
   // default construction, then bulk addition
   //
   geo::vect::MiddlePointAccumulator acc;
-  BOOST_CHECK(acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 0.0, 0.001);
+  BOOST_TEST(acc.empty());
+  BOOST_TEST(acc.weight() == 0.0, 0.001% tolerance());
   // add a single point
   acc.add(another);
-  BOOST_CHECK(!acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 1.0, 0.001);
+  BOOST_TEST(!acc.empty());
+  BOOST_TEST(acc.weight() == 1.0, 0.001% tolerance());
   CheckPoint(acc.middlePoint(), expected, "Single add");
   // add many points
   acc.add(points.begin(), points.end());
-  BOOST_CHECK(!acc.empty());
-  BOOST_CHECK_CLOSE(acc.weight(), 1.0 + points.size(), 0.001);
+  BOOST_TEST(!acc.empty());
+  BOOST_TEST(acc.weight() == 1.0 + points.size(), 0.001% tolerance());
   CheckPoint(acc.middlePoint(), expected, "Single add plus sequence");
 
   //
   // clear test
   //
   acc.clear();
-  BOOST_CHECK(acc.empty());
+  BOOST_TEST(acc.empty());
   acc.add(geo::Point_t{ expected.X() + 1.0, expected.Z(), expected.Y() });
   CheckPoint(
     acc.middlePoint(),
@@ -196,11 +197,11 @@ void test_MiddlePointAccumulator_generic() {
   acc.clear();
   // add many points
   acc.add(points.begin(), points.end());
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence add");
   // add another one
   acc.add(another);
-  BOOST_CHECK(!acc.empty());
+  BOOST_TEST(!acc.empty());
   CheckPoint(acc.middlePoint(), expected, "Sequence add plus single point");
 
 } // test_MiddlePointAccumulator_generic()
@@ -407,199 +408,199 @@ struct test_vectorAccess {
     for(auto coordMan: geo::vect::coordManagers<Vector>()) {
       auto const expected = coords[iCoord++];
       auto mc = geo::vect::bindCoord(v, coordMan);
-      BOOST_CHECK_EQUAL(mc(), expected);
-      BOOST_CHECK_EQUAL(mc, expected);
+      BOOST_TEST(mc() == expected);
+      BOOST_TEST(mc == expected);
     } // for
-    BOOST_CHECK_EQUAL(iCoord, 3U);
+    BOOST_TEST(iCoord == 3U);
 
     auto x = geo::vect::Xcoord(v);
     auto c0 = geo::vect::coord(v, 0U);
     auto mx = geo::vect::bindCoord(v, geo::vect::XcoordManager<Vector>);
     auto mc0 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(0U));
-    BOOST_CHECK_EQUAL(x(), 1.0);
-    BOOST_CHECK_EQUAL(x, 1.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 1.0);
-    BOOST_CHECK_EQUAL(mx, 1.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 1.0);
+    BOOST_TEST(x == 1.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 1.0);
+    BOOST_TEST(mx == 1.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     x = 2.0;
-    BOOST_CHECK_EQUAL(x(), 2.0);
-    BOOST_CHECK_EQUAL(x, 2.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 2.0);
-    BOOST_CHECK_EQUAL(mx, 2.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 2.0);
+    BOOST_TEST(x == 2.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 2.0);
+    BOOST_TEST(mx == 2.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     x += 2.0;
-    BOOST_CHECK_EQUAL(x(), 4.0);
-    BOOST_CHECK_EQUAL(x, 4.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 4.0);
-    BOOST_CHECK_EQUAL(mx, 4.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 4.0);
+    BOOST_TEST(x == 4.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 4.0);
+    BOOST_TEST(mx == 4.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     x -= 2.0;
-    BOOST_CHECK_EQUAL(x(), 2.0);
-    BOOST_CHECK_EQUAL(x, 2.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 2.0);
-    BOOST_CHECK_EQUAL(mx, 2.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 2.0);
+    BOOST_TEST(x == 2.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 2.0);
+    BOOST_TEST(mx == 2.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     x *= 4.0;
-    BOOST_CHECK_EQUAL(x(), 8.0);
-    BOOST_CHECK_EQUAL(x, 8.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 8.0);
-    BOOST_CHECK_EQUAL(mx, 8.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 8.0);
+    BOOST_TEST(x == 8.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 8.0);
+    BOOST_TEST(mx == 8.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     x /= 4.0;
-    BOOST_CHECK_EQUAL(x(), 2.0);
-    BOOST_CHECK_EQUAL(x, 2.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 2.0);
-    BOOST_CHECK_EQUAL(mx, 2.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 2.0);
+    BOOST_TEST(x == 2.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 2.0);
+    BOOST_TEST(mx == 2.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     auto y = geo::vect::Ycoord(v);
     auto c1 = geo::vect::coord(v, 1U);
     auto my = geo::vect::bindCoord(v, geo::vect::YcoordManager<Vector>);
     auto mc1 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(1U));
-    BOOST_CHECK_EQUAL(y(), 5.0);
-    BOOST_CHECK_EQUAL(y, 5.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 5.0);
-    BOOST_CHECK_EQUAL(my, 5.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 5.0);
+    BOOST_TEST(y == 5.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 5.0);
+    BOOST_TEST(my == 5.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     y = 2.0;
-    BOOST_CHECK_EQUAL(y(), 2.0);
-    BOOST_CHECK_EQUAL(y, 2.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 2.0);
-    BOOST_CHECK_EQUAL(my, 2.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 2.0);
+    BOOST_TEST(y == 2.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 2.0);
+    BOOST_TEST(my == 2.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     y += 2.0;
-    BOOST_CHECK_EQUAL(y(), 4.0);
-    BOOST_CHECK_EQUAL(y, 4.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 4.0);
-    BOOST_CHECK_EQUAL(my, 4.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 4.0);
+    BOOST_TEST(y == 4.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 4.0);
+    BOOST_TEST(my == 4.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     y -= 2.0;
-    BOOST_CHECK_EQUAL(y(), 2.0);
-    BOOST_CHECK_EQUAL(y, 2.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 2.0);
-    BOOST_CHECK_EQUAL(my, 2.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 2.0);
+    BOOST_TEST(y == 2.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 2.0);
+    BOOST_TEST(my == 2.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     y *= 4.0;
-    BOOST_CHECK_EQUAL(y(), 8.0);
-    BOOST_CHECK_EQUAL(y, 8.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 8.0);
-    BOOST_CHECK_EQUAL(my, 8.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 8.0);
+    BOOST_TEST(y == 8.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 8.0);
+    BOOST_TEST(my == 8.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     y /= 4.0;
-    BOOST_CHECK_EQUAL(y(), 2.0);
-    BOOST_CHECK_EQUAL(y, 2.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 2.0);
-    BOOST_CHECK_EQUAL(my, 2.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 2.0);
+    BOOST_TEST(y == 2.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 2.0);
+    BOOST_TEST(my == 2.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
     auto z = geo::vect::Zcoord(v);
     auto c2 = geo::vect::coord(v, 2U);
     auto mz = geo::vect::bindCoord(v, geo::vect::ZcoordManager<Vector>);
     auto mc2 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(2U));
-    BOOST_CHECK_EQUAL(z(), 9.0);
-    BOOST_CHECK_EQUAL(z, 9.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 9.0);
-    BOOST_CHECK_EQUAL(mz, 9.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 9.0);
+    BOOST_TEST(z == 9.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 9.0);
+    BOOST_TEST(mz == 9.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
     z = 2.0;
-    BOOST_CHECK_EQUAL(z(), 2.0);
-    BOOST_CHECK_EQUAL(z, 2.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 2.0);
-    BOOST_CHECK_EQUAL(mz, 2.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 2.0);
+    BOOST_TEST(z == 2.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 2.0);
+    BOOST_TEST(mz == 2.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
     z += 2.0;
-    BOOST_CHECK_EQUAL(z(), 4.0);
-    BOOST_CHECK_EQUAL(z, 4.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 4.0);
-    BOOST_CHECK_EQUAL(mz, 4.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 4.0);
+    BOOST_TEST(z == 4.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 4.0);
+    BOOST_TEST(mz == 4.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
     z -= 2.0;
-    BOOST_CHECK_EQUAL(z(), 2.0);
-    BOOST_CHECK_EQUAL(z, 2.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 2.0);
-    BOOST_CHECK_EQUAL(mz, 2.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 2.0);
+    BOOST_TEST(z == 2.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 2.0);
+    BOOST_TEST(mz == 2.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
     z *= 4.0;
-    BOOST_CHECK_EQUAL(z(), 8.0);
-    BOOST_CHECK_EQUAL(z, 8.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 8.0);
-    BOOST_CHECK_EQUAL(mz, 8.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 8.0);
+    BOOST_TEST(z == 8.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 8.0);
+    BOOST_TEST(mz == 8.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
     z /= 4.0;
-    BOOST_CHECK_EQUAL(z(), 2.0);
-    BOOST_CHECK_EQUAL(z, 2.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 2.0);
-    BOOST_CHECK_EQUAL(mz, 2.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 2.0);
+    BOOST_TEST(z == 2.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 2.0);
+    BOOST_TEST(mz == 2.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
   } // test_vectorAccess()
 
@@ -620,50 +621,50 @@ struct test_vectorAccess<Vector const> {
     for(auto coordMan: geo::vect::coordReaders<Vector>()) {
       auto const expected = coords[iCoord++];
       auto mc = geo::vect::bindCoord(v, coordMan);
-      BOOST_CHECK_EQUAL(mc(), expected);
-      BOOST_CHECK_EQUAL(mc, expected);
+      BOOST_TEST(mc() == expected);
+      BOOST_TEST(mc == expected);
     } // for
-    BOOST_CHECK_EQUAL(iCoord, 3U);
+    BOOST_TEST(iCoord == 3U);
 
     auto x = geo::vect::Xcoord(v);
     auto c0 = geo::vect::coord(v, 0U);
     auto mx = geo::vect::bindCoord(v, geo::vect::XcoordManager<Vector>);
     auto mc0 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(0U));
-    BOOST_CHECK_EQUAL(x(), 1.0);
-    BOOST_CHECK_EQUAL(x, 1.0);
-    BOOST_CHECK_EQUAL(x(), v.X());
-    BOOST_CHECK_EQUAL(c0(), v.X());
-    BOOST_CHECK_EQUAL(mx(), 1.0);
-    BOOST_CHECK_EQUAL(mx, 1.0);
-    BOOST_CHECK_EQUAL(mx(), v.X());
-    BOOST_CHECK_EQUAL(mc0(), v.X());
+    BOOST_TEST(x() == 1.0);
+    BOOST_TEST(x == 1.0);
+    BOOST_TEST(x() == v.X());
+    BOOST_TEST(c0() == v.X());
+    BOOST_TEST(mx() == 1.0);
+    BOOST_TEST(mx == 1.0);
+    BOOST_TEST(mx() == v.X());
+    BOOST_TEST(mc0() == v.X());
 
     auto y = geo::vect::Ycoord(v);
     auto c1 = geo::vect::coord(v, 1U);
     auto my = geo::vect::bindCoord(v, geo::vect::YcoordManager<Vector>);
     auto mc1 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(1U));
-    BOOST_CHECK_EQUAL(y(), 5.0);
-    BOOST_CHECK_EQUAL(y, 5.0);
-    BOOST_CHECK_EQUAL(y(), v.Y());
-    BOOST_CHECK_EQUAL(c1(), v.Y());
-    BOOST_CHECK_EQUAL(my(), 5.0);
-    BOOST_CHECK_EQUAL(my, 5.0);
-    BOOST_CHECK_EQUAL(my(), v.Y());
-    BOOST_CHECK_EQUAL(mc1(), v.Y());
+    BOOST_TEST(y() == 5.0);
+    BOOST_TEST(y == 5.0);
+    BOOST_TEST(y() == v.Y());
+    BOOST_TEST(c1() == v.Y());
+    BOOST_TEST(my() == 5.0);
+    BOOST_TEST(my == 5.0);
+    BOOST_TEST(my() == v.Y());
+    BOOST_TEST(mc1() == v.Y());
 
 
     auto z = geo::vect::Zcoord(v);
     auto c2 = geo::vect::coord(v, 2U);
     auto mz = geo::vect::bindCoord(v, geo::vect::ZcoordManager<Vector>);
     auto mc2 = geo::vect::bindCoord(v, geo::vect::coordManager<Vector>(2U));
-    BOOST_CHECK_EQUAL(z(), 9.0);
-    BOOST_CHECK_EQUAL(z, 9.0);
-    BOOST_CHECK_EQUAL(z(), v.Z());
-    BOOST_CHECK_EQUAL(c2(), v.Z());
-    BOOST_CHECK_EQUAL(mz(), 9.0);
-    BOOST_CHECK_EQUAL(mz, 9.0);
-    BOOST_CHECK_EQUAL(mz(), v.Z());
-    BOOST_CHECK_EQUAL(mc2(), v.Z());
+    BOOST_TEST(z() == 9.0);
+    BOOST_TEST(z == 9.0);
+    BOOST_TEST(z() == v.Z());
+    BOOST_TEST(c2() == v.Z());
+    BOOST_TEST(mz() == 9.0);
+    BOOST_TEST(mz == 9.0);
+    BOOST_TEST(mz() == v.Z());
+    BOOST_TEST(mc2() == v.Z());
 
   } // test_vectorAccess()
 }; // struct test_vectorAccess<const>
@@ -678,30 +679,30 @@ template <typename Vector>
 struct IsfiniteTester<Vector, 4U> {
   IsfiniteTester()
     {
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, 4.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 0.0, 2.0, 3.0, 4.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 0.0, 3.0, 4.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 0.0, 4.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, 0.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, 4.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 0.0, 2.0, 3.0, 4.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 0.0, 3.0, 4.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 0.0, 4.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, 0.0 }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0, 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0, 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan(""), 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0, 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0, 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan(""), 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0, std::nan("") }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0, 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan(""), 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0, std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan(""), 4.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0, std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0, 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan(""), 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan(""), 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan(""), std::nan("") }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan(""), std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan(""), std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0, std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan(""), 4.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan(""), 4.0 }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan(""), std::nan("") }));
     }
 };
 
@@ -709,21 +710,21 @@ template <typename Vector>
 struct IsfiniteTester<Vector, 3U> {
   IsfiniteTester()
     {
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 0.0, 2.0, 3.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 0.0, 3.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 0.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 0.0, 2.0, 3.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 0.0, 3.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 0.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0, 3.0 }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, 3.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), 3.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, 2.0, std::nan("") }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan("") }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), 3.0 }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan(""), std::nan("") }));
     }
 };
 
@@ -731,14 +732,14 @@ template <typename Vector>
 struct IsfiniteTester<Vector, 2U> {
   IsfiniteTester()
     {
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 2.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 0.0, 2.0 }));
-      BOOST_CHECK( geo::vect::isfinite(Vector{ 1.0, 0.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 2.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 0.0, 2.0 }));
+      BOOST_TEST( geo::vect::isfinite(Vector{ 1.0, 0.0 }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), 2.0 }));
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ 1.0, std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), 2.0 }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ 1.0, std::nan("") }));
 
-      BOOST_CHECK(!geo::vect::isfinite(Vector{ std::nan(""), std::nan("") }));
+      BOOST_TEST(!geo::vect::isfinite(Vector{ std::nan(""), std::nan("") }));
     }
 };
 
@@ -774,8 +775,8 @@ void test_vector2Dconvert() {
   static_assert
     (std::is_same<decltype(dest), Dest>(), "Unexpected return type!");
 
-  BOOST_CHECK_EQUAL(geo::vect::Xcoord(dest), srcData[0]);
-  BOOST_CHECK_EQUAL(geo::vect::Ycoord(dest), srcData[1]);
+  BOOST_TEST(geo::vect::Xcoord(dest) == srcData[0]);
+  BOOST_TEST(geo::vect::Ycoord(dest) == srcData[1]);
 
 } // test_vector2Dconvert()
 
@@ -803,9 +804,9 @@ void test_vector3Dconvert() {
   static_assert
     (std::is_same<decltype(dest), Dest>(), "Unexpected return type!");
 
-  BOOST_CHECK_EQUAL(geo::vect::Xcoord(dest), srcData[0]);
-  BOOST_CHECK_EQUAL(geo::vect::Ycoord(dest), srcData[1]);
-  BOOST_CHECK_EQUAL(geo::vect::Zcoord(dest), srcData[2]);
+  BOOST_TEST(geo::vect::Xcoord(dest) == srcData[0]);
+  BOOST_TEST(geo::vect::Ycoord(dest) == srcData[1]);
+  BOOST_TEST(geo::vect::Zcoord(dest) == srcData[2]);
 
 } // test_vector3Dconvert()
 
@@ -834,10 +835,10 @@ void test_vector4Dconvert() {
   static_assert
     (std::is_same<decltype(dest), Dest>(), "Unexpected return type!");
 
-  BOOST_CHECK_EQUAL(geo::vect::Xcoord(dest), srcData[0]);
-  BOOST_CHECK_EQUAL(geo::vect::Ycoord(dest), srcData[1]);
-  BOOST_CHECK_EQUAL(geo::vect::Zcoord(dest), srcData[2]);
-  BOOST_CHECK_EQUAL(geo::vect::Tcoord(dest), srcData[3]);
+  BOOST_TEST(geo::vect::Xcoord(dest) == srcData[0]);
+  BOOST_TEST(geo::vect::Ycoord(dest) == srcData[1]);
+  BOOST_TEST(geo::vect::Zcoord(dest) == srcData[2]);
+  BOOST_TEST(geo::vect::Tcoord(dest) == srcData[3]);
 
 } // test_vector4Dconvert()
 
@@ -855,8 +856,8 @@ void test_makeFromCoords_documentation() {
   auto const p = geo::vect::makeFromCoords<geo::Point_t>(data);
   auto const v = geo::vect::makeFromCoords<geo::Vector_t>(data.data() + 1);
 
-  BOOST_CHECK_EQUAL(p, (geo::Point_t { 2.0, 5.0,  7.0 }));
-  BOOST_CHECK_EQUAL(v, (geo::Vector_t{ 5.0, 7.0, 11.0 }));
+  BOOST_TEST(p == (geo::Point_t { 2.0, 5.0,  7.0 }));
+  BOOST_TEST(v == (geo::Vector_t{ 5.0, 7.0, 11.0 }));
 
 } // test_makeFromCoords_documentation()
 
@@ -873,7 +874,7 @@ void test_transform() {
   auto const neg_v = geo::vect::transformCoords(v, [](auto c){ return -c; });
   static_assert
     (std::is_same<decltype(neg_v), decltype(v)>(), "Unexpected return type");
-  BOOST_CHECK(neg_v == -v);
+  BOOST_TEST(neg_v == -v);
 
 } // test_transform()
 
@@ -897,7 +898,7 @@ void test_XcoordManager_documentation() {
   out << v << " has x=" << vx();
   expected << v << " has x=" << v.X();
 
-  BOOST_CHECK_EQUAL(out.str(), expected.str());
+  BOOST_TEST(out.str() == expected.str());
 
   out.str("");
   expected.str("");
@@ -917,7 +918,7 @@ void test_XcoordManager_documentation() {
   out << p << " has now x=" << px();
   expected << p << " has now x=" << p.X();
 
-  BOOST_CHECK_EQUAL(out.str(), expected.str());
+  BOOST_TEST(out.str() == expected.str());
 
 } // test_XcoordManager_documentation()
 
@@ -1050,7 +1051,7 @@ void test_CoordConstIterator() {
 
   unsigned int index = 0;
   for (Coord_t c: geo::vect::iterateCoords(v)) {
-    BOOST_CHECK_EQUAL(c, expected[index]);
+    BOOST_TEST(c == expected[index]);
     ++index;
   } // for
 
@@ -1058,7 +1059,7 @@ void test_CoordConstIterator() {
   // but implicitly using ROOT::Math::cbegin()/cend() we provide
   index = 0;
   for (Coord_t c: v) {
-    BOOST_CHECK_EQUAL(c, expected[index]);
+    BOOST_TEST(c == expected[index]);
     ++index;
   } // for
 
@@ -1079,10 +1080,10 @@ void test_fillCoords() {
   Coord_t coords[geo::vect::dimension<Vector_t>()];
   auto const dim = geo::vect::fillCoords(coords, v);
 
-  BOOST_CHECK_EQUAL(dim, expected.size());
+  BOOST_TEST(dim == expected.size());
 
   for (unsigned int index = 0; index < dim; ++index)
-    BOOST_CHECK_EQUAL(coords[index], expected[index]);
+    BOOST_TEST(coords[index] == expected[index]);
 
 } // test_fillCoords()
 

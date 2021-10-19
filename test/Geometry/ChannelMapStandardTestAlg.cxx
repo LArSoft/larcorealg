@@ -30,9 +30,9 @@ namespace {
   void CheckMatchingTPClevelIDs
     (readout::TPCsetID const& tpcsetID, geo::TPCID const& tpcID)
   {
-    BOOST_CHECK_EQUAL(tpcID.isValid, tpcsetID.isValid);
-    BOOST_CHECK_EQUAL(tpcID.Cryostat, tpcsetID.Cryostat);
-    BOOST_CHECK_EQUAL(tpcID.TPC, tpcsetID.TPCset);
+    BOOST_TEST(tpcID.isValid == tpcsetID.isValid);
+    BOOST_TEST(tpcID.Cryostat == tpcsetID.Cryostat);
+    BOOST_TEST(tpcID.TPC == tpcsetID.TPCset);
   } // CheckMatchingTPClevelIDs()
 
   /// Checks that there is a 1-to-1 match between ID data members
@@ -40,7 +40,7 @@ namespace {
     (readout::ROPID const& ropID, geo::PlaneID const& planeID)
   {
     CheckMatchingTPClevelIDs(ropID, planeID);
-    BOOST_CHECK_EQUAL(planeID.Plane, ropID.ROP);
+    BOOST_TEST(planeID.Plane == ropID.ROP);
   } // CheckMatchingPlaneLevelIDs()
 
 } // local namespace
@@ -92,26 +92,26 @@ void geo::ChannelMapStandardTestAlg::TPCsetMappingTest() const {
    */
 
   // check for invalid input
-  BOOST_CHECK_EQUAL(geom->NTPCsets({}), 0U);
-  BOOST_CHECK(!geom->HasTPCset({}));
-  BOOST_CHECK(!geom->TPCtoTPCset({}).isValid);
-  BOOST_CHECK(geom->TPCsetToTPCs({}).empty());
-  BOOST_CHECK_EQUAL(geom->NROPs({}), 0U);
-  BOOST_CHECK(!geom->HasROP({}));
-  BOOST_CHECK(geom->ROPtoTPCs({}).empty());
+  BOOST_TEST(geom->NTPCsets({}) == 0U);
+  BOOST_TEST(!geom->HasTPCset({}));
+  BOOST_TEST(!geom->TPCtoTPCset({}).isValid);
+  BOOST_TEST(geom->TPCsetToTPCs({}).empty());
+  BOOST_TEST(geom->NROPs({}) == 0U);
+  BOOST_TEST(!geom->HasROP({}));
+  BOOST_TEST(geom->ROPtoTPCs({}).empty());
 
   //
   // detector-wide checks
   //
   // check that the maximum size of TPC and TPC sets in the detector match
-  BOOST_CHECK_EQUAL(geom->MaxTPCsets(), geom->MaxTPCs());
+  BOOST_TEST(geom->MaxTPCsets() == geom->MaxTPCs());
 
   // check that the maximum size of planes and ROPs in the detector match
-  BOOST_CHECK_EQUAL(geom->MaxROPs(), geom->MaxPlanes());
+  BOOST_TEST(geom->MaxROPs() == geom->MaxPlanes());
 
   // check that we have no TPC set in cryostats after the last one
   readout::CryostatID const NonexistingCryostatID(geom->Ncryostats());
-  BOOST_CHECK_EQUAL(geom->NTPCsets(NonexistingCryostatID), 0U);
+  BOOST_TEST(geom->NTPCsets(NonexistingCryostatID) == 0U);
 
   //
   // cryostat-wide checks
@@ -124,15 +124,15 @@ void geo::ChannelMapStandardTestAlg::TPCsetMappingTest() const {
 
     // check that the number of TPC and TPC sets in each cryostat match
     unsigned int const NTPCsets = geom->NTPCsets(ROcryostatID);
-    BOOST_CHECK_EQUAL(NTPCsets, geom->NTPC(cryostatID));
+    BOOST_TEST(NTPCsets == geom->NTPC(cryostatID));
 
     // check that we have no TPC set after the last one
     readout::TPCsetID const NonexistingTPCsetID
       (ROcryostatID, (readout::TPCsetID::TPCsetID_t) NTPCsets);
-    BOOST_CHECK(!geom->HasTPCset(NonexistingTPCsetID));
-    BOOST_CHECK_EQUAL(geom->NROPs(NonexistingTPCsetID), 0U);
+    BOOST_TEST(!geom->HasTPCset(NonexistingTPCsetID));
+    BOOST_TEST(geom->NROPs(NonexistingTPCsetID) == 0U);
     // the behaviour of the other methods is undefined for non-existent ROPs
-  //  BOOST_CHECK(geom->TPCsetToTPCs(NonexistingTPCsetID).empty());
+  //  BOOST_TEST(geom->TPCsetToTPCs(NonexistingTPCsetID).empty());
 
   } // for cryostats
 
@@ -148,12 +148,12 @@ void geo::ChannelMapStandardTestAlg::TPCsetMappingTest() const {
 
     // check that this TPC set maps to only one (and the right one) TPC
     std::vector<geo::TPCID> TPCs = geom->TPCsetToTPCs(tpcsetID);
-    BOOST_CHECK_EQUAL(TPCs.size(), 1U);
-    BOOST_CHECK_EQUAL(TPCs.front(), tpcID);
+    BOOST_TEST(TPCs.size() == 1U);
+    BOOST_TEST(TPCs.front() == tpcID);
 
     // check that the number of ROP in the TPC set matches the planes in the TPC
     unsigned int const NROPs = geom->NROPs(tpcsetID);
-    BOOST_CHECK_EQUAL(NROPs, geom->Nplanes(tpcID));
+    BOOST_TEST(NROPs == geom->Nplanes(tpcID));
 
     // check all the ROPs:
     for (unsigned int iROPinTPCset = 0; iROPinTPCset < NROPs; ++iROPinTPCset) {
@@ -163,12 +163,12 @@ void geo::ChannelMapStandardTestAlg::TPCsetMappingTest() const {
       BOOST_TEST_CHECKPOINT("ROP: " << std::string(ropID));
 
       // do we have it?
-      BOOST_CHECK(geom->HasROP(ropID));
+      BOOST_TEST(geom->HasROP(ropID));
 
       // is it in the right TPC? and only one?
       std::vector<geo::TPCID> TPCs = geom->ROPtoTPCs(ropID);
-      BOOST_CHECK_EQUAL(TPCs.size(), 1U);
-      BOOST_CHECK_EQUAL(TPCs.front(), tpcID);
+      BOOST_TEST(TPCs.size() == 1U);
+      BOOST_TEST(TPCs.front() == tpcID);
 
     } // for channels
 
@@ -203,12 +203,12 @@ void geo::ChannelMapStandardTestAlg::ROPMappingTest() const {
    */
 
   // check for invalid input
-  BOOST_CHECK_EQUAL(geom->Nchannels({}), 0U);
-  BOOST_CHECK(!geom->WirePlaneToROP({}).isValid);
-  BOOST_CHECK(geom->ROPtoWirePlanes({}).empty());
-  BOOST_CHECK(geom->ROPtoTPCs({}).empty());
-  BOOST_CHECK(!geom->ChannelToROP(raw::InvalidChannelID).isValid);
-  BOOST_CHECK(!raw::isValidChannelID(geom->FirstChannelInROP({})));
+  BOOST_TEST(geom->Nchannels({}) == 0U);
+  BOOST_TEST(!geom->WirePlaneToROP({}).isValid);
+  BOOST_TEST(geom->ROPtoWirePlanes({}).empty());
+  BOOST_TEST(geom->ROPtoTPCs({}).empty());
+  BOOST_TEST(!geom->ChannelToROP(raw::InvalidChannelID).isValid);
+  BOOST_TEST(!raw::isValidChannelID(geom->FirstChannelInROP({})));
 
   //
   // TPC-wide checks
@@ -222,12 +222,12 @@ void geo::ChannelMapStandardTestAlg::ROPMappingTest() const {
     readout::ROPID NonexistingROPID(tpcsetID, (readout::ROPID::ROPID_t) NROPs);
 
     // check that we don't have ROPs beyond the last one
-    BOOST_CHECK(!geom->HasROP(NonexistingROPID));
+    BOOST_TEST(!geom->HasROP(NonexistingROPID));
     // the behaviour of the other methods is undefined for non-existent ROPs
-  //  BOOST_CHECK(geom->ROPtoTPCs(NonexistingROPID).empty());
-  //  BOOST_CHECK(geom->ROPtoWirePlanes(NonexistingROPID).empty());
-  //  BOOST_CHECK_EQUAL(geom->Nchannels(NonexistingROPID), 0U);
-  //  BOOST_CHECK
+  //  BOOST_TEST(geom->ROPtoTPCs(NonexistingROPID).empty());
+  //  BOOST_TEST(geom->ROPtoWirePlanes(NonexistingROPID).empty());
+  //  BOOST_TEST(geom->Nchannels(NonexistingROPID) == 0U);
+  //  BOOST_TEST
   //    (!raw::isValidChannelID(geom->FirstChannelInROP(NonexistingROPID)));
 
   } // for TPCs
@@ -247,26 +247,26 @@ void geo::ChannelMapStandardTestAlg::ROPMappingTest() const {
     // ChannelMapStandardAlg::FirstWirePlaneInROP() is not accessible from
     // GeometryCore: this test is disabled
     // check that the first (and only) plane is the expected one
-    BOOST_CHECK_EQUAL(geom->FirstWirePlaneInROP(ropID), planeID);
+    BOOST_TEST(geom->FirstWirePlaneInROP(ropID) == planeID);
     */
 
     // check that there is only one plane in this ROP
     std::vector<geo::PlaneID> const PlanesInROP = geom->ROPtoWirePlanes(ropID);
-    BOOST_CHECK_EQUAL(PlanesInROP.size(), 1U);
-    BOOST_CHECK_EQUAL(PlanesInROP.front(), planeID);
+    BOOST_TEST(PlanesInROP.size() == 1U);
+    BOOST_TEST(PlanesInROP.front() == planeID);
 
     // check that the number of channels in the ROP matches the number of wires
     unsigned int const NChannels = geom->Nchannels(ropID);
-    BOOST_CHECK_EQUAL(NChannels, geom->Nwires(planeID));
+    BOOST_TEST(NChannels == geom->Nwires(planeID));
 
     // check that the TPC is one, and the right one
     std::vector<geo::TPCID> const TPCs = geom->ROPtoTPCs(ropID);
-    BOOST_CHECK_EQUAL(TPCs.size(), 1U);
-    BOOST_CHECK_EQUAL(TPCs.front(), planeID.asTPCID());
+    BOOST_TEST(TPCs.size() == 1U);
+    BOOST_TEST(TPCs.front() == planeID.asTPCID());
 
     // check that the first channel is valid
     raw::ChannelID_t const FirstChannelID = geom->FirstChannelInROP(ropID);
-    BOOST_CHECK_EQUAL(raw::isValidChannelID(FirstChannelID), ropID.isValid);
+    BOOST_TEST(raw::isValidChannelID(FirstChannelID) == ropID.isValid);
 
     // check all the channels:
     for (
@@ -279,12 +279,12 @@ void geo::ChannelMapStandardTestAlg::ROPMappingTest() const {
       // is it in the right plane? and only one?
       std::vector<geo::WireID> const ChannelWires
         = geom->ChannelToWire(channelID);
-      BOOST_CHECK_EQUAL(ChannelWires.size(), 1U);
-      BOOST_CHECK_EQUAL(ChannelWires.front(), planeID);
+      BOOST_TEST(ChannelWires.size() == 1U);
+      BOOST_TEST(ChannelWires.front() == planeID);
 
       // does the channel map back to the right ROP?
       readout::ROPID const ChannelROPID = geom->ChannelToROP(channelID);
-      BOOST_CHECK_EQUAL(ChannelROPID, ropID);
+      BOOST_TEST(ChannelROPID == ropID);
 
     } // for channels
 
@@ -309,7 +309,7 @@ void geo::ChannelMapStandardTestAlg::ChannelMappingTest() const {
    */
 
   // check for invalid input
-  BOOST_CHECK(!geom->HasChannel(raw::InvalidChannelID));
+  BOOST_TEST(!geom->HasChannel(raw::InvalidChannelID));
 
   //
   // channel-wide checks
@@ -320,10 +320,10 @@ void geo::ChannelMapStandardTestAlg::ChannelMappingTest() const {
 
     BOOST_TEST_MESSAGE("channel: " << channel);
 
-    BOOST_CHECK(geom->HasChannel(iChannel));
+    BOOST_TEST(geom->HasChannel(iChannel));
 
   } // for channels
-  BOOST_CHECK(!geom->HasChannel((raw::ChannelID_t) NChannels));
+  BOOST_TEST(!geom->HasChannel((raw::ChannelID_t) NChannels));
 
 } // ChannelMapStandardTestAlg::ChannelMappingTest()
 

@@ -44,10 +44,10 @@ void test_count_iterator_documentation() {
   }
 
   // the test:
-  BOOST_CHECK_EQUAL(data.size(), 10U);
+  BOOST_TEST(data.size() == 10U);
   for (std::size_t i = 0; i < data.size(); ++i) {
 
-    BOOST_CHECK_EQUAL(data[i], (int) i);
+    BOOST_TEST(data[i] == (int) i);
 
   } // for
 
@@ -84,9 +84,9 @@ void test_counter_documentation() {
     control_data.push_back(i);
   }
 
-  BOOST_CHECK_EQUAL(data.size(), control_data.size());
+  BOOST_TEST(data.size() == control_data.size());
   for (std::size_t i = 0; i < data.size(); ++i) {
-    BOOST_CHECK_EQUAL(data[i], control_data[i]);
+    BOOST_TEST(data[i] == control_data[i]);
   }
 
 } // test_counter_documentation()
@@ -115,10 +115,10 @@ void test_infinite_counter_documentation() {
   constexpr std::size_t N = 1U << 8 * sizeof(unsigned char);
   static_assert(N == 256U); // just in case...
 
-  BOOST_CHECK_EQUAL(data.size(), N * 2);
+  BOOST_TEST(data.size() == N * 2);
   for (std::size_t i = 0; i < data.size(); ++i) {
 
-    BOOST_CHECK_EQUAL(data[i] , static_cast<unsigned char>(i % N));
+    BOOST_TEST(data[i]  == static_cast<unsigned char>(i % N));
 
   } // for
 
@@ -140,4 +140,3 @@ BOOST_AUTO_TEST_CASE(counter_testcase) {
 // -----------------------------------------------------------------------------
 // END Test cases  -------------------------------------------------------------
 // -----------------------------------------------------------------------------
-

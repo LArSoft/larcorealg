@@ -33,27 +33,27 @@ void ArrayTest_STLarray() {
   // (https://bugs.llvm.org/show_bug.cgi?id=21629)
   std::array<float, 5> const array = {{ 1., 2., 3., 4., 6. }};
   sstr << lar::dump::array<5>(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::array<5>(array)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::array<5>(array)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest_STLvector() {
   std::ostringstream sstr;
   std::vector<float> const array = { 1., 2., 3., 4., 6. };
   sstr << lar::dump::array<5>(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::array<5>(array)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::array<5>(array)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest_carray() {
   std::ostringstream sstr;
   float const array[5] = { 1., 2., 3., 4., 6. };
   sstr << lar::dump::array<5>(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::array<5>(array)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::array<5>(array)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest_cptr() {
@@ -61,17 +61,17 @@ void ArrayTest_cptr() {
   float const array[5] = { 1., 2., 3., 4., 6. };
   float const* ptr = array;
   sstr << lar::dump::array<5>(ptr);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::array<5>(ptr)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(std::string(lar::dump::array<5>(ptr)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest_array() {
   std::ostringstream sstr;
   double array[5] = { 1., 2., 3., 4., 6. };
   sstr << lar::dump::array<5>(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::array<5>(array)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::array<5>(array)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest_ptr() {
@@ -79,8 +79,8 @@ void ArrayTest_ptr() {
   double array[5] = { 1., 2., 3., 4., 6. };
   double* ptr = array;
   sstr << lar::dump::array<5>(ptr);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::array<5>(ptr)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(std::string(lar::dump::array<5>(ptr)) == "{ 1; 2; 3; 4; 6 }");
 }
 
 void ArrayTest() {
@@ -115,7 +115,7 @@ void ArrayDocumentationTest() {
   std::cout << "Data: " << lar::dump::array<5>(data) << std::endl;
 
   sstr << lar::dump::array<5>(data);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
 
 } // ArrayDocumentationTest()
 
@@ -125,18 +125,18 @@ void VectorTest_STLvector() {
   std::ostringstream sstr;
   std::vector<float> const v = { 1., 2., 3., 4., 6. };
   sstr << lar::dump::vector(v);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::vector(v)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::vector(v)) == "{ 1; 2; 3; 4; 6 }");
 } // VectorTest_STLvector()
 
 void VectorTest_STLlist() {
   std::ostringstream sstr;
   std::list<float> const v = { 1., 2., 3., 4., 6. };
   sstr << lar::dump::vector(v);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
-  BOOST_CHECK_EQUAL
-    (std::string(lar::dump::vector(v)), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST
+    (std::string(lar::dump::vector(v)) == "{ 1; 2; 3; 4; 6 }");
 } // VectorTest_STLlist()
 
 void VectorTest() {
@@ -168,7 +168,7 @@ void VectorDocumentationTest() {
   std::cout << "Data: " << lar::dump::vector(data) << std::endl;
 
   sstr << lar::dump::array<5>(data);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 3; 4; 6 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 3; 4; 6 }");
 
 } // VectorDocumentationTest()
 
@@ -178,16 +178,16 @@ void Vector3Dtest_TVector3() {
   std::ostringstream sstr;
   TVector3 pos( 1., 2., 4. );
   sstr << lar::dump::vector3D(pos);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 4 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::vector3D(pos)), "{ 1; 2; 4 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 4 }");
+  BOOST_TEST(std::string(lar::dump::vector3D(pos)) == "{ 1; 2; 4 }");
 }
 
 void Vector3Dtest_carray() {
   std::ostringstream sstr;
   float const array[3] = { 1., 2., 4. };
   sstr << lar::dump::vector3D(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 4 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::vector3D(array)), "{ 1; 2; 4 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 4 }");
+  BOOST_TEST(std::string(lar::dump::vector3D(array)) == "{ 1; 2; 4 }");
 }
 
 void Vector3Dtest_cptr() {
@@ -195,16 +195,16 @@ void Vector3Dtest_cptr() {
   float const array[3] = { 1., 2., 4. };
   float const* ptr = array;
   sstr << lar::dump::vector3D(ptr);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 4 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::vector3D(ptr)), "{ 1; 2; 4 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 4 }");
+  BOOST_TEST(std::string(lar::dump::vector3D(ptr)) == "{ 1; 2; 4 }");
 }
 
 void Vector3Dtest_array() {
   std::ostringstream sstr;
   double array[3] = { 1., 2., 4. };
   sstr << lar::dump::vector3D(array);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 4 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::vector3D(array)), "{ 1; 2; 4 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 4 }");
+  BOOST_TEST(std::string(lar::dump::vector3D(array)) == "{ 1; 2; 4 }");
 }
 
 void Vector3Dtest_ptr() {
@@ -212,8 +212,8 @@ void Vector3Dtest_ptr() {
   double array[3] = { 1., 2., 4. };
   double* ptr = array;
   sstr << lar::dump::vector3D(ptr);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 1; 2; 4 }");
-  BOOST_CHECK_EQUAL(std::string(lar::dump::vector3D(ptr)), "{ 1; 2; 4 }");
+  BOOST_TEST(sstr.str() == "{ 1; 2; 4 }");
+  BOOST_TEST(std::string(lar::dump::vector3D(ptr)) == "{ 1; 2; 4 }");
 }
 
 
@@ -248,7 +248,7 @@ void Vector3DstreamOutputDocumentationTest() {
   std::cout << "Position: " << lar::dump::vector3D(pos) << std::endl;
 
   sstr << lar::dump::vector3D(pos);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 0; 0; 0 }");
+  BOOST_TEST(sstr.str() == "{ 0; 0; 0 }");
 
 } // Vector3DstreamOutputDocumentationTest()
 
@@ -273,7 +273,7 @@ void Vector3DstringConcatDocumentationTest() {
   std::runtime_error e("Position: " + lar::dump::vector3D(pos));
   std::cout << e.what() << std::endl;
 
-  BOOST_CHECK_EQUAL(std::string(e.what()), "Position: { 0; 0; 0 }");
+  BOOST_TEST(std::string(e.what()) == "Position: { 0; 0; 0 }");
 
 } // Vector3DstringConcatDocumentationTest()
 
@@ -300,7 +300,7 @@ void Vector3DstringAppendDocumentationTest() {
   s += lar::dump::vector3D(pos);
   std::cout << s << std::endl;
 
-  BOOST_CHECK_EQUAL(s, "Position: { 0; 0; 0 }");
+  BOOST_TEST(s == "Position: { 0; 0; 0 }");
 
 } // Vector3DstringAppendDocumentationTest()
 
@@ -347,7 +347,7 @@ void Vector3DspecializationTest() {
   std::array<float, 3U> v;
   v.fill(0.0);
   sstr << lar::dump::vector3D(v);
-  BOOST_CHECK_EQUAL(sstr.str(), "{ 0; 0; 0 }");
+  BOOST_TEST(sstr.str() == "{ 0; 0; 0 }");
 
 } // Vector3DspecializationTest()
 
@@ -381,4 +381,3 @@ BOOST_AUTO_TEST_CASE(Dump3Dvectors_testcase) {
   Vector3DspecializationTest();
 
 } // BOOST_AUTO_TEST_CASE(Dump3Dvectors_testcase)
-

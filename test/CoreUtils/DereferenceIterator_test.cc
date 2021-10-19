@@ -83,7 +83,7 @@ void test_DereferenceIterator() {
     static_assert(std::is_const<std::remove_reference_t<decltype(i)>>::value,
       "Dereferenced value from constant vector is not constant");
 
-    BOOST_CHECK_EQUAL(i, index);
+    BOOST_TEST(i == index);
 
     ++index;
   } // for i
@@ -97,7 +97,7 @@ void test_DereferenceIterator() {
     static_assert(std::is_const<std::remove_reference_t<decltype(i)>>::value,
       "Dereferenced value from constant vector is not constant");
 
-    BOOST_CHECK_EQUAL(i, index);
+    BOOST_TEST(i == index);
 
     ++index;
 
@@ -109,7 +109,7 @@ void test_DereferenceIterator() {
   for (auto& i: lar::util::dereferenceIteratorLoop(v)) i = 10;
 
   for (auto i: lar::util::dereferenceConstIteratorLoop(cv))
-    BOOST_CHECK_EQUAL(i, 10);
+    BOOST_TEST(i == 10);
 
 
 } // test_DereferenceIterator<>()

@@ -163,17 +163,17 @@ void make_collection_reference_test() {
   static_assert(std::is_same_v<decltype(util::make_collection_reference(array_uptr )), decltype(&array        )>);
   static_assert(std::is_same_v<decltype(util::make_collection_reference(garray_uptr)), decltype(ptr           )>);
 
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(list       ).get().front()), &list.front()      );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(array      )[0]           ), &array[0]          );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(ptr        )[0]           ),  ptr               );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(cptr       )[0]           ),  cptr              );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(cptrc      )[0]           ),  cptr              );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(cptrcr     )[0]           ),  cptr              );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(refw       ).get().front()), &list.front()      );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(crefw      ).get().front()), &list.front()      );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(uptr       )[0]           ),  uptr.get()        );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(array_uptr )[0]           ),  array_uptr.get()  );
-  BOOST_CHECK_EQUAL(&(util::make_collection_reference(garray_uptr)[0]           ),  garray_uptr.get() );
+  BOOST_TEST(&(util::make_collection_reference(list       ).get().front()) == &list.front()      );
+  BOOST_TEST(&(util::make_collection_reference(array      )[0]           ) == &array[0]          );
+  BOOST_TEST(&(util::make_collection_reference(ptr        )[0]           ) ==  ptr               );
+  BOOST_TEST(&(util::make_collection_reference(cptr       )[0]           ) ==  cptr              );
+  BOOST_TEST(&(util::make_collection_reference(cptrc      )[0]           ) ==  cptr              );
+  BOOST_TEST(&(util::make_collection_reference(cptrcr     )[0]           ) ==  cptr              );
+  BOOST_TEST(&(util::make_collection_reference(refw       ).get().front()) == &list.front()      );
+  BOOST_TEST(&(util::make_collection_reference(crefw      ).get().front()) == &list.front()      );
+  BOOST_TEST(&(util::make_collection_reference(uptr       )[0]           ) ==  uptr.get()        );
+  BOOST_TEST(&(util::make_collection_reference(array_uptr )[0]           ) ==  array_uptr.get()  );
+  BOOST_TEST(&(util::make_collection_reference(garray_uptr)[0]           ) ==  garray_uptr.get() );
 
 } // make_collection_reference_test()
 
@@ -230,20 +230,20 @@ void collection_from_reference_test() {
   static_assert(std::is_same_v<decltype(util::collection_from_reference(array_uptrc)), O(*)[Size]   >);
   static_assert(std::is_same_v<decltype(util::collection_from_reference(garray_uptr)), O      *     >);
 
-  BOOST_CHECK_EQUAL(&util::collection_from_reference(list       ), &list            );
-  BOOST_CHECK_EQUAL(&util::collection_from_reference(ref        ), &list            );
-  BOOST_CHECK_EQUAL(&util::collection_from_reference(cref       ), &list            );
-  BOOST_CHECK_EQUAL(&util::collection_from_reference(refw       ), &list            );
-  BOOST_CHECK_EQUAL(&util::collection_from_reference(crefw      ), &list            );
+  BOOST_TEST(&util::collection_from_reference(list       ) == &list            );
+  BOOST_TEST(&util::collection_from_reference(ref        ) == &list            );
+  BOOST_TEST(&util::collection_from_reference(cref       ) == &list            );
+  BOOST_TEST(&util::collection_from_reference(refw       ) == &list            );
+  BOOST_TEST(&util::collection_from_reference(crefw      ) == &list            );
 
-  BOOST_CHECK_EQUAL( util::collection_from_reference(array      ), array            );
-  BOOST_CHECK_EQUAL( util::collection_from_reference(ptr        ), ptr              );
-  BOOST_CHECK_EQUAL( util::collection_from_reference(cptr       ), cptr             );
+  BOOST_TEST( util::collection_from_reference(array      ) == array            );
+  BOOST_TEST( util::collection_from_reference(ptr        ) == ptr              );
+  BOOST_TEST( util::collection_from_reference(cptr       ) == cptr             );
 
-  BOOST_CHECK_EQUAL( util::collection_from_reference(uptr       ), uptr.get()       );
-  BOOST_CHECK_EQUAL( util::collection_from_reference(array_uptr ), array_uptr.get() );
-  BOOST_CHECK_EQUAL( util::collection_from_reference(array_uptrc), array_uptrc.get());
-  BOOST_CHECK_EQUAL( util::collection_from_reference(garray_uptr), garray_uptr.get());
+  BOOST_TEST( util::collection_from_reference(uptr       ) == uptr.get()       );
+  BOOST_TEST( util::collection_from_reference(array_uptr ) == array_uptr.get() );
+  BOOST_TEST( util::collection_from_reference(array_uptrc) == array_uptrc.get());
+  BOOST_TEST( util::collection_from_reference(garray_uptr) == garray_uptr.get());
 
 } // collection_from_reference_test()
 

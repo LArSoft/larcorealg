@@ -40,7 +40,7 @@ void test_values() {
     std::add_lvalue_reference_t<std::vector<float>>
     >
     );
-  BOOST_CHECK_EQUAL(&util::values(data), &data);
+  BOOST_TEST(&util::values(data) == &data);
 
   //
   // read-only access
@@ -48,11 +48,11 @@ void test_values() {
   {
     std::size_t i = 0U;
     for (auto&& value: util::values(std::as_const(data))) {
-      BOOST_CHECK_EQUAL(value, data[i]);
-      BOOST_CHECK_EQUAL(std::addressof(value), std::addressof(data[i]));
+      BOOST_TEST(value == data[i]);
+      BOOST_TEST(std::addressof(value) == std::addressof(data[i]));
       ++i;
     } // for
-    BOOST_CHECK_EQUAL(i, data.size());
+    BOOST_TEST(i == data.size());
   }
 
   //
@@ -61,11 +61,11 @@ void test_values() {
   {
     std::size_t i = 0U;
     for (auto&& value: util::values(data)) {
-      BOOST_CHECK_EQUAL(value, data[i]);
-      BOOST_CHECK_EQUAL(std::addressof(value), std::addressof(data[i]));
+      BOOST_TEST(value == data[i]);
+      BOOST_TEST(std::addressof(value) == std::addressof(data[i]));
       ++i;
     } // for
-    BOOST_CHECK_EQUAL(i, data.size());
+    BOOST_TEST(i == data.size());
   }
 
 } // test_values()
@@ -88,7 +88,7 @@ void test_const_values() {
     std::add_lvalue_reference_t<std::vector<float> const>
     >
     );
-  BOOST_CHECK_EQUAL(&util::const_values(data), &data);
+  BOOST_TEST(&util::const_values(data) == &data);
 
   //
   // read-only access
@@ -96,11 +96,11 @@ void test_const_values() {
   std::size_t i = 0U;
   for (auto&& value: util::const_values(data)) {
     static_assert(std::is_const_v<std::remove_reference_t<decltype(value)>>);
-    BOOST_CHECK_EQUAL(value, data[i]);
-    BOOST_CHECK_EQUAL(std::addressof(value), std::addressof(data[i]));
+    BOOST_TEST(value == data[i]);
+    BOOST_TEST(std::addressof(value) == std::addressof(data[i]));
     ++i;
   } // for
-  BOOST_CHECK_EQUAL(i, data.size());
+  BOOST_TEST(i == data.size());
 
 } // test_const_values()
 
@@ -121,11 +121,11 @@ void test_values_map() {
   std::size_t i = 0U;
   for (auto&& value: util::values(data)) {
     static_assert(std::is_same_v<decltype(value), float&>);
-    BOOST_CHECK_EQUAL(value, data[i]);
-    BOOST_CHECK_EQUAL(std::addressof(value), std::addressof(data[i]));
+    BOOST_TEST(value == data[i]);
+    BOOST_TEST(std::addressof(value) == std::addressof(data[i]));
     ++i;
   } // for
-  BOOST_CHECK_EQUAL(i, data.size());
+  BOOST_TEST(i == data.size());
 
 } // test_values_map()
 
@@ -146,11 +146,11 @@ void test_const_values_map() {
   std::size_t i = 0U;
   for (auto&& value: util::const_values(data)) {
     static_assert(std::is_same_v<decltype(value), float const&>);
-    BOOST_CHECK_EQUAL(value, data[i]);
-    BOOST_CHECK_EQUAL(std::addressof(value), std::addressof(data[i]));
+    BOOST_TEST(value == data[i]);
+    BOOST_TEST(std::addressof(value) == std::addressof(data[i]));
     ++i;
   } // for
-  BOOST_CHECK_EQUAL(i, data.size());
+  BOOST_TEST(i == data.size());
 
 } // test_const_values_map()
 
@@ -177,10 +177,10 @@ void test_values_documentation() {
     values.push_back(value);
 
   // the test
-  BOOST_CHECK_EQUAL(values.size(), 3U);
-  BOOST_CHECK_EQUAL(values[0],  4.0F);
-  BOOST_CHECK_EQUAL(values[1],  8.0F);
-  BOOST_CHECK_EQUAL(values[2], 12.0F);
+  BOOST_TEST(values.size() == 3U);
+  BOOST_TEST(values[0] ==  4.0F);
+  BOOST_TEST(values[1] ==  8.0F);
+  BOOST_TEST(values[2] == 12.0F);
 
 } // test_values_documentation()
 

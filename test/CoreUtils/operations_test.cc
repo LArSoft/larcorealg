@@ -45,12 +45,12 @@ void test_AddressTaker_documentation() {
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // the test
-  BOOST_CHECK_EQUAL(ptrs.size(), data.size());
+  BOOST_TEST(ptrs.size() == data.size());
   for (auto&& [ value, ptr ]: util::zip(data, ptrs)) {
 
-    BOOST_CHECK(ptr);
-    BOOST_CHECK_EQUAL(*ptr, value);
-    BOOST_CHECK_EQUAL(ptr, &value);
+    BOOST_TEST(ptr);
+    BOOST_TEST(*ptr == value);
+    BOOST_TEST(ptr == &value);
 
   } // for
 
@@ -77,12 +77,12 @@ void test_takeAddress_documentation() {
     (data.begin(), data.end(), ptrs.begin(), util::takeAddress());
 
   // the test
-  BOOST_CHECK_EQUAL(ptrs.size(), data.size());
+  BOOST_TEST(ptrs.size() == data.size());
   for (auto&& [ value, ptr ]: util::zip(data, ptrs)) {
 
-    BOOST_CHECK(ptr);
-    BOOST_CHECK_EQUAL(*ptr, value);
-    BOOST_CHECK_EQUAL(ptr, &value);
+    BOOST_TEST(ptr);
+    BOOST_TEST(*ptr == value);
+    BOOST_TEST(ptr == &value);
 
   } // for
 
@@ -102,9 +102,9 @@ void test_takeAddress() {
 
   for (auto&& [ value, ptr ]: util::zip(data, dataPtr)) {
 
-    BOOST_CHECK(ptr);
-    BOOST_CHECK_EQUAL(*ptr, value);
-    BOOST_CHECK_EQUAL(ptr, &value);
+    BOOST_TEST(ptr);
+    BOOST_TEST(*ptr == value);
+    BOOST_TEST(ptr == &value);
 
   } // for
 
@@ -128,9 +128,9 @@ void test_takeAddress_whyBother() {
 
   for (auto&& [ value, ptr ]: util::zip(data, dataPtr)) {
 
-    BOOST_CHECK(ptr);
-    BOOST_CHECK_EQUAL(*ptr, value);
-    BOOST_CHECK_EQUAL(ptr, &value);
+    BOOST_TEST(ptr);
+    BOOST_TEST(*ptr == value);
+    BOOST_TEST(ptr == &value);
 
   } // for
 
@@ -145,9 +145,9 @@ void test_takeAddress_whyBother() {
 
   for (auto&& [ value, ptr ]: util::zip(data, dataPtr)) {
 
-    BOOST_CHECK(ptr);
-    BOOST_CHECK_EQUAL(*ptr, value);
-    BOOST_CHECK_EQUAL(ptr, &value);
+    BOOST_TEST(ptr);
+    BOOST_TEST(*ptr == value);
+    BOOST_TEST(ptr == &value);
 
   } // for
 
@@ -177,10 +177,10 @@ void test_Dereferencer_documentation() {
     (ptrs.cbegin(), ptrs.cend(), values.begin(), util::Dereferencer{});
 
   // the test
-  BOOST_CHECK_EQUAL(values.size(), data.size());
+  BOOST_TEST(values.size() == data.size());
   for (auto&& [ value, orig ]: util::zip(data, values)) {
 
-    BOOST_CHECK_EQUAL(value, orig);
+    BOOST_TEST(value == orig);
 
   } // for
 
@@ -210,10 +210,10 @@ void test_dereference_documentation() {
     (ptrs.cbegin(), ptrs.cend(), values.begin(), util::dereference());
 
   // the test
-  BOOST_CHECK_EQUAL(values.size(), data.size());
+  BOOST_TEST(values.size() == data.size());
   for (auto&& [ value, orig ]: util::zip(data, values)) {
 
-    BOOST_CHECK_EQUAL(value, orig);
+    BOOST_TEST(value == orig);
 
   } // for
 
@@ -238,11 +238,11 @@ void test_dereference_C_ptr() {
     util::dereference()
     );
 
-  BOOST_CHECK_EQUAL(dataAgain.size(), data.size());
+  BOOST_TEST(dataAgain.size() == data.size());
   for (auto&& [ value, valueAgain ]: util::zip(data, dataAgain)) {
 
-    BOOST_CHECK_EQUAL(valueAgain, value);
-    BOOST_CHECK_NE(&valueAgain, &value);
+    BOOST_TEST(valueAgain == value);
+    BOOST_TEST(&valueAgain != &value);
 
   } // for
 
@@ -266,11 +266,11 @@ void test_dereference_unique_ptr() {
     util::dereference()
     );
 
-  BOOST_CHECK_EQUAL(dataAgain.size(), data.size());
+  BOOST_TEST(dataAgain.size() == data.size());
   for (auto&& [ value, valueAgain ]: util::zip(data, dataAgain)) {
 
-    BOOST_CHECK_EQUAL(valueAgain, value);
-    BOOST_CHECK_NE(&valueAgain, &value);
+    BOOST_TEST(valueAgain == value);
+    BOOST_TEST(&valueAgain != &value);
 
   } // for
 
@@ -287,7 +287,7 @@ void test_dereference_uncopiable() {
   ToughInt value;
   ToughInt const* pValue = &value;
 
-  BOOST_CHECK_EQUAL(pValue, &(util::dereference()(pValue)));
+  BOOST_TEST(pValue == &(util::dereference()(pValue)));
 
 } // test_dereference_uncopiable()
 

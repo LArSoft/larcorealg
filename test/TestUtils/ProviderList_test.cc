@@ -119,15 +119,15 @@ void TestElement(LIST& l, std::string label = "", bool present = true) {
 
    BOOST_TEST_MESSAGE("Testing class '" << typeid(T).name() << "' label \""
      << label << "\" (" << (present? "present": "not present") << ")" );
-   BOOST_CHECK_EQUAL(l.template known<T>(label), present);
-   BOOST_CHECK_EQUAL(l.template valid<T>(label), present);
+   BOOST_TEST(l.template known<T>(label) == present);
+   BOOST_TEST(l.template valid<T>(label) == present);
    try {
       auto const& item = l.template get<T>(label);
-      BOOST_CHECK(present); // if not present, we should not be here!
-      BOOST_CHECK(&item);
+      BOOST_TEST(present); // if not present, we should not be here!
+      BOOST_TEST(&item);
    }
    catch (testing::ProviderList::provider_not_available const& e) {
-      BOOST_CHECK(!present); // if present, we should not be here!
+      BOOST_TEST(!present); // if present, we should not be here!
    }
 
 } // TestElement()
@@ -146,7 +146,7 @@ void TestBase(LIST& l) {
    TestElement<int>(l, "", false); // no int present
 
    // test that the polymorphism is preserved by aliases
-   BOOST_CHECK(!l.template get<PinnedDatumClassBase>().abstract());
+   BOOST_TEST(!l.template get<PinnedDatumClassBase>().abstract());
 
 } // TestBase()
 
@@ -159,22 +159,22 @@ void NonConstTest(testing::ProviderList& l) {
    TestElement<UncopiableDatumClass>(l, "Acquired", false);
 
    // acquire a new one
-   BOOST_CHECK(
+   BOOST_TEST(
      l.acquire(std::make_unique<UncopiableDatumClass>
        ("another uncopiable"), "Acquired")
      );
    TestElement<UncopiableDatumClass>(l, "Acquired", true);
 
    // erase it
-   BOOST_CHECK(l.erase<UncopiableDatumClass>("Acquired"));
+   BOOST_TEST(l.erase<UncopiableDatumClass>("Acquired"));
    TestElement<UncopiableDatumClass>(l, "Acquired", false);
 
    // erase it again
-   BOOST_CHECK(!l.erase<UncopiableDatumClass>("Acquired"));
+   BOOST_TEST(!l.erase<UncopiableDatumClass>("Acquired"));
    TestElement<UncopiableDatumClass>(l, "Acquired", false);
 
    // erase something that was never there
-   BOOST_CHECK(!l.erase<UncopiableDatumClass>("Never"));
+   BOOST_TEST(!l.erase<UncopiableDatumClass>("Never"));
    TestElement<UncopiableDatumClass>(l, "Never", false);
 
 } // NonConstTest()
@@ -188,15 +188,15 @@ BOOST_AUTO_TEST_CASE(ProviderListTest)
    BOOST_TEST_MESSAGE("Construction and instantiation of ProviderList");
    auto l = std::make_unique<testing::ProviderList>();
 
-   BOOST_CHECK(l->setup<NormalDatumClass>(12));
-   BOOST_CHECK(l->setup_instance<UncopiableDatumClass>("One", "uncopiable"));
-   BOOST_CHECK(l->setup<UnmovableDatumClass>());
-   BOOST_CHECK
+   BOOST_TEST(l->setup<NormalDatumClass>(12));
+   BOOST_TEST(l->setup_instance<UncopiableDatumClass>("One", "uncopiable"));
+   BOOST_TEST(l->setup<UnmovableDatumClass>());
+   BOOST_TEST
      (l->custom_setup<PinnedDatumClass>(&PinnedDatumClass::New, 1.0, 0.0));
-   BOOST_CHECK((l->set_alias<PinnedDatumClass, PinnedDatumClassBase>()));
+   BOOST_TEST((l->set_alias<PinnedDatumClass, PinnedDatumClassBase>()));
 
    // second creation shoudl fail
-   BOOST_CHECK(!l->setup_instance<UncopiableDatumClass>("One", "uncopiableII"));
+   BOOST_TEST(!l->setup_instance<UncopiableDatumClass>("One", "uncopiableII"));
 
    BOOST_TEST_MESSAGE("Constant list test");
    ConstTest(*l);
@@ -207,9 +207,9 @@ BOOST_AUTO_TEST_CASE(ProviderListTest)
 
    // make sure that we did not leak anything
    l.reset();
-   BOOST_CHECK(TrackedMemory.empty());
+   BOOST_TEST(TrackedMemory.empty());
 
    // check that we noticed a single call for a custom setup
-   BOOST_CHECK_EQUAL(PinnedDatumClass::nNewCalls, 1U);
+   BOOST_TEST(PinnedDatumClass::nNewCalls == 1U);
 
 } // BOOST_AUTO_TEST_CASE(ProviderListTest)
