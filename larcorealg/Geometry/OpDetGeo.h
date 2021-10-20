@@ -509,13 +509,13 @@ namespace geo {
     /// Base directions of the detector geometry.
     geo::PlaneBase<geo::Vector_t> fDirections;
     
+    /// Geometric center of the solid the optical detector is modeled after.
+    geo::Point_t fBoxCenter;
+
     Shape_t fShape; ///< Shape of the detector as `TGeoShape` object.
     
     Specs_t fSpecs; ///< Aggregate geometry information from the detector.
     
-    /// Geometric center of the solid the optical detector is modeled after.
-    geo::Point_t fBoxCenter;
-
     geo::OpDetID fID; ///< Identifier of this optical detector.
 
     /// Returns the geometry object as `TGeoTube`, `nullptr` if not a tube.

@@ -31,8 +31,9 @@ namespace geo{
   OpDetGeo::OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
     : fTrans{ makeTrans(std::move(trans)) }
     , fOpDetNode{ &node }
-    , fShape{ makeShape(*fOpDetNode) }
     , fBoxCenter{ toWorldCoords(geo::origin<LocalPoint_t>()) }
+    , fShape{ makeShape(*fOpDetNode) }
+    , fSpecs{ GetShapeCenter() } // only center initialized so far (legacy)
     {}
   
   //......................................................................
