@@ -69,7 +69,7 @@ void geo::details::OpDetGeoSpecFillerFromTube::checkAlignment
     = trans.toWorldCoords(geo::Zaxis<LocalVector_t>());
   if (!cmp.parallel(shapeZdir, normalDir)) {
     throw cet::exception{ "Geometry" }
-      << "geo::details (disc) at " << extractCenter(disc)
+      << __func__ << " (disc) at " << extractCenter(disc)
       << " has axis " << shapeZdir
       << " while it should match the provided normal " << normalDir
       << ".\n";
@@ -142,7 +142,7 @@ double geo::details::OpDetGeoSpecFillerFromSphere::checkShape
   // 2.
   if (!cmp.equal(std::abs(dotProd), 1.0)) {
     throw cet::exception{ "Geometry" }
-      << "geo::details (incomplete sphere) at " << solidCenter()
+      << __func__ << " (incomplete sphere) at " << solidCenter()
       << " has axis " << shapeZdir
       << " while it should match the provided normal " << normalDir
       << " (dot product: " << dotProd << ").\n";
@@ -153,9 +153,9 @@ double geo::details::OpDetGeoSpecFillerFromSphere::checkShape
     { (dotProd > 0)? sphere.GetTheta1(): 180.0 - sphere.GetTheta2() };
   if (cmp.nonZero(frontAngle)) {
     throw cet::exception{ "Geometry" }
-      << "geo::details (incomplete sphere) at " << solidCenter()
+      << __func__ << " (incomplete sphere) at " << solidCenter()
       << " has the open side facing the provided normal " << normalDir
-      << " (detector axis \"z\": " << shapeZdir
+      << " (optical detector axis \"z\": " << shapeZdir
       << "; theta: (+z)=" << sphere.GetTheta1()
       << ", (-z)=" << sphere.GetTheta2()
       << ").\n";
@@ -327,7 +327,7 @@ void geo::details::OpDetGeoSpecFillerFromBox::validateAlignment(
       }
       else e << " unmatched!";
     };
-  e << "geo::details (incomplete sphere): failed to match " << nErrors
+  e << __func__ << " (incomplete sphere): failed to match " << nErrors
     << " directions of optical detector to the proposed frame:";
   e << "\n   W: " << dirs.MainDir() << " <=> ";
   printInfo(widthInfo);
