@@ -17,7 +17,7 @@
 #include "larcorealg/Geometry/GeoVectorLocalTransformation.h"  // for LocalT...
 #include "larcorealg/Geometry/LocalTransformationGeo.h"        // for LocalT...
 #include "larcorealg/Geometry/WireGeo.h"                       // for WireGeo
-#include "larcorealg/Geometry/Decomposer.h" // geo::PlaneBase
+#include "larcorealg/Geometry/Decomposer.h" // geo::AffinePlaneBase
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h" // geo::Point_t
 
@@ -471,7 +471,7 @@ namespace geo {
     // --- BEGIN -- Optical detector reference ---------------------------------
     
     /// Type to pass around a reference frame (directions only).
-    using RefFrame_t = geo::PlaneBase<geo::Vector_t>;
+    using RefFrame_t = geo::AffinePlaneBase<geo::Vector_t, geo::Point_t>;
     
     /// Returns the one among `TPCs` which is the closest to the specified
     /// `point` (`nullptr` if no TPC is in the list).

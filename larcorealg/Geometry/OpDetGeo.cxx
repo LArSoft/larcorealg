@@ -111,17 +111,45 @@ namespace geo{
   //......................................................................
   void OpDetGeo::UpdateAfterSorting(
     geo::OpDetID opdetid,
-    geo::PlaneBase<geo::Vector_t> const* directions
+    geo::AffinePlaneBase<geo::Vector_t, geo::Point_t> const* directions
   ) {
 
     fID = opdetid;
-    fDirections = directions? *directions: standardDirections(fTrans);
+    fDirections = directions
+      ? directionsFromReference(*directions)
+      : standardDirections(fTrans)
+      ;
     fSpecs
       = std::visit(details::OpDetGeoSpecFiller{ fTrans, fDirections }, fShape);
 
   } // OpDetGeo::UpdateAfterSorting()
 
 
+  //......................................................................
+  geo::PlaneBase<geo::Vector_t> OpDetGeo::directionsFromReference
+    (geo::AffinePlaneBase<geo::Vector_t, geo::Point_t> const& reference) const
+  {
+    /*
+     * We adopt `reference` directions as our local reference directions,
+     * but we require our final reference to have a normal direction pointing
+     * toward the target point provided as origin of the reference.
+     * Id that is not the case, we flip the normal direction
+     * (and the secondary direction to preserve "handness").
+     */
+    
+    bool const flip =
+      geo::vect::dot(reference.NormalDir(), fromCenter(reference.Origin()))
+      < 0.0
+      ;
+    
+    return geo::PlaneBase<geo::Vector_t>{
+      reference.MainDir(),
+      flip? -reference.SecondaryDir(): reference.SecondaryDir()
+      };
+    
+  } // OpDetGeo::directionsFromReference()
+  
+  
   //......................................................................
   geo::PlaneBase<geo::Vector_t> OpDetGeo::standardDirections
     (LocalTransformation_t const& trans)

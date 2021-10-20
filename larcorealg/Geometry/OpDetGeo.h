@@ -11,7 +11,7 @@
 
 // LArSoft libraries
 #include "larcorealg/Geometry/details/OpDetGeoSpecs.h"
-#include "larcorealg/Geometry/Decomposer.h" // geo::PlaneBase<>
+#include "larcorealg/Geometry/Decomposer.h" // geo::AffinePlaneBase<>
 #include "larcorealg/Geometry/TransformationMatrix.h"
 #include "larcorealg/Geometry/LocalTransformationGeo.h"
 #include "larcorealg/CoreUtils/RealComparisons.h"
@@ -450,7 +450,7 @@ namespace geo {
      */
     void UpdateAfterSorting(
       geo::OpDetID opdetid,
-      geo::PlaneBase<geo::Vector_t> const* directions
+      geo::AffinePlaneBase<geo::Vector_t, geo::Point_t> const* directions
       );
 
 
@@ -529,6 +529,17 @@ namespace geo {
     /// Returns the geometry object as `TGeoBBox`, `nullptr` if not box-derived.
     TGeoBBox const* asBox() const
       { return dynamic_cast<TGeoBBox const*>(Shape()); }
+    
+    /**
+     * @brief Returns reference directions for this optical detector.
+     * @param reference the candidate reference directions, with as origin
+     *                  the location the detector should point toward
+     * @return the reference directions for this object
+     */
+    geo::PlaneBase<geo::Vector_t> directionsFromReference
+      (geo::AffinePlaneBase<geo::Vector_t, geo::Point_t> const& reference)
+      const;
+    
     
     /// Builds a shape object variant out of the specified node.
     /// @throws cet::exception (category: `Geometry`) if unsupported shape.

@@ -337,8 +337,10 @@ namespace geo{
     geo::TPCGeo const* closestTPC = findClosestTPC(point, TPCs);
     geo::PlaneGeo const* refPlane = getReferencePlane(closestTPC);
     return refPlane
-      ? std::make_optional<RefFrame_t>
-        (refPlane->WidthDir<geo::Vector_t>(), refPlane->DepthDir<geo::Vector_t>())
+      ? std::make_optional<RefFrame_t>(
+        closestTPC->GetCenter<geo::Point_t>(),
+        refPlane->WidthDir<geo::Vector_t>(), refPlane->DepthDir<geo::Vector_t>()
+        )
       : std::nullopt
       ;
     
