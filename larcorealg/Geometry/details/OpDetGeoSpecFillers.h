@@ -65,7 +65,10 @@ struct geo::details::OpDetGeoSpecFillerBase {
 // -----------------------------------------------------------------------------
 struct geo::details::OpDetGeoSpecFillerFromTube: OpDetGeoSpecFillerBase {
   
-  using OpDetGeoSpecFillerBase::OpDetGeoSpecFillerBase; // inherit constructor
+  OpDetGeoSpecFillerFromTube(
+    LocalTransformation_t const& trans,
+    geo::PlaneBase<geo::Vector_t> const& directions
+    ):   OpDetGeoSpecFillerBase(trans, directions) {}
   
   Specs_t operator()(TGeoTube const& disc) const;
   
@@ -82,7 +85,10 @@ struct geo::details::OpDetGeoSpecFillerFromTube: OpDetGeoSpecFillerBase {
 // -----------------------------------------------------------------------------
 struct geo::details::OpDetGeoSpecFillerFromSphere: OpDetGeoSpecFillerBase {
 
-  using OpDetGeoSpecFillerBase::OpDetGeoSpecFillerBase; // inherit constructor
+  OpDetGeoSpecFillerFromSphere(
+    LocalTransformation_t const& trans,
+    geo::PlaneBase<geo::Vector_t> const& directions
+    ):   OpDetGeoSpecFillerBase(trans, directions) {}
   
   Specs_t operator()(TGeoSphere const& sphere) const;
   
@@ -111,7 +117,10 @@ struct geo::details::OpDetGeoSpecFillerFromSphere: OpDetGeoSpecFillerBase {
 // -----------------------------------------------------------------------------
 struct geo::details::OpDetGeoSpecFillerFromBox: OpDetGeoSpecFillerBase {
   
-  using OpDetGeoSpecFillerBase::OpDetGeoSpecFillerBase; // inherit constructor
+  OpDetGeoSpecFillerFromBox(
+    LocalTransformation_t const& trans,
+    geo::PlaneBase<geo::Vector_t> const& directions
+    ):   OpDetGeoSpecFillerBase(trans, directions) {}
   
   Specs_t operator()(TGeoBBox const& box) const;
   

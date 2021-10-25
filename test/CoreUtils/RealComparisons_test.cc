@@ -132,16 +132,18 @@ BOOST_AUTO_TEST_CASE(Vector2DComparisons_testcase) {
   
   constexpr float const epsilon { std::numeric_limits<float>::epsilon() };
   
-  constexpr Vector1_t Orig   {  0.0,  0.0 + 4.0*epsilon };
-  constexpr Vector1_t Xpos   { +1.0,  0.0 - 8.0*epsilon };
-  constexpr Vector2_t Xneg   { -1.0 + 2.0*epsilon,  0.0 };
-  constexpr Vector2_t Ypos   {  0.0, +1.0 + 8.0*epsilon };
-  constexpr Vector1_t Yneg   {  0.0, -1.0 + 2.0*epsilon };
-  constexpr Vector1_t XYpos  { +3.0 + 1.0*epsilon, +4.0 };
-  constexpr Vector2_t Xpos2  { +2.0 + 1.0*epsilon,  0.0 };
-  constexpr Vector1_t Xneg2  { -2.0,  0.0 + 1.0*epsilon };
-  constexpr Vector1_t Ypos2  {  0.0, +2.0 };
-  constexpr Vector2_t Yneg2  {  0.0 - 4.0*epsilon, +1.0 };
+  // BUG the double brace syntax is required to work around clang bug 21629
+  // (https://bugs.llvm.org/show_bug.cgi?id=21629)
+  constexpr Vector1_t Orig  {{  0.0,  0.0 + 4.0*epsilon }};
+  constexpr Vector1_t Xpos  {{ +1.0,  0.0 - 8.0*epsilon }};
+  constexpr Vector2_t Xneg  {{ -1.0 + 2.0*epsilon,  0.0 }};
+  constexpr Vector2_t Ypos  {{  0.0, +1.0 + 8.0*epsilon }};
+  constexpr Vector1_t Yneg  {{  0.0, -1.0 + 2.0*epsilon }};
+  constexpr Vector1_t XYpos {{ +3.0 + 1.0*epsilon, +4.0 }};
+  constexpr Vector2_t Xpos2 {{ +2.0 + 1.0*epsilon,  0.0 }};
+  constexpr Vector1_t Xneg2 {{ -2.0,  0.0 + 1.0*epsilon }};
+  constexpr Vector1_t Ypos2 {{  0.0, +2.0 }};
+  constexpr Vector2_t Yneg2 {{  0.0 - 4.0*epsilon, +1.0 }};
   
   // zero()
   BOOST_TEST( check.zero(Orig ));
@@ -274,20 +276,22 @@ BOOST_AUTO_TEST_CASE(Vector3DComparisons_testcase) {
   
   constexpr float const epsilon { std::numeric_limits<float>::epsilon() };
   
-  constexpr Vector1_t Orig   {  0.0,  0.0,  0.0 + 4.0*epsilon };
-  constexpr Vector1_t Xpos   { +1.0,  0.0 + 4.0*epsilon,  0.0 };
-  constexpr Vector2_t Xneg   { -1.0 + 2.0*epsilon,  0.0,  0.0 };
-  constexpr Vector2_t Ypos   {  0.0, +1.0,  0.0 + 8.0*epsilon };
-  constexpr Vector1_t Yneg   {  0.0, -1.0 + 2.0*epsilon,  0.0 };
-  constexpr Vector2_t Zpos   {  0.0 + 1.0*epsilon,  0.0, +1.0 };
-  constexpr Vector1_t Zneg   {  0.0,  0.0, -1.0 + 8.0*epsilon };
-  constexpr Vector1_t XYpos  { +3.0 + 1.0*epsilon, +4.0,  0.0 + 1.0*epsilon };
-  constexpr Vector2_t Xpos2  { +2.0 + 1.0*epsilon,  0.0,  0.0 - 2.0*epsilon };
-  constexpr Vector1_t Xneg2  { -2.0,  0.0 + 1.0*epsilon,  0.0 + 8.0*epsilon };
-  constexpr Vector1_t Ypos2  {  0.0, +2.0,  0.0 };
-  constexpr Vector2_t Yneg2  {  0.0 - 4.0*epsilon, -2.0,  0.0 };
-  constexpr Vector1_t Zpos2  {  0.0,  0.0 + 2.0*epsilon, +2.0 };
-  constexpr Vector2_t Zneg2  {  0.0,  0.0, -2.0 + 2.0*epsilon };
+  // BUG the double brace syntax is required to work around clang bug 21629
+  // (https://bugs.llvm.org/show_bug.cgi?id=21629)
+  constexpr Vector1_t Orig   {{  0.0,  0.0,  0.0 + 4.0*epsilon }};
+  constexpr Vector1_t Xpos   {{ +1.0,  0.0 + 4.0*epsilon,  0.0 }};
+  constexpr Vector2_t Xneg   {{ -1.0 + 2.0*epsilon,  0.0,  0.0 }};
+  constexpr Vector2_t Ypos   {{  0.0, +1.0,  0.0 + 8.0*epsilon }};
+  constexpr Vector1_t Yneg   {{  0.0, -1.0 + 2.0*epsilon,  0.0 }};
+  constexpr Vector2_t Zpos   {{  0.0 + 1.0*epsilon,  0.0, +1.0 }};
+  constexpr Vector1_t Zneg   {{  0.0,  0.0, -1.0 + 8.0*epsilon }};
+  constexpr Vector1_t XYpos  {{ +3.0 + 1.0*epsilon, +4.0,  0.0 + 1.0*epsilon }};
+  constexpr Vector2_t Xpos2  {{ +2.0 + 1.0*epsilon,  0.0,  0.0 - 2.0*epsilon }};
+  constexpr Vector1_t Xneg2  {{ -2.0,  0.0 + 1.0*epsilon,  0.0 + 8.0*epsilon }};
+  constexpr Vector1_t Ypos2  {{  0.0, +2.0,  0.0 }};
+  constexpr Vector2_t Yneg2  {{  0.0 - 4.0*epsilon, -2.0,  0.0 }};
+  constexpr Vector1_t Zpos2  {{  0.0,  0.0 + 2.0*epsilon, +2.0 }};
+  constexpr Vector2_t Zneg2  {{  0.0,  0.0, -2.0 + 2.0*epsilon }};
   
   // zero()
   BOOST_TEST( check.zero(Orig ));
