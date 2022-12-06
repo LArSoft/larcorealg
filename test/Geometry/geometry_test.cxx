@@ -18,6 +18,7 @@
 // LArSoft libraries
 #include "GeometryTestAlg.h"
 #include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
 
@@ -31,8 +32,7 @@
 // we define here all the configuration that is needed;
 // we use an existing class provided for this purpose, since our test
 // environment allows us to tailor it at run time.
-using StandardGeometryConfiguration =
-  testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>;
+using StandardGeometryConfiguration = testing::BasicGeometryEnvironmentConfiguration;
 
 /*
  * GeometryTesterFixture, configured with the object above, is used in a
@@ -42,7 +42,7 @@ using StandardGeometryConfiguration =
  * - `geo::GeometryCore const* GlobalGeometry()` (static member)
  */
 using StandardGeometryTestEnvironment =
-  testing::GeometryTesterEnvironment<StandardGeometryConfiguration>;
+  testing::GeometryTesterEnvironment<StandardGeometryConfiguration, geo::GeoObjectSorterStandard>;
 
 //------------------------------------------------------------------------------
 //---  The tests
@@ -67,7 +67,6 @@ using StandardGeometryTestEnvironment =
 //------------------------------------------------------------------------------
 int main(int argc, char const** argv)
 {
-
   StandardGeometryConfiguration config("geometry_test");
   config.SetMainTesterParameterSetName("geotest");
 
@@ -91,21 +90,20 @@ int main(int argc, char const** argv)
   // testing environment setup
   //
   StandardGeometryTestEnvironment TestEnvironment(config);
+  auto const channelMap = std::make_unique<geo::ChannelMapStandardAlg>(TestEnvironment.Geometry());
 
   //
   // run the test algorithm
   //
 
   // 1. we initialize it from the configuration in the environment,
-  geo::GeometryTestAlg Tester(TestEnvironment.TesterParameters());
+  geo::GeometryTestAlg Tester{
+    TestEnvironment.Geometry(), channelMap.get(), TestEnvironment.TesterParameters()};
 
-  // 2. we set it up with the geometry from the environment
-  Tester.Setup(*(TestEnvironment.Provider<geo::GeometryCore>()));
-
-  // 3. then we run it!
+  // 2. then we run it!
   unsigned int nErrors = Tester.Run();
 
-  // 4. And finally we cross fingers.
+  // 3. And finally we cross fingers.
   if (nErrors > 0) { mf::LogError("geometry_test") << nErrors << " errors detected!"; }
 
   return nErrors;

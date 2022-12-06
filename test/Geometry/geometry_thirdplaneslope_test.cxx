@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE GeometryThirdPlaneSlopeTest
 
 // LArSoft libraries
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/boost_unit_test_base.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
@@ -35,8 +35,7 @@ using boost::test_tools::tolerance;
 // BoostCommandLineConfiguration<> makes it initialize in time for Boost
 // to catch it when instanciating the fixture.
 struct StandardGeometryConfiguration
-  : public testing::BoostCommandLineConfiguration<
-      testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>> {
+  : public testing::BoostCommandLineConfiguration<testing::BasicGeometryEnvironmentConfiguration> {
   /// Constructor: overrides the application name
   StandardGeometryConfiguration() { SetApplicationName("GeometryThirdPlaneSlopeTest"); }
 }; // class StandardGeometryConfiguration
@@ -45,7 +44,8 @@ struct StandardGeometryConfiguration
  * Our fixture is based on GeometryTesterFixture, configured with the object
  * above.
  */
-using SimpleGeometryTestFixture = testing::GeometryTesterEnvironment<StandardGeometryConfiguration>;
+using SimpleGeometryTestFixture =
+  testing::GeometryTesterEnvironment<StandardGeometryConfiguration, geo::GeoObjectSorterStandard>;
 
 //------------------------------------------------------------------------------
 //---  The tests

@@ -12,13 +12,13 @@
 
 // LArSoft libraries
 #include "larcorealg/Geometry/CryostatGeo.h"
-#include "larcorealg/Geometry/GeometryData.h"
 #include "larcorealg/Geometry/PlaneGeo.h"
 #include "larcorealg/Geometry/TPCGeo.h"
 
 // C/C++ standard libraries
 #include <array>
 #include <cstddef> // std::size_t
+#include <vector>
 
 namespace geo::details {
 
@@ -41,7 +41,7 @@ namespace geo::details {
    */
   template <std::size_t Levels = 4U>
   static std::array<unsigned int, Levels> extractMaxGeometryElements(
-    geo::GeometryData_t::CryostatList_t const& Cryostats);
+    std::vector<geo::CryostatGeo> const& Cryostats);
 
 } // namespace geo::details
 
@@ -50,7 +50,7 @@ namespace geo::details {
 // -----------------------------------------------------------------------------
 template <std::size_t Levels /* = 4U */>
 std::array<unsigned int, Levels> geo::details::extractMaxGeometryElements(
-  geo::GeometryData_t::CryostatList_t const& Cryostats)
+  std::vector<geo::CryostatGeo> const& Cryostats)
 {
   static_assert(Levels > 0U);
   static_assert(Levels <= 4U);

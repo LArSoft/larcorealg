@@ -28,8 +28,8 @@
 namespace geo {
 
   //-----------------------------------------
-  WireGeo::WireGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fWireNode(&node), fTrans(std::move(trans)), flipped(false)
+  WireGeo::WireGeo(TGeoNode const* node, geo::TransformationMatrix&& trans)
+    : fWireNode(node), fTrans(std::move(trans)), flipped(false)
   {
     fHalfL = ((TGeoTube*)fWireNode->GetVolume()->GetShape())->GetDZ();
 

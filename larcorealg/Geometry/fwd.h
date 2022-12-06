@@ -4,6 +4,7 @@
 namespace geo {
   class AuxDetGeo;
   class AuxDetSensitiveGeo;
+  class ChannelMapAlg;
   class CryostatGeo;
   class GeometryCore;
   class OpDetGeo;

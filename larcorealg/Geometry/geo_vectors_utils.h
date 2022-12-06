@@ -18,7 +18,6 @@
 #define LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_H
 
 // LArSoft libraries
-#include "larcorealg/CoreUtils/span.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
 // ROOT libraries
@@ -27,6 +26,9 @@
 #include "Math/GenVector/LorentzVector.h"
 #include "Math/GenVector/PositionVector2D.h"
 #include "Math/GenVector/PositionVector3D.h"
+
+// Other libraries
+#include "range/v3/view.hpp"
 
 // C/C++ standard library
 #include <array>
@@ -1138,7 +1140,7 @@ namespace geo {
     template <typename Vector>
     auto iterateCoords(Vector const& v)
     {
-      return util::span(vector_cbegin(v), vector_cend(v));
+      return ranges::make_subrange(vector_cbegin(v), vector_cend(v));
     }
 
     /**

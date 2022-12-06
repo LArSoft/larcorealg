@@ -9,13 +9,11 @@
 // LArSoft libraries
 #include "larcorealg/Geometry/GeometryBuilderStandard.h"
 
-// support libraries
-// #include "cetlib_except/exception.h"
-
 // ROOT libraries
+#include "TGeoNode.h"
 
 // C++ standard library
-#include <algorithm> // std::move()
+#include <algorithm> // std::move(...)
 #include <string_view>
 
 using namespace std::literals;
@@ -57,53 +55,52 @@ geo::GeometryBuilderStandard::GeometryBuilderStandard(Config const& config)
 
 //------------------------------------------------------------------------------
 geo::GeometryBuilderStandard::AuxDets_t geo::GeometryBuilderStandard::doExtractAuxiliaryDetectors(
-  Path_t& path)
+  Path_t& path) const
 {
-
-  return doExtractGeometryObjects(path, isAuxDetNode, &GeometryBuilderStandard::doMakeAuxDet);
+  return doExtractGeometryObjects(path, isAuxDetNode, &GeometryBuilderStandard::makeAuxDet);
 }
 
 //------------------------------------------------------------------------------
-geo::AuxDetGeo geo::GeometryBuilderStandard::doMakeAuxDet(Path_t& path)
+geo::AuxDetGeo geo::GeometryBuilderStandard::makeAuxDet(Path_t& path) const
 {
-
-  return AuxDetGeo(path.current(),
-                   path.currentTransformation<TransformationMatrix>(),
-                   extractAuxDetSensitive(path));
+  return {path.current(),
+          path.currentTransformation<TransformationMatrix>(),
+          extractAuxDetSensitive(path)};
 }
 
 //------------------------------------------------------------------------------
 geo::GeometryBuilderStandard::AuxDetSensitive_t
-geo::GeometryBuilderStandard::doExtractAuxDetSensitive(Path_t& path)
+geo::GeometryBuilderStandard::extractAuxDetSensitive(Path_t& path) const
 {
   return doExtractGeometryObjects(
     path, isAuxDetSensitiveNode, &GeometryBuilderStandard::makeAuxDetSensitive);
 }
 
 //------------------------------------------------------------------------------
-geo::AuxDetSensitiveGeo geo::GeometryBuilderStandard::doMakeAuxDetSensitive(Path_t& path)
+geo::AuxDetSensitiveGeo geo::GeometryBuilderStandard::makeAuxDetSensitive(Path_t& path) const
 {
-  return AuxDetSensitiveGeo(path.current(), path.currentTransformation<TransformationMatrix>());
+  return {path.current(), path.currentTransformation<TransformationMatrix>()};
 }
 
 //------------------------------------------------------------------------------
 geo::GeometryBuilderStandard::Cryostats_t geo::GeometryBuilderStandard::doExtractCryostats(
-  Path_t& path)
+  Path_t& path) const
 {
   return doExtractGeometryObjects(path, isCryostatNode, &GeometryBuilderStandard::makeCryostat);
 }
 
 //------------------------------------------------------------------------------
-geo::CryostatGeo geo::GeometryBuilderStandard::doMakeCryostat(Path_t& path)
+geo::CryostatGeo geo::GeometryBuilderStandard::makeCryostat(Path_t& path) const
 {
-  return CryostatGeo{path.current(),
-                     path.currentTransformation<TransformationMatrix>(),
-                     extractTPCs(path),
-                     extractOpDets(path)};
+  return {path.current(),
+          path.currentTransformation<TransformationMatrix>(),
+          extractTPCs(path),
+          extractOpDets(path)};
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::OpDets_t geo::GeometryBuilderStandard::doExtractOpDets(Path_t& path)
+geo::GeometryBuilderStandard::OpDets_t geo::GeometryBuilderStandard::extractOpDets(
+  Path_t& path) const
 {
   return doExtractGeometryObjects(
     path,
@@ -112,47 +109,46 @@ geo::GeometryBuilderStandard::OpDets_t geo::GeometryBuilderStandard::doExtractOp
 }
 
 //------------------------------------------------------------------------------
-geo::OpDetGeo geo::GeometryBuilderStandard::doMakeOpDet(Path_t& path)
+geo::OpDetGeo geo::GeometryBuilderStandard::makeOpDet(Path_t& path) const
 {
-  return OpDetGeo(path.current(), path.currentTransformation<TransformationMatrix>());
+  return {path.current(), path.currentTransformation<TransformationMatrix>()};
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::TPCs_t geo::GeometryBuilderStandard::doExtractTPCs(Path_t& path)
+geo::GeometryBuilderStandard::TPCs_t geo::GeometryBuilderStandard::extractTPCs(Path_t& path) const
 {
   return doExtractGeometryObjects(path, isTPCNode, &GeometryBuilderStandard::makeTPC);
 }
 
 //------------------------------------------------------------------------------
-geo::TPCGeo geo::GeometryBuilderStandard::doMakeTPC(Path_t& path)
+geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
 {
-  return TPCGeo{
-    path.current(), path.currentTransformation<TransformationMatrix>(), extractPlanes(path)};
+  return {path.current(), path.currentTransformation<TransformationMatrix>(), extractPlanes(path)};
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::Planes_t geo::GeometryBuilderStandard::doExtractPlanes(Path_t& path)
+geo::GeometryBuilderStandard::Planes_t geo::GeometryBuilderStandard::extractPlanes(
+  Path_t& path) const
 {
   return doExtractGeometryObjects(path, isPlaneNode, &GeometryBuilderStandard::makePlane);
 }
 
 //------------------------------------------------------------------------------
-geo::PlaneGeo geo::GeometryBuilderStandard::doMakePlane(Path_t& path)
+geo::PlaneGeo geo::GeometryBuilderStandard::makePlane(Path_t& path) const
 {
-  return PlaneGeo{
-    path.current(), path.currentTransformation<TransformationMatrix>(), extractWires(path)};
+  return {path.current(), path.currentTransformation<TransformationMatrix>(), extractWires(path)};
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::Wires_t geo::GeometryBuilderStandard::doExtractWires(Path_t& path)
+geo::GeometryBuilderStandard::Wires_t geo::GeometryBuilderStandard::extractWires(Path_t& path) const
 {
   return doExtractGeometryObjects(path, isWireNode, &GeometryBuilderStandard::makeWire);
 }
 
 //------------------------------------------------------------------------------
-geo::WireGeo geo::GeometryBuilderStandard::doMakeWire(Path_t& path)
+geo::WireGeo geo::GeometryBuilderStandard::makeWire(Path_t& path) const
 {
-  return WireGeo{path.current(), path.currentTransformation<TransformationMatrix>()};
+  return {path.current(), path.currentTransformation<TransformationMatrix>()};
 }
 
 //------------------------------------------------------------------------------
@@ -160,14 +156,14 @@ template <typename ObjGeo>
 geo::GeometryBuilder::GeoColl_t<ObjGeo> geo::GeometryBuilderStandard::doExtractGeometryObjects(
   Path_t& path,
   std::function<bool(TGeoNode const&)> const IsObj,
-  ObjGeo (GeometryBuilderStandard::*MakeObj)(Path_t&))
+  ObjGeo (GeometryBuilderStandard::*MakeObj)(Path_t&) const) const
 {
   GeoColl_t<ObjGeo> objs;
 
   //
   // if this is a wire, we are set
   //
-  if (IsObj(path.current())) {
+  if (IsObj(*path.current())) {
     objs.push_back((this->*MakeObj)(path));
     return objs;
   }
@@ -177,10 +173,10 @@ geo::GeometryBuilder::GeoColl_t<ObjGeo> geo::GeometryBuilderStandard::doExtractG
   //
   if (path.depth() >= fMaxDepth) return objs; // yep, this is empty
 
-  TGeoVolume const* volume = path.current().GetVolume();
+  TGeoVolume const* volume = path.current()->GetVolume();
   int const n = volume->GetNdaughters();
   for (int i = 0; i < n; ++i) {
-    path.append(*volume->GetNode(i));
+    path.append(volume->GetNode(i));
     extendCollection(objs, doExtractGeometryObjects(path, IsObj, MakeObj));
     path.pop();
   } // for

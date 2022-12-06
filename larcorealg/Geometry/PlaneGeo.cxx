@@ -36,26 +36,13 @@
 #include <type_traits> // std::is_same<>, std::decay_t<>
 
 namespace {
-
   /// Returns the offset to apply to value to move it inside [ -limit, +limit ].
   template <typename T>
   T symmetricCapDelta(T value, T limit)
   {
-
     return (value < -limit) ? -limit - value : (value > +limit) ? +limit - value : 0.0;
-
-  } // symmetricCapDelta()
-
-  /// Returns a value shifted to fall into [ -limit; +limit ] interval.
-  template <typename T>
-  T symmetricCap(T value, T limit)
-  {
-
-    return value + symmetricCapDelta(value, limit);
-
-  } // symmetricCap()
-
-} // local namespace
+  }
+}
 
 namespace geo {
 
@@ -77,22 +64,22 @@ namespace geo {
      */
     struct ActiveAreaCalculator {
 
-      ActiveAreaCalculator(geo::PlaneGeo const& plane, double wMargin, double dMargin)
+      ActiveAreaCalculator(PlaneGeo const& plane, double wMargin, double dMargin)
         : plane(plane), wMargin(wMargin), dMargin(dMargin)
       {}
 
-      ActiveAreaCalculator(geo::PlaneGeo const& plane, double margin = 0.0)
+      ActiveAreaCalculator(PlaneGeo const& plane, double margin = 0.0)
         : ActiveAreaCalculator(plane, margin, margin)
       {}
 
-      operator geo::PlaneGeo::Rect() { return recomputeArea(); }
+      operator PlaneGeo::Rect() { return recomputeArea(); }
 
     private:
       using Projection_t = ROOT::Math::PositionVector2D<ROOT::Math::Cartesian2D<double>,
-                                                        geo::PlaneGeo::WidthDepthReferenceTag>;
-      using Vector_t = geo::PlaneGeo::WidthDepthDisplacement_t;
+                                                        PlaneGeo::WidthDepthReferenceTag>;
+      using Vector_t = PlaneGeo::WidthDepthDisplacement_t;
 
-      static_assert(!std::is_same<Projection_t, geo::PlaneGeo::WidthDepthProjection_t>::value,
+      static_assert(!std::is_same<Projection_t, PlaneGeo::WidthDepthProjection_t>::value,
                     "Necessary maintenance: remove the now optional conversions");
 
       static constexpr std::size_t kFirstWireStart = 0;
@@ -100,10 +87,10 @@ namespace geo {
       static constexpr std::size_t kLastWireStart = 2;
       static constexpr std::size_t kLastWireEnd = 3;
 
-      PlaneGeo const& plane;          ///< Plane to work on.
-      double const wMargin = 0.0;     ///< Margin subtracted from each side of width.
-      double const dMargin = 0.0;     ///< Margin subtracted from each side of depth.
-      geo::PlaneGeo::Rect activeArea; ///< Result.
+      PlaneGeo const& plane;      ///< Plane to work on.
+      double const wMargin = 0.0; ///< Margin subtracted from each side of width.
+      double const dMargin = 0.0; ///< Margin subtracted from each side of depth.
+      PlaneGeo::Rect activeArea;  ///< Result.
 
       /// Cache: wire end projections.
       Projection_t wireEnds[4];
@@ -176,8 +163,8 @@ namespace geo {
         //
 
         // these are the angles of the original wire coordinate direction
-        double const cosAngleWidth = geo::vect::dot(wireCoordDir, widthDir);
-        double const cosAngleDepth = geo::vect::dot(wireCoordDir, depthDir);
+        double const cosAngleWidth = vect::dot(wireCoordDir, widthDir);
+        double const cosAngleDepth = vect::dot(wireCoordDir, depthDir);
         // if the wire coordinate direction is on first or third quadrant:
         bool const bPositiveAngle = none_or_both((wireCoordDir.X() >= 0), (wireCoordDir.Y() >= 0));
 
@@ -279,7 +266,7 @@ namespace geo {
           // (width coordinate is lower for start than for end)
           std::size_t const iUpperWire = (cosAngleWidth > 0) ? kLastWireStart : kFirstWireStart;
 
-          double const upperDistance = geo::vect::dot(
+          double const upperDistance = vect::dot(
             Vector_t(activeArea.width.upper - wireEnds[iUpperWire].X(), 0.0), wireCoordDir);
           // make the upper distance become p/2
           auto const upperDelta = (hp - upperDistance) * wireCoordDir;
@@ -294,7 +281,7 @@ namespace geo {
           // (width coordinate is lower than the end)
           std::size_t const iLowerWire = (cosAngleWidth > 0) ? kFirstWireEnd : kLastWireEnd;
 
-          double const lowerDistance = geo::vect::dot(
+          double const lowerDistance = vect::dot(
             Vector_t(wireEnds[iLowerWire].X() - activeArea.width.lower, 0.0), wireCoordDir);
           // make the lower distance become p/2 (note direction of wire coord)
           auto const lowerDelta = (hp - lowerDistance) * wireCoordDir;
@@ -312,7 +299,7 @@ namespace geo {
           // (width coordinate is lower than the end)
           std::size_t const iUpperWire = (cosAngleWidth > 0) ? kLastWireStart : kFirstWireStart;
 
-          double const upperDistance = geo::vect::dot(
+          double const upperDistance = vect::dot(
             Vector_t(activeArea.width.upper - wireEnds[iUpperWire].X(), 0.0), wireCoordDir);
           // make the upper distance become p/2
           auto const upperDelta = (hp - upperDistance) * wireCoordDir;
@@ -327,7 +314,7 @@ namespace geo {
           // (width coordinate is lower than the end)
           std::size_t const iLowerWire = (cosAngleWidth > 0) ? kFirstWireEnd : kLastWireEnd;
 
-          double const lowerDistance = geo::vect::dot(
+          double const lowerDistance = vect::dot(
             Vector_t(wireEnds[iLowerWire].X() - activeArea.width.lower, 0.0), wireCoordDir);
           // make the lower distance become p/2 (note direction of wire coord)
           auto const lowerDelta = (hp - lowerDistance) * wireCoordDir;
@@ -350,7 +337,7 @@ namespace geo {
         }
       } // applyMargin()
 
-      geo::PlaneGeo::Rect recomputeArea()
+      PlaneGeo::Rect recomputeArea()
       {
         activeArea = {};
 
@@ -396,13 +383,11 @@ namespace geo {
   //----------------------------------------------------------------------------
   //---  geo::PlaneGeo
   //---
-  PlaneGeo::PlaneGeo(TGeoNode const& node,
-                     geo::TransformationMatrix&& trans,
-                     WireCollection_t&& wires)
+  PlaneGeo::PlaneGeo(TGeoNode const* node, TransformationMatrix&& trans, WireCollection_t&& wires)
     : fTrans(std::move(trans))
-    , fVolume(node.GetVolume())
-    , fView(geo::kUnknown)
-    , fOrientation(geo::kVertical)
+    , fVolume(node->GetVolume())
+    , fView(kUnknown)
+    , fOrientation(kVertical)
     , fWire(std::move(wires))
     , fWirePitch(0.)
     , fSinPhiZ(0.)
@@ -411,25 +396,22 @@ namespace geo {
     , fDecompFrame()
     , fCenter()
   {
-
     if (!fVolume) {
       throw cet::exception("PlaneGeo")
-        << "Plane geometry node " << node.IsA()->GetName() << "[" << node.GetName() << ", #"
-        << node.GetNumber() << "] has no volume!\n";
+        << "Plane geometry node " << node->IsA()->GetName() << "[" << node->GetName() << ", #"
+        << node->GetNumber() << "] has no volume!\n";
     }
 
     // view is now set at TPC level with SetView
 
     DetectGeometryDirections();
     UpdateWirePitchSlow();
-
-  } // PlaneGeo::PlaneGeo()
+  }
 
   //......................................................................
 
-  geo::BoxBoundedGeo PlaneGeo::BoundingBox() const
+  BoxBoundedGeo PlaneGeo::BoundingBox() const
   {
-
     //
     // The algorithm is not very refined...
     //
@@ -440,7 +422,7 @@ namespace geo {
         << "BoundingBox(): volume " << fVolume->IsA()->GetName() << " is not a TGeoBBox!";
     }
 
-    geo::BoxBoundedGeo box;
+    BoxBoundedGeo box;
     unsigned int points = 0;
     for (double dx : {-(pShape->GetDX()), +(pShape->GetDX())}) {
       for (double dy : {-(pShape->GetDY()), +(pShape->GetDY())}) {
@@ -457,36 +439,29 @@ namespace geo {
       }   // for y
     }     // for x
     return box;
-
-  } // PlaneGeo::BoundingBox()
+  }
 
   //......................................................................
 
-  geo::WireGeo const& PlaneGeo::Wire(unsigned int iwire) const
+  WireGeo const& PlaneGeo::Wire(unsigned int iwire) const
   {
-    geo::WireGeo const* pWire = WirePtr(iwire);
+    WireGeo const* pWire = WirePtr(iwire);
     if (!pWire) {
       throw cet::exception("WireOutOfRange") << "Request for non-existant wire " << iwire << "\n";
     }
     return *pWire;
-  } // PlaneGeo::Wire(int)
+  }
 
   //......................................................................
 
   // sort the WireGeo objects
-  void PlaneGeo::SortWires(geo::GeoObjectSorter const& sorter) { sorter.SortWires(fWire); }
+  void PlaneGeo::SortWires(GeoObjectSorter const& sorter) { sorter.SortWires(fWire); }
 
   //......................................................................
   bool PlaneGeo::WireIDincreasesWithZ() const
   {
     return lar::util::RealComparisons(1e-3).nonNegative(GetIncreasingWireDirection().Z());
-  } // PlaneGeo::WireIDincreasesWithZ()
-
-  // //......................................................................
-  // lar::util::simple_geo::Volume<Point_t> PlaneGeo::Coverage() const
-  // {
-  //   return {FirstWire().GetStart(), LastWire().GetEnd()};
-  // } // PlaneGeo::Coverage()
+  }
 
   //......................................................................
   std::string PlaneGeo::PlaneInfo(std::string indent /* = "" */,
@@ -495,18 +470,16 @@ namespace geo {
     std::ostringstream sstr;
     PrintPlaneInfo(sstr, indent, verbosity);
     return sstr.str();
-  } // PlaneGeo::PlaneInfo()
+  }
 
   //......................................................................
   PlaneGeo::WidthDepthProjection_t PlaneGeo::DeltaFromPlane(WidthDepthProjection_t const& proj,
                                                             double wMargin,
                                                             double dMargin) const
   {
-
     return {symmetricCapDelta(proj.X(), fFrameSize.HalfWidth() - wMargin),
             symmetricCapDelta(proj.Y(), fFrameSize.HalfDepth() - dMargin)};
-
-  } // PlaneGeo::DeltaFromPlane()
+  }
 
   //......................................................................
   PlaneGeo::WidthDepthProjection_t PlaneGeo::DeltaFromActivePlane(
@@ -514,20 +487,15 @@ namespace geo {
     double wMargin,
     double dMargin) const
   {
-
     return {fActiveArea.width.delta(proj.X(), wMargin), fActiveArea.depth.delta(proj.Y(), dMargin)};
-
-  } // PlaneGeo::DeltaFromActivePlane()
+  }
 
   //......................................................................
-  bool PlaneGeo::isProjectionOnPlane(geo::Point_t const& point) const
+  bool PlaneGeo::isProjectionOnPlane(Point_t const& point) const
   {
-
     auto const deltaProj = DeltaFromPlane(PointWidthDepthProjection(point));
-
     return (deltaProj.X() == 0.) && (deltaProj.Y() == 0.);
-
-  } // PlaneGeo::isProjectionOnPlane()
+  }
 
   //......................................................................
   PlaneGeo::WidthDepthProjection_t PlaneGeo::MoveProjectionToPlane(
@@ -548,11 +516,10 @@ namespace geo {
               ((delta.Y() > 0) ? -fFrameSize.HalfDepth() // delta positive -> proj on negative side
                                  :
                                  fFrameSize.HalfDepth())};
-
-  } // PlaneGeo::MoveProjectionToPlane()
+  }
 
   //......................................................................
-  geo::Point_t PlaneGeo::MovePointOverPlane(geo::Point_t const& point) const
+  Point_t PlaneGeo::MovePointOverPlane(Point_t const& point) const
   {
     //
     // This implementation is subject to rounding errors, since the result of
@@ -560,15 +527,12 @@ namespace geo {
     //
 
     auto const deltaProj = DeltaFromPlane(PointWidthDepthProjection(point));
-
     return point + deltaProj.X() * WidthDir() + deltaProj.Y() * DepthDir();
-
-  } // PlaneGeo::MovePointOverPlane()
+  }
 
   //......................................................................
-  geo::WireID PlaneGeo::NearestWireID(geo::Point_t const& pos) const
+  WireID PlaneGeo::NearestWireID(Point_t const& pos) const
   {
-
     //
     // 1) compute the wire coordinate of the point
     // 2) get the closest wire number
@@ -594,14 +558,12 @@ namespace geo {
         << " approx wire number # " << wireNo << " (capped from " << nearestWireNo << ")\n";
     } // if invalid
 
-    return {ID(), (geo::WireID::WireID_t)nearestWireNo};
-
-  } // PlaneGeo::NearestWireID()
+    return {ID(), (WireID::WireID_t)nearestWireNo};
+  }
 
   //......................................................................
-  geo::WireGeo const& PlaneGeo::NearestWire(geo::Point_t const& point) const
+  WireGeo const& PlaneGeo::NearestWire(Point_t const& point) const
   {
-
     //
     // Note that this code is ready for when NearestWireID() will be changed
     // to return an invalid ID instead of throwing.
@@ -609,26 +571,25 @@ namespace geo {
     // but it will throw an exception similar to this one.
     //
 
-    geo::WireID const wireID = NearestWireID(point);
+    WireID const wireID = NearestWireID(point);
     if (wireID) return Wire(wireID); // we have that wire, so we return it
 
     // wire ID is invalid, meaning it's out of range. Throw an exception!
-    geo::WireID const closestID = ClosestWireID(wireID);
+    WireID const closestID = ClosestWireID(wireID);
     throw InvalidWireError("Geometry", ID(), closestID.Wire, wireID.Wire)
       << "Can't find nearest wire for position " << point << " in plane " << std::string(ID())
       << " approx wire number # " << closestID.Wire << " (capped from " << wireID.Wire << ")\n";
-
-  } // PlaneGeo::NearestWire()
+  }
 
   //......................................................................
   double PlaneGeo::InterWireProjectedDistance(WireCoordProjection_t const& projDir) const
   {
     assert(lar::util::Vector2DComparison{1e-6}.nonZero(projDir));
     return std::sqrt(cet::square(projDir.X() / projDir.Y()) + 1.0) * fWirePitch;
-  } // PlaneGeo::InterWireProjectedDistance()
+  }
 
   //......................................................................
-  double PlaneGeo::InterWireDistance(geo::Vector_t const& dir) const
+  double PlaneGeo::InterWireDistance(Vector_t const& dir) const
   {
     // the secondary component of the wire decomposition basis is wire coord.
     double const r = dir.R();
@@ -636,14 +597,13 @@ namespace geo {
 
     double const absWireCoordProj = std::abs(fDecompWire.VectorSecondaryComponent(dir));
     return r / absWireCoordProj * fWirePitch;
-
-  } // PlaneGeo::InterWireDistance()
+  }
 
   //......................................................................
   double PlaneGeo::ThetaZ() const { return FirstWire().ThetaZ(); }
 
   //......................................................................
-  void PlaneGeo::UpdateAfterSorting(geo::PlaneID planeid, geo::BoxBoundedGeo const& TPCbox)
+  void PlaneGeo::UpdateAfterSorting(PlaneID planeid, BoxBoundedGeo const& TPCbox)
   {
     // the order here matters
 
@@ -655,9 +615,9 @@ namespace geo {
     UpdateIncreasingWireDir();
 
     // update wires
-    geo::WireID::WireID_t wireNo = 0;
+    WireID::WireID_t wireNo = 0;
     for (auto& wire : fWire) {
-      wire.UpdateAfterSorting(geo::WireID(fID, wireNo), shouldFlipWire(wire));
+      wire.UpdateAfterSorting(WireID(fID, wireNo), shouldFlipWire(wire));
       ++wireNo;
     } // for wires
 
@@ -669,38 +629,36 @@ namespace geo {
     UpdateActiveArea();
     UpdatePhiZ();
     UpdateView();
-
-  } // PlaneGeo::UpdateAfterSorting()
+  }
 
   //......................................................................
-  std::string PlaneGeo::ViewName(geo::View_t view)
+  std::string PlaneGeo::ViewName(View_t view)
   {
     switch (view) {
-    case geo::kU: return "U";
-    case geo::kV: return "V";
-    case geo::kZ: return "Z";
-    case geo::kY: return "Y";
-    case geo::kX: return "X";
-    case geo::k3D: return "3D";
-    case geo::kUnknown: return "?";
+    case kU: return "U";
+    case kV: return "V";
+    case kZ: return "Z";
+    case kY: return "Y";
+    case kX: return "X";
+    case k3D: return "3D";
+    case kUnknown: return "?";
     default: return "<UNSUPPORTED (" + std::to_string((int)view) + ")>";
-    } // switch
-  }   // PlaneGeo::ViewName()
+    }
+  }
 
   //......................................................................
-  std::string PlaneGeo::OrientationName(geo::Orient_t orientation)
+  std::string PlaneGeo::OrientationName(Orient_t orientation)
   {
     switch (orientation) {
-    case geo::kHorizontal: return "horizontal"; break;
-    case geo::kVertical: return "vertical"; break;
+    case kHorizontal: return "horizontal"; break;
+    case kVertical: return "vertical"; break;
     default: return "unexpected"; break;
-    } // switch
-  }   // PlaneGeo::OrientationName()
+    }
+  }
 
   //......................................................................
   void PlaneGeo::DetectGeometryDirections()
   {
-
     //
     // We need to identify which are the "long" directions of the plane.
     // We assume it is a box, and the shortest side is excluded.
@@ -723,14 +681,14 @@ namespace geo {
       mf::LogError("BoxInfo") << "Volume " << fVolume->IsA()->GetName()
                               << " is not a TGeoBBox! Dimensions won't be available.";
       // set it invalid
-      fDecompFrame.SetOrigin(geo::origin());
+      fDecompFrame.SetOrigin(origin());
       fDecompFrame.SetMainDir({0., 0., 0.});
       fDecompFrame.SetSecondaryDir({0., 0., 0.});
       fFrameSize = {0.0, 0.0};
       return;
     }
 
-    std::array<geo::Vector_t, 3U> sides;
+    std::array<Vector_t, 3U> sides;
     size_t iSmallest = 3;
     {
       size_t iSide = 0;
@@ -768,15 +726,14 @@ namespace geo {
     size_t const iWidth = kept[iiWidth];
     size_t const iDepth = kept[1 - iiWidth]; // the other
 
-    fDecompFrame.SetMainDir(geo::vect::rounded01(sides[iWidth].Unit(), 1e-4));
-    fDecompFrame.SetSecondaryDir(geo::vect::rounded01(sides[iDepth].Unit(), 1e-4));
+    fDecompFrame.SetMainDir(vect::rounded01(sides[iWidth].Unit(), 1e-4));
+    fDecompFrame.SetSecondaryDir(vect::rounded01(sides[iDepth].Unit(), 1e-4));
     fFrameSize.halfWidth = sides[iWidth].R();
     fFrameSize.halfDepth = sides[iDepth].R();
-
-  } // PlaneGeo::DetectGeometryDirections()
+  }
 
   //......................................................................
-  geo::Vector_t PlaneGeo::GetNormalAxis() const
+  Vector_t PlaneGeo::GetNormalAxis() const
   {
     const unsigned int NWires = Nwires();
     if (NWires < 2) return {}; // why are we even here?
@@ -790,14 +747,12 @@ namespace geo {
     // 3) get the direction perpendicular to the plane
     // 4) round it
     // 5) return its norm
-    return geo::vect::rounded01(WireDir.Cross(ToNextWire).Unit(), 1e-4);
-
-  } // PlaneGeo::GetNormalAxis()
+    return vect::rounded01(WireDir.Cross(ToNextWire).Unit(), 1e-4);
+  }
 
   //......................................................................
   void PlaneGeo::UpdateOrientation()
   {
-
     //
     // this algorithm needs to know about the axis;
     // the normal is expected to be already updated.
@@ -823,8 +778,7 @@ namespace geo {
       throw cet::exception("Geometry")
         << "Plane with unsupported orientation (normal: " << normal << ")\n";
     }
-
-  } // PlaneGeo::UpdateOrientation()
+  }
 
   //......................................................................
   void PlaneGeo::UpdateWirePitch()
@@ -835,9 +789,8 @@ namespace geo {
 
     auto const iWire = Nwires() / 2;
 
-    fWirePitch = geo::WireGeo::WirePitch(Wire(iWire - 1), Wire(iWire));
-
-  } // PlaneGeo::UpdateWirePitch()
+    fWirePitch = WireGeo::WirePitch(Wire(iWire - 1), Wire(iWire));
+  }
 
   //......................................................................
   void PlaneGeo::UpdatePhiZ()
@@ -845,7 +798,7 @@ namespace geo {
     auto const& wire_coord_dir = GetIncreasingWireDirection();
     fCosPhiZ = wire_coord_dir.Z();
     fSinPhiZ = wire_coord_dir.Y();
-  } // PlaneGeo::UpdatePhiZ()
+  }
 
   void PlaneGeo::UpdateView()
   {
@@ -893,21 +846,21 @@ namespace geo {
 
       // yw is pretty much GetWireDirection().Y()...
       // thetaY is related to atan2(ynw, yw)
-      double const yw = geo::vect::dot(wireDir, geo::Yaxis());
-      double const ynw = geo::vect::mixedProduct(geo::Yaxis(), normalDir, wireDir);
+      double const yw = vect::dot(wireDir, Yaxis());
+      double const ynw = vect::mixedProduct(Yaxis(), normalDir, wireDir);
 
       if (std::abs(yw) < 1.0e-4) { // wires orthogonal to y axis
-        double const closeToX = std::abs(geo::vect::dot(normalDir, geo::Xaxis()));
-        double const closeToZ = std::abs(geo::vect::dot(normalDir, geo::Zaxis()));
-        SetView((closeToZ > closeToX) ? geo::kX : geo::kY);
+        double const closeToX = std::abs(vect::dot(normalDir, Xaxis()));
+        double const closeToZ = std::abs(vect::dot(normalDir, Zaxis()));
+        SetView((closeToZ > closeToX) ? kX : kY);
       }
       else if (std::abs(ynw) < 1.0e-4) { // wires parallel to y axis
-        SetView(geo::kZ);
+        SetView(kZ);
       }
       else if ((ynw * yw) < 0)
-        SetView(geo::kU); // different sign => thetaY > 0
+        SetView(kU); // different sign => thetaY > 0
       else if ((ynw * yw) > 0)
-        SetView(geo::kV); // same sign => thetaY < 0
+        SetView(kV); // same sign => thetaY < 0
       else
         assert(false); // logic error?!
     }
@@ -917,35 +870,33 @@ namespace geo {
       //
 
       // zw is pretty much GetWireDirection().Z()...
-      double const zw = geo::vect::dot(wireDir, geo::Zaxis());
+      double const zw = vect::dot(wireDir, Zaxis());
       // while GetNormalDirection() axis is on y, its direction is not fixed:
-      double const znw = geo::vect::mixedProduct(geo::Zaxis(), normalDir, wireDir);
+      double const znw = vect::mixedProduct(Zaxis(), normalDir, wireDir);
 
       // thetaZ is std::atan(znw/zw)
 
       if (std::abs(zw) < 1.0e-4) { // orthogonal to z, orthogonal to y...
         // this is equivalent to thetaZ = +/- pi/2
-        SetView(geo::kZ);
+        SetView(kZ);
       }
       else if (std::abs(znw) < 1.0e-4) { // parallel to z, orthogonal to y...
         // this is equivalent to thetaZ = 0
-        SetView(geo::kX);
+        SetView(kX);
       }
       else if ((znw * zw) < 0)
-        SetView(geo::kU); // different sign => thetaZ > 0
+        SetView(kU); // different sign => thetaZ > 0
       else if ((znw * zw) > 0)
-        SetView(geo::kV); // same sign => thetaZ < 0
+        SetView(kV); // same sign => thetaZ < 0
       else
         assert(false); // logic error?!
 
     } // if drift direction... else
-
-  } // UpdateView()
+  }
 
   //......................................................................
-  void PlaneGeo::UpdatePlaneNormal(geo::BoxBoundedGeo const& TPCbox)
+  void PlaneGeo::UpdatePlaneNormal(BoxBoundedGeo const& TPCbox)
   {
-
     //
     // direction normal to the wire plane, points toward the center of TPC
     //
@@ -958,14 +909,12 @@ namespace geo {
 
     // if they are pointing in opposite directions, flip the normal
     if (fNormal.Dot(towardCenter) < 0) fNormal = -fNormal;
-    geo::vect::round01(fNormal, 1e-3);
-
-  } // PlaneGeo::UpdatePlaneNormal()
+    vect::round01(fNormal, 1e-3);
+  }
 
   //......................................................................
   void PlaneGeo::UpdateWidthDepthDir()
   {
-
     //
     // fix the positiveness of the width/depth/normal frame
     //
@@ -976,15 +925,13 @@ namespace geo {
     // so that the frame normal is oriented in the general direction of the
     // plane normal (the latter is computed independently).
     if (WidthDir().Cross(DepthDir()).Dot(GetNormalDirection()) < 0.0) {
-      fDecompFrame.SetSecondaryDir(geo::vect::rounded01(-fDecompFrame.SecondaryDir(), 1e-4));
+      fDecompFrame.SetSecondaryDir(vect::rounded01(-fDecompFrame.SecondaryDir(), 1e-4));
     }
-
-  } // PlaneGeo::UpdateWidthDepthDir()
+  }
 
   //......................................................................
   void PlaneGeo::UpdateIncreasingWireDir()
   {
-
     //
     // Direction measured by the wires, pointing toward increasing wire number;
     // requires:
@@ -1007,28 +954,24 @@ namespace geo {
 
     // 4) if wireCoordDir is pointing away from the next wire, flip it
     if (wireCoordDir.Dot(toNextWire) < 0) { wireCoordDir = -wireCoordDir; }
-    fDecompWire.SetSecondaryDir(geo::vect::rounded01(wireCoordDir, 1e-4));
-
-  } // PlaneGeo::UpdateIncreasingWireDir()
+    fDecompWire.SetSecondaryDir(vect::rounded01(wireCoordDir, 1e-4));
+  }
 
   //......................................................................
   void PlaneGeo::UpdateWireDir()
   {
-
-    fDecompWire.SetMainDir(geo::vect::rounded01(FirstWire().Direction(), 1e-4));
+    fDecompWire.SetMainDir(vect::rounded01(FirstWire().Direction(), 1e-4));
 
     //
     // check that the resulting normal matches the plane one
     //
     assert(
       lar::util::makeVector3DComparison(1e-5).equal(fDecompWire.NormalDir(), GetNormalDirection()));
-
-  } // PlaneGeo::UpdateWireDir()
+  }
 
   //......................................................................
   void PlaneGeo::UpdateWirePitchSlow()
   {
-
     //
     // Compare one wire (the first one, for convenience) with all other wires;
     // the wire pitch is the smallest distance we find.
@@ -1037,31 +980,27 @@ namespace geo {
     // wire ordering (which UpdateWirePitch() does).
     //
     auto firstWire = fWire.cbegin(), wire = firstWire, wend = fWire.cend();
-    fWirePitch = geo::WireGeo::WirePitch(*firstWire, *(++wire));
+    fWirePitch = WireGeo::WirePitch(*firstWire, *(++wire));
 
     while (++wire != wend) {
-      auto wirePitch = geo::WireGeo::WirePitch(*firstWire, *wire);
+      auto wirePitch = WireGeo::WirePitch(*firstWire, *wire);
       if (wirePitch < 1e-4) continue; // it's 0!
       if (wirePitch < fWirePitch) fWirePitch = wirePitch;
-    } // while
-
-  } // PlaneGeo::UpdateWirePitchSlow()
+    }
+  }
 
   //......................................................................
   void PlaneGeo::UpdateDecompWireOrigin()
   {
-
     //
     // update the origin of the reference frame (the middle of the first wire)
     //
-    fDecompWire.SetOrigin(geo::vect::toPoint(FirstWire().GetCenter()));
-
-  } // PlaneGeo::UpdateDecompWireOrigin()
+    fDecompWire.SetOrigin(vect::toPoint(FirstWire().GetCenter()));
+  }
 
   //......................................................................
   void PlaneGeo::UpdateActiveArea()
   {
-
     //
     // The active area is defined in the width/depth space which include
     // approximatively all wires.
@@ -1071,13 +1010,11 @@ namespace geo {
 
     // we scratch 1 um from each side to avoid rounding errors later
     fActiveArea = details::ActiveAreaCalculator(*this, 0.0001);
-
-  } // PlaneGeo::UpdateActiveArea()
+  }
 
   //......................................................................
   void PlaneGeo::UpdateWirePlaneCenter()
   {
-
     //
     // The center of the wire plane is defined as the center of the plane box,
     // translated to the plane the wires lie on.
@@ -1097,14 +1034,14 @@ namespace geo {
 
     DriftPoint(fCenter, DistanceFromPlane(fCenter));
 
-    geo::vect::round0(fCenter, 1e-7); // round dimensions less than 1 nm to 0
+    vect::round0(fCenter, 1e-7); // round dimensions less than 1 nm to 0
 
     fDecompFrame.SetOrigin(fCenter); // equivalent to GetCenter() now
 
   } // PlaneGeo::UpdateWirePlaneCenter()
 
   //......................................................................
-  bool PlaneGeo::shouldFlipWire(geo::WireGeo const& wire) const
+  bool PlaneGeo::shouldFlipWire(WireGeo const& wire) const
   {
     //
     // The correct orientation is so that:

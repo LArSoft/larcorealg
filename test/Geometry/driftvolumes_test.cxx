@@ -14,9 +14,9 @@
  */
 
 // LArSoft libraries
-#include "larcorealg/CoreUtils/DumpUtils.h" // lar::dump::vector3D()
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/CoreUtils/DumpUtils.h"      // lar::dump::vector3D()
 #include "larcorealg/Geometry/DriftPartitions.h" // BuildDriftVolumes()
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
 
@@ -30,8 +30,7 @@
 // we define here all the configuration that is needed;
 // we use an existing class provided for this purpose, since our test
 // environment allows us to tailor it at run time.
-using StandardGeometryConfiguration =
-  testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>;
+using StandardGeometryConfiguration = testing::BasicGeometryEnvironmentConfiguration;
 
 /*
  * GeometryTesterFixture, configured with the object above, is used in a
@@ -41,7 +40,7 @@ using StandardGeometryConfiguration =
  * - `geo::GeometryCore const* GlobalGeometry()` (static member)
  */
 using StandardGeometryTestEnvironment =
-  testing::GeometryTesterEnvironment<StandardGeometryConfiguration>;
+  testing::GeometryTesterEnvironment<StandardGeometryConfiguration, geo::GeoObjectSorterStandard>;
 
 //------------------------------------------------------------------------------
 //---  The tests
@@ -83,7 +82,7 @@ int main(int argc, char const** argv)
   // testing environment setup
   //
   StandardGeometryTestEnvironment TestEnvironment(config);
-  auto const& geom = *(TestEnvironment.Provider<geo::GeometryCore>());
+  auto const& geom = *TestEnvironment.Geometry();
 
   //
   // run the test algorithm

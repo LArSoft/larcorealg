@@ -15,6 +15,7 @@
 // LArSoft libraries
 #include "ChannelMapStandardTestAlg.h"
 #include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/boost_unit_test_base.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
@@ -34,8 +35,7 @@
 // BoostCommandLineConfiguration<> makes it initialize in time for Boost
 // to catch it when instanciating the fixture.
 struct StandardGeometryConfiguration
-  : public testing::BoostCommandLineConfiguration<
-      testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>> {
+  : public testing::BoostCommandLineConfiguration<testing::BasicGeometryEnvironmentConfiguration> {
   /// Constructor: overrides the application name
   StandardGeometryConfiguration() { SetApplicationName("GeometryStandardChannelMappingTest"); }
 }; // class StandardGeometryConfiguration
@@ -61,7 +61,8 @@ struct StandardGeometryConfiguration
  * tester depends on Boost unit test implementation.
  */
 class GeometryStandardChannelMappingTestFixture
-  : private testing::GeometryTesterEnvironment<StandardGeometryConfiguration> {
+  : private testing::GeometryTesterEnvironment<StandardGeometryConfiguration,
+                                               geo::GeoObjectSorterStandard> {
   using Tester_t = geo::ChannelMapStandardTestAlg;
 
   using TesterRegistry_t = testing::TestSharedGlobalResource<Tester_t>;
@@ -70,8 +71,10 @@ public:
   /// Constructor: initialize the tester with the Geometry from base class
   GeometryStandardChannelMappingTestFixture()
   {
+    AcquireProvider(std::make_unique<geo::ChannelMapStandardAlg>(Geometry()));
+
     // create a new tester
-    tester_ptr = std::make_shared<Tester_t>(Provider<geo::GeometryCore>());
+    tester_ptr = std::make_shared<Tester_t>(Geometry(), Provider<geo::ChannelMapStandardAlg>());
     // if no tester is default yet, share ours:
     TesterRegistry_t::ProvideDefaultSharedResource(tester_ptr);
   }

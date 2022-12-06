@@ -38,12 +38,10 @@
 #include "fhiclcpp/types/Comment.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/Table.h"
-// #include "fhiclcpp/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // CET libraries
 #include "cetlib/filepath_maker.h"
-#include "cetlib/filesystem.h" // cet::is_absolute_filepath()
 #include "cetlib/search_path.h"
 
 // C/C++ standard libraries
@@ -1002,37 +1000,6 @@ namespace testing {
 
   //****************************************************************************
   namespace details {
-    // Class to implement FHiCL file search.
-    // This is badly ripped off from ART, but we need to stay out of it
-    // so I have to replicate that functionality.
-    // I used the same class name.
-    class FirstAbsoluteOrLookupWithDotPolicy : public cet::filepath_maker {
-    public:
-      FirstAbsoluteOrLookupWithDotPolicy(std::string const& paths) : first(true), after_paths(paths)
-      {}
-
-      virtual std::string operator()(std::string const& filename);
-
-      void reset() { first = true; }
-
-    private:
-      bool first;                   ///< whether we are waiting for the first query
-      cet::search_path after_paths; ///< path for the other queries
-
-    }; // class FirstAbsoluteOrLookupWithDotPolicy
-
-    inline std::string FirstAbsoluteOrLookupWithDotPolicy::operator()(std::string const& filename)
-    {
-      if (first) {
-        first = false;
-        if (cet::is_absolute_filepath(filename)) return filename;
-        return cet::search_path("./:" + after_paths.to_string()).find_file(filename);
-      }
-      else {
-        return after_paths.find_file(filename);
-      }
-    } // FirstAbsoluteOrLookupWithDotPolicy::operator()
-
     /// Helper to fill a provider pack: main specialisation
     template <typename TestEnv, typename Pack, typename Prov, typename... Others>
     struct ProviderPackFiller<TestEnv, Pack, Prov, Others...> {
@@ -1056,10 +1023,8 @@ namespace testing {
   template <typename ConfigurationClass>
   BasicTesterEnvironment<ConfigurationClass>::~BasicTesterEnvironment()
   {
-
     mf::LogInfo("Test") << config.ApplicationName() << " completed.";
-
-  } // BasicTesterEnvironment<>::~BasicTesterEnvironment()
+  }
 
   /** **************************************************************************
    * @brief Compiles a parameter set from a string
@@ -1072,7 +1037,7 @@ namespace testing {
     fhicl::ParameterSet global_pset;
     global_pset = fhicl::ParameterSet::make(cfg);
     return global_pset;
-  } // BasicTesterEnvironment<>::CompileParameterSet()
+  }
 
   /** **************************************************************************
    * @brief Returns the configuration from a FHiCL file
@@ -1086,18 +1051,12 @@ namespace testing {
     // configuration file lookup policy
     char const* fhicl_env = getenv("FHICL_FILE_PATH");
     std::string search_path = fhicl_env ? std::string(fhicl_env) + ":" : ".:";
-    details::FirstAbsoluteOrLookupWithDotPolicy policy(search_path);
+    cet::filepath_first_absolute_or_lookup_with_dot policy(search_path);
 
     // parse a configuration file; obtain intermediate form
-    fhicl::intermediate_table table;
-    table = fhicl::parse_document(config_path, policy);
-
-    // translate into a parameter set
-    fhicl::ParameterSet global_pset;
-    global_pset = fhicl::ParameterSet::make(table);
-
-    return global_pset;
-  } // BasicTesterEnvironment<>::ParseParameters()
+    auto table = fhicl::parse_document(config_path, policy);
+    return fhicl::ParameterSet::make(table);
+  }
 
   /** **************************************************************************
    * @brief Fills the configuration
@@ -1118,7 +1077,7 @@ namespace testing {
   {
     std::string config_path = config.ConfigurationPath();
     params = config_path.empty() ? DefaultParameters() : ParseParameters(config_path);
-  } // BasicTesterEnvironment::Configure()
+  }
 
   /** **************************************************************************
    * @brief Sets the message facility up
@@ -1154,30 +1113,16 @@ namespace testing {
     } // if print message levels
     mf::LogInfo("MessageFacility") << "MessageFacility started.";
     mf::SetContextSinglet("main");
-  } // BasicTesterEnvironment::SetupMessageFacility()
+  }
 
   template <typename ConfigurationClass>
   void BasicTesterEnvironment<ConfigurationClass>::Setup()
   {
-
-    //
-    // get the configuration
-    //
     Configure();
-
-    //
-    // parse the options specific to the test environment
-    //
     ParseEnvironmentOptions();
-
-    //
-    // set up the message facility
-    //
     SetupMessageFacility();
 
-    //
     // Optionally print the configuration
-    //
     {
       mf::LogInfo msg("Configuration");
       msg << "Complete configuration (";
@@ -1187,10 +1132,8 @@ namespace testing {
         msg << "'" << config.ConfigurationPath() << "'";
       msg << "):\n" << Parameters().to_indented_string(1);
     }
-
     mf::LogInfo("Test") << config.ApplicationName() << " base setup complete.";
-
-  } // BasicTesterEnvironment<>::Setup()
+  }
 
   template <typename ConfigurationClass>
   void BasicTesterEnvironment<ConfigurationClass>::ParseEnvironmentOptions()
@@ -1243,7 +1186,6 @@ namespace testing {
     }
 
     options.MessageLevels = configTable().messageLevels();
-
   } // BasicTesterEnvironment<>::ParseEnvironmentOptions()
 
 } // namespace testing

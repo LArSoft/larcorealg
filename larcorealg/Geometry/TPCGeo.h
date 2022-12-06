@@ -75,7 +75,7 @@ namespace geo {
     using DecomposedVector_t = geo::PlaneGeo::WDDecomposedVector_t;
 
     // Construct a representation of a single plane of the detector
-    TPCGeo(TGeoNode const& node, geo::TransformationMatrix&& trans, PlaneCollection_t&& planes);
+    TPCGeo(TGeoNode const* node, geo::TransformationMatrix&& trans, PlaneCollection_t&& planes);
 
     /// @{
     /// @name TPC properties

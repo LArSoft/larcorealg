@@ -26,8 +26,8 @@
 namespace geo {
 
   //-----------------------------------------
-  AuxDetSensitiveGeo::AuxDetSensitiveGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fTrans(std::move(trans)), fTotalVolume(node.GetVolume())
+  AuxDetSensitiveGeo::AuxDetSensitiveGeo(TGeoNode const* node, geo::TransformationMatrix&& trans)
+    : fTrans(std::move(trans)), fTotalVolume(node->GetVolume())
   {
 
     MF_LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();

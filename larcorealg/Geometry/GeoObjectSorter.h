@@ -8,20 +8,13 @@
 #ifndef GEO_GEOOBJECTSORTER_H
 #define GEO_GEOOBJECTSORTER_H
 
-#include <vector>
-
-#include "larcorealg/Geometry/AuxDetGeo.h"
+#include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+
+#include <vector>
 
 namespace geo {
 
-  class AuxDetSensitiveGeo;
-  class CryostatGeo;
-  class TPCGeo;
-  class PlaneGeo;
-  class WireGeo;
-  class OpDetGeo;
-  /// @ingroup Geometry
   class GeoObjectSorter {
   public:
     virtual ~GeoObjectSorter() = default;

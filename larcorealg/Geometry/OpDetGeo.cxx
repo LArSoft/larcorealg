@@ -23,12 +23,11 @@
 namespace geo {
 
   //-----------------------------------------
-  OpDetGeo::OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
+  OpDetGeo::OpDetGeo(TGeoNode const* node, geo::TransformationMatrix&& trans)
     : fTrans(std::move(trans))
-  {
-    fOpDetNode = &node;
-    fCenter = toWorldCoords(geo::origin<LocalPoint_t>());
-  }
+    , fOpDetNode{node}
+    , fCenter{toWorldCoords(geo::origin<LocalPoint_t>())}
+  {}
 
   //......................................................................
 

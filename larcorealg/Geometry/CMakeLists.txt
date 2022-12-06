@@ -30,6 +30,7 @@ cet_make_library(LIBRARY_NAME geo_vectors_utils INTERFACE
   SOURCE geo_vectors_utils.h
   LIBRARIES INTERFACE
   larcoreobj::geo_vectors
+  range-v3::range-v3
   ROOT::GenVector
 )
 
@@ -119,7 +120,6 @@ cet_make_library(SOURCE
   DriftPartitions.cxx
   GeometryBuilder.h
   GeometryBuilderStandard.cxx
-  GeometryBuilderWireless.cxx
   GeometryCore.cxx
   GeoNodePath.cxx
   GeoObjectSorter.cxx
@@ -134,9 +134,11 @@ cet_make_library(SOURCE
   TPCGeo.cxx
   WireGeo.cxx
   details/extractMaxGeometryElements.h
-  details/helpers.cxx
+  details/GeometryIterationPolicy.cxx
+  details/ReadoutIterationPolicy.cxx
   LIBRARIES
   PUBLIC
+  larcorealg::CoreUtils
   larcorealg::GeometryDataContainers
   larcorealg::GeometryIDmapper
   larcorealg::LineClosestPoint
@@ -152,6 +154,7 @@ cet_make_library(SOURCE
   cetlib_except::cetlib_except
   CLHEP::Geometry
   CLHEP::Vector
+  range-v3::range-v3
   ROOT::Core
   ROOT::GenVector
   ROOT::Geom

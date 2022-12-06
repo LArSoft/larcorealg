@@ -14,7 +14,9 @@ namespace geo {
 
   class ChannelMapStandardTestAlg {
   public:
-    explicit ChannelMapStandardTestAlg(geo::GeometryCore const* new_geo) : geom{new_geo} {}
+    explicit ChannelMapStandardTestAlg(GeometryCore const* new_geo, ChannelMapAlg const* channelMap)
+      : geom{new_geo}, channelMapAlg{channelMap}
+    {}
 
     /// Executes the test
     unsigned int Run();
@@ -24,7 +26,8 @@ namespace geo {
     void ChannelMappingTest() const;
 
   private:
-    GeometryCore const* geom = nullptr;
+    GeometryCore const* geom;
+    ChannelMapAlg const* channelMapAlg;
 
   }; // class ChannelMapStandardTestAlg
 

@@ -29,10 +29,10 @@
 namespace geo {
 
   //-----------------------------------------
-  AuxDetGeo::AuxDetGeo(TGeoNode const& node,
+  AuxDetGeo::AuxDetGeo(TGeoNode const* node,
                        geo::TransformationMatrix&& trans,
                        AuxDetSensitiveList_t&& sensitive)
-    : fTotalVolume(node.GetVolume()), fTrans(std::move(trans)), fSensitive(std::move(sensitive))
+    : fTotalVolume(node->GetVolume()), fTrans(std::move(trans)), fSensitive(std::move(sensitive))
   {
     if (!fTotalVolume) throw cet::exception("AuxDetGeo") << "cannot find AuxDet volume\n";
 

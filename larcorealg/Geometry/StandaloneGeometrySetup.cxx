@@ -3,7 +3,6 @@
  * @brief  Utilities for one-line geometry initialization.
  * @author Gianluca Petrillo (petrillo@fnal.gov)
  * @date   June 22, 2017
- *
  */
 
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h"
@@ -24,16 +23,16 @@
 #include <utility> // std::forward()
 
 //------------------------------------------------------------------------------
-std::unique_ptr<geo::GeometryCore> lar::standalone::SetupGeometryWithChannelMapping(
+std::unique_ptr<geo::GeometryCore> lar::standalone::GeometryFor(
   fhicl::ParameterSet const& pset,
-  std::unique_ptr<geo::ChannelMapAlg> channelMap)
+  std::unique_ptr<geo::GeoObjectSorter const> sorter)
 {
   auto const bForceReload = true;
 
   //
   // create the geometry object
   //
-  auto geom = std::make_unique<geo::GeometryCore>(pset);
+  auto geom = std::make_unique<geo::GeometryCore>(pset, std::move(sorter));
 
   //
   // extract of relevant configuration parameters
@@ -85,12 +84,6 @@ std::unique_ptr<geo::GeometryCore> lar::standalone::SetupGeometryWithChannelMapp
   // initialize the geometry with the files we have found
   //
   geom->LoadGeometryFile(GDMLFilePath, ROOTFilePath, bForceReload);
-
-  //
-  // create and apply channel mapping
-  //
-
-  geom->ApplyChannelMap(move(channelMap));
 
   return geom;
 } // lar::standalone::SetupGeometryWithChannelMapping()

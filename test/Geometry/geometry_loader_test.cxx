@@ -20,6 +20,7 @@
 // LArSoft libraries
 #include "GeometryTestAlg.h"
 #include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/StandaloneBasicSetup.h"    // SetupMessageFacility()...
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h" // SetupGeometry()
@@ -87,8 +88,9 @@ int main(int argc, char const** argv)
   mf::SetContextIteration("setup");
 
   // set up geometry
-  auto geom =
-    SetupGeometry<geo::ChannelMapStandardAlg>(pset.get<fhicl::ParameterSet>("services.Geometry"));
+  auto [geom, channelMapAlg] =
+    SetupGeometry<geo::ChannelMapStandardAlg, geo::GeoObjectSorterStandard>(
+      pset.get<fhicl::ParameterSet>("services.Geometry"));
 
   // update the context string for the messages
   mf::SetContextIteration("run");
@@ -97,8 +99,8 @@ int main(int argc, char const** argv)
   // 2. prepare the test algorithm
   //
 
-  geo::GeometryTestAlg Tester(pset.get<fhicl::ParameterSet>(geoTestConfigPath));
-  Tester.Setup(*geom);
+  geo::GeometryTestAlg Tester(
+    geom.get(), channelMapAlg.get(), pset.get<fhicl::ParameterSet>(geoTestConfigPath));
 
   //
   // 3. then we run it!

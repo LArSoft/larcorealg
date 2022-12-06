@@ -180,15 +180,7 @@ namespace util {
   // deduction guide for adapted span
   template <typename IterB, typename IterE, typename Adaptor>
   span(IterB&& b, IterE&& e, Adaptor&& adaptor)
-    ->span<
-#if 0  // this is C++17...
-      std::invoke_result_t<Adaptor, IterB>,
-      std::invoke_result_t<Adaptor, IterE>
-#else  // ... and this is what Clang 5.0 undestands
-      decltype(adaptor(std::forward<IterB>(b))),
-      decltype(adaptor(std::forward<IterE>(e)))
-#endif // 0
-      >;
+    ->span<std::invoke_result_t<Adaptor, IterB>, std::invoke_result_t<Adaptor, IterE>>;
 
   // --- BEGIN -- Span helper functions ----------------------------------------
   /// @name Span helper functions
@@ -198,7 +190,7 @@ namespace util {
   template <typename BIter, typename EIter>
   auto make_span(BIter begin, EIter end)
   {
-    return util::span(begin, end);
+    return span{begin, end};
   }
 
   /// Creates a span from a container type.

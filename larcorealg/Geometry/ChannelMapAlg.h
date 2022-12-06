@@ -10,14 +10,13 @@
 ////////////////////////////////////////////////////////////////////////
 
 // LArSoft  libraries
-#include "larcorealg/Geometry/GeoObjectSorter.h"
-#include "larcorealg/Geometry/GeometryData.h"
+#include "larcorealg/Geometry/Iterable.h"
+#include "larcorealg/Geometry/details/ReadoutIterationPolicy.h"
+#include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+#include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 #include "larcoreobj/SimpleTypesAndConstants/readout_types.h"
-
-// ROOT libraries
-#include "TVector3.h"
 
 // C/C++ standard libraries
 #include <cstddef>
@@ -45,21 +44,18 @@ namespace geo {
    * behaviour should be assumed; nevertheless, the documentation of some of the
    * methods still reminds of this.
    */
-  class ChannelMapAlg {
+  class ChannelMapAlg : Iterable<details::ReadoutIterationPolicy> {
+    using Iteration = Iterable<details::ReadoutIterationPolicy>;
+
   public:
-    virtual ~ChannelMapAlg() = default;
+    explicit ChannelMapAlg(GeometryCore const* geom);
+    virtual ~ChannelMapAlg();
 
     //--------------------------------------------------------------------------
-    /// @{
-    /// @name Geometry and mapping initialization and management
-
-    /// Geometry initialisation
-    virtual void Initialize(GeometryData_t const& geodata) = 0;
-
-    /// Deconfiguration: prepare for a following call of Initialize()
-    virtual void Uninitialize() = 0;
-
-    /// @}
+    // Iteration facilities
+    using Iteration::begin;
+    using Iteration::end;
+    using Iteration::Iterate;
 
     //--------------------------------------------------------------------------
     /// @{
@@ -71,6 +67,9 @@ namespace geo {
     /// @brief Returns the number of channels in the specified ROP
     /// @return number of channels in the specified ROP, 0 if non-existent
     virtual unsigned int Nchannels(readout::ROPID const& ropid) const = 0;
+
+    /// @brief Returns an std::vector<ChannelID_t> in all TPCs in a TPCSet
+    std::vector<raw::ChannelID_t> ChannelsInTPCs() const;
 
     /// @brief Returns whether the specified channel is valid
     /// This default implementation assumes all channels up to Nchannels() valid.
@@ -84,16 +83,40 @@ namespace geo {
     virtual std::vector<WireID> ChannelToWire(raw::ChannelID_t channel) const = 0;
 
     /**
-     * @brief Return the signal type of the specified channel
-     * @param channel ID of the channel
-     * @return signal type of the channel, or geo::kMysteryType if not known
+     * @brief Returns the view (wire orientation) on the specified TPC channel
+     * @param channel TPC channel ID
+     * @return the type of signal on the specified channel, or geo::kUnknown
      *
-     * On any type of error (e.g., invalid or unknown channel ID),
-     * geo::kMysteryType is returned.
+     * The view of the readout plane `channel` belongs to is returned, as in
+     * `View(readout::ROPID const&) const`.
      */
-    SigType_t SignalTypeForChannel(raw::ChannelID_t const channel) const;
+    View_t View(raw::ChannelID_t const channel) const;
 
-  protected:
+    /**
+     * @brief Returns the view of the channels in the specified readout plane
+     * @param ropid readout plane ID
+     * @return the type of signal on the specified ROP
+     *
+     * Returns the view (wire orientation) on the channels of specified readout
+     * plane.
+     * If ropid is an invalid ID, geo::kUnknown is returned.
+     * If ropid is a valid ID (i.e. an ID whose isValid flag is set) that
+     * points to a non-existent readout plane, the result is undefined.
+     * Use HasROP() to check if the readout plane actually exists.
+     */
+    View_t View(readout::ROPID const& ropid) const;
+
+    /**
+     * @brief Returns the type of signal on the channels of specified TPC plane
+     * @param plane TPC plane ID
+     * @return the type of signal on the specified plane, or geo::kMysteryType
+     *
+     * Assumes that all the channels on the plane have the same signal type.
+     *
+     * @todo verify that kMysteryType is returned on invalid plane
+     */
+    SigType_t SignalType(PlaneID const& pid) const;
+
     /**
      * @brief Return the signal type of the specified channel
      * @param channel ID of the channel
@@ -102,9 +125,8 @@ namespace geo {
      * On any type of error (e.g., invalid or unknown channel ID),
      * geo::kMysteryType is returned.
      */
-    virtual SigType_t SignalTypeForChannelImpl(raw::ChannelID_t const channel) const = 0;
+    SigType_t SignalType(raw::ChannelID_t const channel) const;
 
-  public:
     /**
      * @brief Return the signal type on the specified readout plane
      * @param ropid ID of the readout plane
@@ -117,24 +139,34 @@ namespace geo {
      * The default implementation uses readout plane to channel mapping.
      * Other implementation may decide to do the opposite.
      */
-    SigType_t SignalTypeForROPID(readout::ROPID const& ropid) const;
+    SigType_t SignalType(readout::ROPID const& ropid) const;
 
-  protected:
     /**
-     * @brief Return the signal type on the specified readout plane
-     * @param ropid ID of the readout plane
-     * @return signal type on the plane, or geo::kMysteryType if not known
+     * @brief Returns the ID of the channel nearest to the specified position
+     * @param worldLoc 3D coordinates of the point (world reference frame)
+     * @param planeid ID of the wire plane the channel must belong to
+     * @return the ID of the channel, or `raw::InvalidChannelID` if invalid wire
+     * @bug on invalid wire, a `geo::InvalidWireError` exception is thrown
      *
-     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.
-     * If the readout plane is not marked invalid, but it does not match an
-     * existing readout plane, the result is undefined.
-     *
-     * The default implementation uses readout plane to channel mapping.
-     * Other implementation may decide to do the opposite.
      */
-    virtual SigType_t SignalTypeForROPIDImpl(readout::ROPID const& ropid) const;
+    raw::ChannelID_t NearestChannel(Point_t const& worldLoc, PlaneID const& planeid) const;
 
-  public:
+    /**
+     * @brief Returns an intersection point of two channels
+     * @param c1 one channel ID
+     * @param c2 the other channel ID
+     * @param y (output) y coordinate of the intersection
+     * @param z (output) z coordinate of the intersection
+     * @return whether a intersection point was found
+     *
+     * @todo what happens for channels from different TPCs?
+     * @todo what happens for channels with multiple intersection points?
+     *
+     * @deprecated This is clearly not APA-aware
+     */
+    std::optional<WireIDIntersection> ChannelsIntersect(raw::ChannelID_t c1,
+                                                        raw::ChannelID_t c2) const;
+
     /// Returns a list of the plane IDs in the whole detector
     virtual std::set<PlaneID> const& PlaneIDs() const = 0;
 
@@ -172,6 +204,15 @@ namespace geo {
      * the number of channels.
      */
     virtual unsigned int NOpChannels(unsigned int NOpDets) const;
+
+    /// Number of electronics channels for all the optical detectors
+    unsigned int NOpChannels() const;
+
+    /// Largest optical channel number
+    unsigned int MaxOpChannel() const;
+
+    /// Is this a valid OpChannel number?
+    bool IsValidOpChannel(int opChannel) const;
 
     /**
      * @brief Returns the number of optical channels contained in some detectors
@@ -240,6 +281,15 @@ namespace geo {
      * If the specified optical channel is invalid, behaviour is undefined.
      */
     virtual unsigned int OpDetFromOpChannel(unsigned int opChannel) const;
+
+    /**
+     * @brief Returns the optical detector the specified optical channel belongs
+     * @param opChannel the optical detector channel being queried
+     * @return the optical detector geometry object the specified optical channel belongs to
+     *
+     * If the specified optical channel is invalid, behaviour is undefined.
+     */
+    OpDetGeo const& OpDetGeoFromOpChannel(unsigned int opChannel) const;
 
     /**
      * @brief Returns the hardware channel number of specified optical channel
@@ -346,6 +396,62 @@ namespace geo {
       std::string const& detName,
       uint32_t const& channel) const;
 
+    /**
+     * @brief Returns the index of the auxiliary detector at specified location.
+     * @param point location to be tested
+     * @param tolerance tolerance (cm) for matches. Default 0
+     * @return the index of the detector, or
+     *        `std::numeric_limits<unsigned int>::max()` if no detector is there
+     *
+     * @bug Actually, an exception is thrown.
+     */
+    unsigned int FindAuxDetAtPosition(Point_t const& point, double tolerance = 0) const;
+
+    /**
+     * @brief Returns the auxiliary detector at specified location
+     * @param point location to be tested
+     * @param ad _(output)_ the auxiliary detector index
+     * @param tolerance tolerance (cm) for matches. Default 0.
+     * @return constant reference to AuxDetGeo object of the auxiliary detector
+     *
+     * @todo what happens if it does not exist?
+     */
+    AuxDetGeo const& PositionToAuxDet(Point_t const& point,
+                                      unsigned int& ad,
+                                      double tolerance = 0) const;
+
+    /**
+     * @brief Fills the indices of the sensitive auxiliary detector at location
+     * @param point location to be tested
+     * @param adg _(output)_ auxiliary detector index
+     * @param sv _(output)_ sensitive volume index
+     * @param tolerance tolerance (cm) for matches. Default 0.
+     */
+    void FindAuxDetSensitiveAtPosition(Point_t const& point,
+                                       std::size_t& adg,
+                                       std::size_t& sv,
+                                       double tolerance = 0) const;
+
+    /**
+     * @brief Returns the auxiliary detector at specified location
+     * @param point location to be tested
+     * @param ad _(output)_ the auxiliary detector index
+     * @param sv _(output)_ the auxiliary detector sensitive volume index
+     * @param tolerance tolerance (cm) for matches. Default 0.
+     * @return reference to AuxDetSensitiveGeo object of the auxiliary detector
+     *
+     * @todo what happens if it does not exist?
+     */
+    AuxDetSensitiveGeo const& PositionToAuxDetSensitive(Point_t const& point,
+                                                        size_t& ad,
+                                                        size_t& sv,
+                                                        double tolerance = 0) const;
+
+    AuxDetGeo const& ChannelToAuxDet(std::string const& auxDetName, uint32_t channel) const;
+
+    AuxDetSensitiveGeo const& ChannelToAuxDetSensitive(std::string const& auxDetName,
+                                                       uint32_t channel) const;
+
     /// @}
 
     //--------------------------------------------------------------------------
@@ -364,6 +470,8 @@ namespace geo {
     /// Returns whether we have the specified TPC set
     /// @return whether the TPC set is valid and exists
     virtual bool HasTPCset(readout::TPCsetID const& tpcsetid) const = 0;
+
+    readout::TPCsetID FindTPCsetAtPosition(Point_t const& worldLoc) const;
 
     /// Returns the ID of the TPC set tpcid belongs to
     virtual readout::TPCsetID TPCtoTPCset(TPCID const& tpcid) const = 0;
@@ -451,10 +559,6 @@ namespace geo {
     /// @}
 
     //--------------------------------------------------------------------------
-    /// Returns the object to sort geometry with
-    virtual GeoObjectSorter const& Sorter() const = 0;
-
-    //--------------------------------------------------------------------------
     /// @{
     /// @name Testing (not in the interface)
 
@@ -475,6 +579,30 @@ namespace geo {
     //--------------------------------------------------------------------------
 
   protected:
+    /**
+     * @brief Return the signal type of the specified channel
+     * @param channel ID of the channel
+     * @return signal type of the channel, or geo::kMysteryType if not known
+     *
+     * On any type of error (e.g., invalid or unknown channel ID),
+     * geo::kMysteryType is returned.
+     */
+    virtual SigType_t SignalTypeForChannelImpl(raw::ChannelID_t const channel) const = 0;
+
+    /**
+     * @brief Return the signal type on the specified readout plane
+     * @param ropid ID of the readout plane
+     * @return signal type on the plane, or geo::kMysteryType if not known
+     *
+     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.
+     * If the readout plane is not marked invalid, but it does not match an
+     * existing readout plane, the result is undefined.
+     *
+     * The default implementation uses readout plane to channel mapping.
+     * Other implementation may decide to do the opposite.
+     */
+    virtual SigType_t SignalTypeForROPIDImpl(readout::ROPID const& ropid) const;
+
     /// Data type for per-TPC information
     template <typename T>
     using TPCInfoMap_t = std::vector<std::vector<T>>;
@@ -482,17 +610,6 @@ namespace geo {
     /// Data type for per-plane information
     template <typename T>
     using PlaneInfoMap_t = TPCInfoMap_t<std::vector<T>>;
-
-    // These 3D vectors are used in initializing the Channel map.
-    // Only a 1D vector is really needed so far, but these are more general.
-    PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInThisPlane;
-    PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInNextPlane;
-
-    std::map<std::string, size_t>
-      fADNameToGeo; ///< map the names of the dets to the AuxDetGeo objects
-    std::map<size_t, std::vector<size_t>>
-      fADChannelToSensitiveGeo; ///< map the AuxDetGeo index to a vector of
-                                ///< indices corresponding to the AuxDetSensitiveGeo index
 
     /**
     * @name Internal structure data access
@@ -578,6 +695,20 @@ namespace geo {
     } // GetElementPtr()
 
     ///@} Internal structure data access
+
+    // These 3D vectors are used in initializing the Channel map.
+    // Only a 1D vector is really needed so far, but these are more general.
+    PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInThisPlane;
+    PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInNextPlane;
+
+    std::map<std::string, size_t>
+      fADNameToGeo; ///< map the names of the dets to the AuxDetGeo objects
+    std::map<size_t, std::vector<size_t>>
+      fADChannelToSensitiveGeo; ///< map the AuxDetGeo index to a vector of
+                                ///< indices corresponding to the AuxDetSensitiveGeo index
+  private:
+    GeometryCore const* fGeom;
   };
+
 }
 #endif // GEO_CHANNELMAPALG_H

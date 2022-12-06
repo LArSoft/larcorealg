@@ -29,10 +29,9 @@ namespace geo {
   /**
    * @brief Manages the extraction of LArSoft geometry information from ROOT.
    *
-   * The general interface only provides abstraction for the high level objects
-   * (cryostats and auxiliary detectors).
-   * The implementations can use a finer internal structure to address single
-   * subcomponents (e.g. wire planes).
+   * The general interface only provides abstraction for the high level objects (cryostats
+   * and auxiliary detectors).  The implementations can use a finer internal structure to
+   * address single subcomponents (e.g. wire planes).
    *
    * Builder objects can be configured via FHiCL parameters.
    *
@@ -42,15 +41,13 @@ namespace geo {
    * Customization of geometry objects
    * ----------------------------------
    *
-   * The builders return collections of LArSoft geometry objects dynamically
-   * allocated. In this way, in future it will be possible to easily customize
-   * those objects for detector-specific needs.
-   * Note that as of LArSoft `v08_06_00`, no polymorphism is actually
-   * implemented.
+   * The builders return collections of LArSoft geometry objects dynamically allocated. In
+   * this way, in future it will be possible to easily customize those objects for
+   * detector-specific needs.  Note that as of LArSoft `v08_06_00`, no polymorphism is
+   * actually implemented.
    *
    */
   class GeometryBuilder {
-
   public:
     // --- BEGIN Data types ----------------------------------------------------
     /// Identification of a single node in ROOT geometry.
@@ -80,15 +77,10 @@ namespace geo {
      * @param path path pointing to the starting node
      * @return a list of fully constructed cryostats
      *
-     * The cryostats contain all their inner elements.
-     * The current node itself of the path is also considered as cryostat
-     * candidate, then it is descended into.
+     * The cryostats contain all their inner elements.  The current node itself of the
+     * path is also considered as cryostat candidate, then it is descended into.
      */
-    Cryostats_t extractCryostats(Path_t const& path)
-    {
-      auto myPath = path;
-      return doExtractCryostats(myPath);
-    }
+    Cryostats_t extractCryostats(Path_t path) const { return doExtractCryostats(path); }
 
     /// @}
     // --- END Cryostat information --------------------------------------------
@@ -105,14 +97,13 @@ namespace geo {
      * @param path path pointing to the starting node
      * @return a list of fully constructed auxiliary detectors
      *
-     * The auxiliary detectors contain all their inner elements.
-     * The current node itself of the path is also considered as auxiliary
-     * detector candidate, then it is descended into.
+     * The auxiliary detectors contain all their inner elements.  The current node itself
+     * of the path is also considered as auxiliary detector candidate, then it is
+     * descended into.
      */
-    AuxDets_t extractAuxiliaryDetectors(Path_t const& path)
+    AuxDets_t extractAuxiliaryDetectors(Path_t path) const
     {
-      auto myPath = path;
-      return doExtractAuxiliaryDetectors(myPath);
+      return doExtractAuxiliaryDetectors(path);
     }
 
     /// @}
@@ -120,12 +111,9 @@ namespace geo {
 
     // --- END Static utility methods ------------------------------------------
 
-  protected:
-    /// Custom implementation of `extractCryostats()`.
-    virtual Cryostats_t doExtractCryostats(Path_t& path) = 0;
-
-    /// Custom implementation of `extractAuxiliaryDetectors()`.
-    virtual AuxDets_t doExtractAuxiliaryDetectors(Path_t& path) = 0;
+  private:
+    virtual Cryostats_t doExtractCryostats(Path_t& path) const = 0;
+    virtual AuxDets_t doExtractAuxiliaryDetectors(Path_t& path) const = 0;
 
   }; // class GeometryBuilder
 

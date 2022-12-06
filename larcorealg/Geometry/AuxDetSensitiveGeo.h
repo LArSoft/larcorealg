@@ -61,7 +61,7 @@ namespace geo {
 
     ///@}
 
-    AuxDetSensitiveGeo(TGeoNode const& node, geo::TransformationMatrix&& trans);
+    AuxDetSensitiveGeo(TGeoNode const* node, geo::TransformationMatrix&& trans);
 
     /**
      * @brief Returns the geometric center of the sensitive volume.

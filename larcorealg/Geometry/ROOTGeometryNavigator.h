@@ -73,15 +73,13 @@ public:
    * @param op operation to be applied
    * @return whether all nodes in the path were processed
    *
-   * The operation `Op` must be a callable accepting a `geo::GeoNodePath`
-   * immutable argument and returning a value convertible to boolean.
-   * If a call to `op` results into a `false` value, the recursion is
-   * terminated and `false` is returned. `path` will be pointing to the
-   * last node already processed.
+   * The operation `Op` must be a callable accepting a `geo::GeoNodePath` immutable
+   * argument and returning a value convertible to boolean.  If a call to `op` results
+   * into a `false` value, the recursion is terminated and `false` is returned. `path`
+   * will be pointing to the last node already processed.
    *
-   * The node at the head of the path is processed first, then for each
-   * daughter node, first the daughter itself then its own daughters,
-   * recursively.
+   * The node at the head of the path is processed first, then for each daughter node,
+   * first the daughter itself then its own daughters, recursively.
    */
   template <typename Op>
   bool apply(geo::GeoNodePath& path, Op&& op) const;
@@ -94,11 +92,11 @@ public:
    * @return whether all nodes in the path were processed
    * @see `apply(geo::GeoNodePath&, Op&&) const`
    *
-   * The operation `Op` must be a callable accepting a `geo::GeoNodePath`
-   * immutable argument.
+   * The operation `Op` must be a callable accepting a `geo::GeoNodePath` immutable
+   * argument.
    */
   template <typename Op>
-  bool apply(TGeoNode const& node, Op&& op) const;
+  bool apply(TGeoNode const* node, Op&& op) const;
 
   /**
    * @brief Applies the specified operation to all nodes.
@@ -106,8 +104,8 @@ public:
    * @param op operation to be applied
    * @return whether all nodes in the path were processed
    *
-   * The operation `Op` must be a callable accepting a `geo::GeoNodePath`
-   * immutable argument.
+   * The operation `Op` must be a callable accepting a `geo::GeoNodePath` immutable
+   * argument.
    */
   template <typename Op>
   bool apply(Op&& op) const;
@@ -122,38 +120,38 @@ bool geo::ROOTGeometryNavigator::apply(geo::GeoNodePath& path, Op&& op) const
 {
   if (!op(path)) return false;
 
-  TGeoNode const& node = path.current();
-  TGeoVolume const* pVolume = node.GetVolume();
+  TGeoNode const* node = path.current();
+  TGeoVolume const* pVolume = node->GetVolume();
   if (pVolume) { // is it even possible not to?
     int const nDaughters = pVolume->GetNdaughters();
     for (int iDaughter : util::counter<int>(nDaughters)) {
       TGeoNode const* pDaughter = pVolume->GetNode(iDaughter);
       if (!pDaughter) continue; // fishy...
 
-      path.append(*pDaughter);
+      path.append(pDaughter);
       if (!apply(path, std::forward<Op>(op))) return false;
       path.pop();
     } // for
   }   // if we have a volume
 
   return true;
-} // geo::ROOTGeometryNavigator::apply()
+}
 
 //------------------------------------------------------------------------------
 template <typename Op>
-bool geo::ROOTGeometryNavigator::apply(TGeoNode const& node, Op&& op) const
+bool geo::ROOTGeometryNavigator::apply(TGeoNode const* node, Op&& op) const
 {
-  geo::GeoNodePath path{&node};
+  geo::GeoNodePath path{node};
   return apply(path, std::forward<Op>(op));
-} // geo::ROOTGeometryNavigator::apply()
+}
 
 //------------------------------------------------------------------------------
 template <typename Op>
 bool geo::ROOTGeometryNavigator::apply(Op&& op) const
 {
   assert(fTopNode);
-  return apply(*fTopNode, std::forward<Op>(op));
-} // geo::ROOTGeometryNavigator::apply()
+  return apply(fTopNode, std::forward<Op>(op));
+}
 
 //------------------------------------------------------------------------------
 

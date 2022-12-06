@@ -2,6 +2,8 @@ cet_make_library(LIBRARY_NAME ProviderTestHelpers INTERFACE
   SOURCE
   ProviderList.h
   ProviderTestHelpers.h
+  LIBRARIES INTERFACE
+  cetlib_except::cetlib_except
 )
 
 cet_make_library(LIBRARY_NAME StopWatch INTERFACE

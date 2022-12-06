@@ -7,7 +7,8 @@
 #include "larcorealg/Geometry/PlaneGeo.h"
 #include "larcorealg/Geometry/TPCGeo.h"
 #include "larcorealg/Geometry/WireGeo.h"
-#include "larcorealg/Geometry/details/geometry_iterators.h"
+#include "larcorealg/Geometry/details/element_iterators.h"
+#include "larcorealg/Geometry/details/id_iterators.h"
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/readout_types.h"
@@ -28,13 +29,22 @@ namespace geo {
    * }
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
-  using cryostat_id_iterator = details::id_iterator<CryostatID>;
-  using TPC_id_iterator = details::id_iterator<TPCID>;
-  using plane_id_iterator = details::id_iterator<PlaneID>;
-  using wire_id_iterator = details::id_iterator<WireID>;
+  using cryostat_id_iterator = details::id_iterator<CryostatID, details::GeometryIterationPolicy>;
+  using TPC_id_iterator = details::id_iterator<TPCID, details::GeometryIterationPolicy>;
+  using plane_id_iterator = details::id_iterator<PlaneID, details::GeometryIterationPolicy>;
+  using wire_id_iterator = details::id_iterator<WireID, details::GeometryIterationPolicy>;
 
-  using TPCset_id_iterator = details::id_iterator<readout::TPCsetID>;
-  using ROP_id_iterator = details::id_iterator<readout::ROPID>;
+  using TPCset_id_iterator =
+    details::id_iterator<readout::TPCsetID, details::ReadoutIterationPolicy>;
+  using ROP_id_iterator = details::id_iterator<readout::ROPID, details::ReadoutIterationPolicy>;
+
+  using cryostat_id_sentinel = details::id_sentinel<CryostatID>;
+  using TPC_id_sentinel = details::id_sentinel<TPCID>;
+  using plane_id_sentinel = details::id_sentinel<PlaneID>;
+  using wire_id_sentinel = details::id_sentinel<WireID>;
+
+  using TPCset_id_sentinel = details::id_sentinel<readout::TPCsetID>;
+  using ROP_id_sentinel = details::id_sentinel<readout::ROPID>;
 
   /**
    * @brief Forward iterator browsing all elements in the detector
@@ -43,10 +53,16 @@ namespace geo {
    * This object has a different dereferencing operator that obtains
    * the elements directly, or throws on failure.
    */
-  using cryostat_iterator = details::element_iterator_for<CryostatGeo>;
-  using TPC_iterator = details::element_iterator_for<TPCGeo>;
-  using plane_iterator = details::element_iterator_for<PlaneGeo>;
-  using wire_iterator = details::element_iterator_for<WireGeo>;
+  using cryostat_iterator =
+    details::element_iterator_for<CryostatGeo, details::GeometryIterationPolicy>;
+  using TPC_iterator = details::element_iterator_for<TPCGeo, details::GeometryIterationPolicy>;
+  using plane_iterator = details::element_iterator_for<PlaneGeo, details::GeometryIterationPolicy>;
+  using wire_iterator = details::element_iterator_for<WireGeo, details::GeometryIterationPolicy>;
+
+  using cryostat_sentinel = details::element_sentinel_for<CryostatGeo>;
+  using TPC_sentinel = details::element_sentinel_for<TPCGeo>;
+  using plane_sentinel = details::element_sentinel_for<PlaneGeo>;
+  using wire_sentinel = details::element_sentinel_for<WireGeo>;
 }
 
 #endif // LARCOREALG_GEOMETRY_ITERATORTYPES_H

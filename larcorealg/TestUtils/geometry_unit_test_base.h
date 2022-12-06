@@ -5,21 +5,19 @@
  * @author petrillo@fnal.gov
  * @see    unit_test_base.h
  *
- * Provides an environment for easy set up of a Geometry-aware test.
- * Keep in mind that, as much as I could push on flexibility, the channel
- * mapping algorithm must be hard-coded and, if using Boost unit test,
- * the configuration file location must be hard coded too
- * (or you can use the provided configuration).
+ * Provides an environment for easy set up of a Geometry-aware test.  Keep in mind that,
+ * as much as I could push on flexibility, the channel mapping algorithm must be
+ * hard-coded and, if using Boost unit test, the configuration file location must be hard
+ * coded too (or you can use the provided configuration).
  *
  * For an example of usage, see larcore/test/Geometry/geometry_iterator_test.cxx
  *
- * The standard TesterEnvironment<> class can't handle geo::GeometryCore.
- * The reason is twofold: for once, ExptGeoHelperInterface service is not
- * factorized, so we need to choose explicitly the ChannelMapAlg implementation
- * (here this is obtained by a template argument). Another is that GeometryCore
- * both is required and requires ChannelMapAlg to have a complete
- * initialisation. There are ways to overcome the issue at the cost of added
- * complication.
+ * The standard TesterEnvironment<> class can't handle geo::GeometryCore.  The reason is
+ * twofold: for once, ExptGeoHelperInterface service is not factorized, so we need to
+ * choose explicitly the ChannelMapAlg implementation (here this is obtained by a template
+ * argument). Another is that GeometryCore both is required and requires ChannelMapAlg to
+ * have a complete initialisation. There are ways to overcome the issue at the cost of
+ * added complication.
  *
  * Currently provides:
  * - BasicGeometryEnvironmentConfiguration: a test environment configuration
@@ -40,8 +38,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // CET libraries
-#include "cetlib/filepath_maker.h"
-#include "cetlib/filesystem.h" // cet::is_absolute_filepath()
 #include "cetlib/search_path.h"
 
 // C/C++ standard libraries
@@ -57,15 +53,12 @@ namespace testing {
    * @tparam CHANNELMAP the class used for channel mapping
    * @see GeometryTesterEnvironment
    *
-   * This class needs to be fully constructed by the default constructor
-   * in order to be useful as Boost unit test fixture.
-   * It is supposed to be passed as a template parameter to another class
-   * that can store an instance of it and extract configuration information
-   * from it.
+   * This class needs to be fully constructed by the default constructor in order to be
+   * useful as Boost unit test fixture.  It is supposed to be passed as a template
+   * parameter to another class that can store an instance of it and extract configuration
+   * information from it.
    */
-  template <typename CHANNELMAP>
   struct BasicGeometryEnvironmentConfiguration : public BasicEnvironmentConfiguration {
-    using ChannelMapClass = CHANNELMAP;
 
     /// Default constructor; this is what is used in Boost unit test
     BasicGeometryEnvironmentConfiguration() : BasicEnvironmentConfiguration() { LocalInit(); }
@@ -134,7 +127,7 @@ namespace testing {
           Name:            "lartpcdetector"
           GDML:            "LArTPCdetector.gdml"
           ROOT:            "LArTPCdetector.gdml"
-          SortingParameters: {}  # empty parameter set for default
+          SortingParameters: { tool_type: GeoObjectSorterStandard }
           )");
     } // LocalInit()
 
@@ -151,53 +144,43 @@ namespace testing {
    * - Parameters() method returning the complete FHiCL configuration
    * - TesterParameters() method returning the configuration for the test
    *
-   * This class or a derived one can be used as global fixture for unit tests
-   * that require the presence of geometry (in the form of geo::GeometryCore
-   * instance).
+   * This class or a derived one can be used as global fixture for unit tests that require
+   * the presence of geometry (in the form of geo::GeometryCore instance).
    *
-   * Unfortunately Boost does not give any control on the initialization of the
-   * object, so everything must be ready to go as hard coded.
-   * The ConfigurationClass class tries to alleviate that.
-   * That is another, small static class that GeometryTesterEnvironment uses to
-   * get its parameters.
+   * Unfortunately Boost does not give any control on the initialization of the object, so
+   * everything must be ready to go as hard coded.  The ConfigurationClass class tries to
+   * alleviate that.  That is another, small static class that GeometryTesterEnvironment
+   * uses to get its parameters.
    *
    * The requirements for the ConfigurationClass are:
    * - `ChannelMapClass`: concrete type of channel mapping algorithm class
    * - `std::string ApplicationName()`: the application name
    * - `std::string ConfigurationPath()`: path to the configuration file
-   * - `std::string GeometryParameterSetPath()`: FHiCL path to the configuration
-   *   of the geometry; in art is `"services.Geometry"`
-   * - `std::string TesterParameterSetPath()`: FHiCL path to the configuration
-   *   of the geometry
-   * - `std::string DefaultGeometryConfiguration()` returning a FHiCL string
-   *   to be parsed to extract the default geometry configuration
-   * - `std::string DefaultTesterConfiguration()` returning a FHiCL string
-   *   to be parsed to extract the default test configuration
+   * - `std::string GeometryParameterSetPath()`: FHiCL path to the configuration of the
+   *   geometry; in art is `"services.Geometry"`
+   * - `std::string TesterParameterSetPath()`: FHiCL path to the configuration of the
+   *   geometry
+   * - `std::string DefaultGeometryConfiguration()` returning a FHiCL string to be parsed
+   *   to extract the default geometry configuration
+   * - `std::string DefaultTesterConfiguration()` returning a FHiCL string to be parsed to
+   *   extract the default test configuration
    *
-   * Whether the configuration comes from a file or from the two provided
-   * defaults, it is always expected within the parameter set paths:
-   * the default configuration must also contain that path.
+   * Whether the configuration comes from a file or from the two provided defaults, it is
+   * always expected within the parameter set paths: the default configuration must also
+   * contain that path.
    *
-   * Note that there is no room for polymorphism here since the setup happens
-   * on construction.
-   * Some methods are declared virtual in order to allow to tweak some steps
-   * of the set up, but it's not trivial to create a derived class that works
-   * correctly: the derived class must declare a new default constructor,
-   * and that default constructor must call the protected constructor
+   * Note that there is no room for polymorphism here since the setup happens on
+   * construction.  Some methods are declared virtual in order to allow to tweak some
+   * steps of the set up, but it's not trivial to create a derived class that works
+   * correctly: the derived class must declare a new default constructor, and that default
+   * constructor must call the protected constructor
    * (GeometryTesterEnvironment<ConfigurationClass>(no_setup))
    */
-  template <typename ConfigurationClass>
+  template <typename ConfigurationClass, typename ObjectSorter>
   class GeometryTesterEnvironment : public TesterEnvironment<ConfigurationClass> {
-
-    /// Base class
     using TesterEnvironment_t = TesterEnvironment<ConfigurationClass>;
 
-    /// this implements the singleton interface
-    using GeoResources_t = TestSharedGlobalResource<geo::GeometryCore const>;
-
   public:
-    using SharedGeoPtr_t = GeoResources_t::ResourcePtr_t;
-
     /**
      * @brief Constructor: sets everything up and declares the test started
      *
@@ -216,9 +199,8 @@ namespace testing {
      *
      * The configuration is from the specified configurer class.
      *
-     * This constructor allows to use a non-default-constructed configuration.
-     * This can't be used (at best of my knowledge) when using this class as
-     * Boost unit test fixture.
+     * This constructor allows to use a non-default-constructed configuration.  This can't
+     * be used (at best of my knowledge) when using this class as Boost unit test fixture.
      *
      * In the r-value-reference constructor, the configurer is moved.
      */
@@ -234,58 +216,32 @@ namespace testing {
     }
     //@}
 
+    geo::GeometryCore const* Geometry() const noexcept
+    {
+      return this->template Provider<geo::GeometryCore>();
+    }
+
     /// Destructor: closing remarks
     virtual ~GeometryTesterEnvironment();
 
-    //@{
-    /// Returns a pointer to the geometry
-    geo::GeometryCore const* Geometry() const { return geom.get(); }
-    SharedGeoPtr_t SharedGeometry() const { return geom; }
-    //@}
-
-    /// Returns the current global geometry instance
-    /// @throws std::out_of_range if not present
-    static geo::GeometryCore const* GlobalGeometry() { return &GeoResources_t::Resource(); }
-
-    /// Returns the current global geometry instance (may be nullptr if none)
-    static SharedGeoPtr_t SharedGlobalGeometry() { return GeoResources_t::ShareResource(); }
-
   protected:
-    using ChannelMapClass = typename ConfigurationClass::ChannelMapClass;
-
     /// The complete initialization, ran at construction by default
-    virtual void Setup();
+    void Setup();
 
     /// Creates a new geometry
     virtual std::unique_ptr<geo::GeometryCore> CreateNewGeometry() const;
 
-    //@{
-    /// Get ownership of the specified geometry and registers it as global
-    virtual void RegisterGeometry(SharedGeoPtr_t new_geom);
-    virtual void RegisterGeometry(geo::GeometryCore const* new_geom)
-    {
-      RegisterGeometry(SharedGeoPtr_t(new_geom));
-    }
-    //@}
-
-    /// Sets up the geometry (creates and registers it)
-    virtual void SetupGeometry();
-
   private:
     ConfigurationClass config; ///< instance of the configurer
-
-    SharedGeoPtr_t geom; ///< pointer to the geometry
 
   }; // class GeometryTesterEnvironment<>
 
   //****************************************************************************
-  template <typename ConfigurationClass>
-  GeometryTesterEnvironment<ConfigurationClass>::~GeometryTesterEnvironment()
+  template <typename ConfigurationClass, typename ObjectSorter>
+  GeometryTesterEnvironment<ConfigurationClass, ObjectSorter>::~GeometryTesterEnvironment()
   {
-
     mf::LogInfo("Test") << config.ApplicationName() << " completed.";
-
-  } // GeometryTesterEnvironment<>::~GeometryTesterEnvironment()
+  }
 
   /** **************************************************************************
    * @brief Sets the geometry of the standard detector up
@@ -293,15 +249,14 @@ namespace testing {
    * This function sets up the geometry according to the provided information:
    * - the configuration must contain enough information to locate the geometry
    *   description file
-   * - we trust that that geometry works well with the ChannelMapClass specified
-   *   in ConfigurationClass
+   * - we trust that that geometry works well with the ChannelMapClass specified in
+   *   ConfigurationClass
    *
    */
-  template <typename ConfigurationClass>
+  template <typename ConfigurationClass, typename ObjectSorter>
   std::unique_ptr<geo::GeometryCore>
-  GeometryTesterEnvironment<ConfigurationClass>::CreateNewGeometry() const
+  GeometryTesterEnvironment<ConfigurationClass, ObjectSorter>::CreateNewGeometry() const
   {
-
     std::string ProviderParameterSetPath = this->Config().GeometryParameterSetPath();
 
     //
@@ -309,17 +264,19 @@ namespace testing {
     //
     fhicl::ParameterSet ProviderConfig =
       this->Parameters().template get<fhicl::ParameterSet>(ProviderParameterSetPath);
-    auto new_geom = std::make_unique<geo::GeometryCore>(ProviderConfig);
+    auto new_geom = std::make_unique<geo::GeometryCore>(
+      ProviderConfig,
+      std::make_unique<ObjectSorter const>(
+        ProviderConfig.get<fhicl::ParameterSet>("SortingParameters", {})));
 
     std::string RelativePath = ProviderConfig.get<std::string>("RelativePath", "");
 
     std::string GDMLFileName = RelativePath + ProviderConfig.get<std::string>("GDML"),
                 ROOTFileName = RelativePath + ProviderConfig.get<std::string>("ROOT");
 
-    // Search all reasonable locations for the geometry file;
-    // we see if by any chance art's FW_SEARCH_PATH directory is set and try
-    // there;
-    // if not, we do expect the path to be complete enough for ROOT to cope.
+    // Search all reasonable locations for the geometry file; we see if by any chance
+    // art's FW_SEARCH_PATH directory is set and try there; if not, we do expect the path
+    // to be complete enough for ROOT to cope.
     cet::search_path sp("FW_SEARCH_PATH");
 
     std::string ROOTfile;
@@ -334,62 +291,16 @@ namespace testing {
     // initialize the geometry with the files we have found
     new_geom->LoadGeometryFile(GDMLfile, ROOTfile);
 
-    //
-    // create the new channel map
-    //
-    auto const SortingParameters = ProviderConfig.get<fhicl::ParameterSet>("SortingParameters", {});
-
-    // connect the channel map with the geometry, that shares ownsership
-    // (we give up ours at the end of this method)
-    new_geom->ApplyChannelMap(std::make_unique<ChannelMapClass>(SortingParameters));
-
     return new_geom;
-  } // GeometryTesterEnvironment<>::CreateNewGeometry()
+  }
 
-  template <typename ConfigurationClass>
-  void GeometryTesterEnvironment<ConfigurationClass>::RegisterGeometry(SharedGeoPtr_t new_geom)
+  template <typename ConfigurationClass, typename ObjectSorter>
+  void GeometryTesterEnvironment<ConfigurationClass, ObjectSorter>::Setup()
   {
-    // update the current geometry, that becomes owner;
-    // also update the global one if it happens to be already our previous
-    // (in this case, it becomes co-owner)
-    SharedGeoPtr_t my_old_geom = geom;
-    geom = new_geom;
-    // if the global geometry is already the one we register, don't bother
-    if (SharedGlobalGeometry() != new_geom)
-      GeoResources_t::ReplaceDefaultSharedResource(my_old_geom, new_geom);
-  } // GeometryTesterEnvironment<>::RegisterGeometry()
-
-  template <typename ConfigurationClass>
-  void GeometryTesterEnvironment<ConfigurationClass>::SetupGeometry()
-  {
-    //
-    // horrible, shameful hack to support the "new" testing environment
-    // while the old one, informally deprecated, is still around;
-    // we will have TWO versions of GeometryCore around.
-    // Ugh.
-    //
-    RegisterGeometry(CreateNewGeometry()); // old
-    // new
-    this->template AcquireProvider<geo::GeometryCore>(CreateNewGeometry());
-  } // GeometryTesterEnvironment<>::SetupGeometry()
-
-  template <typename ConfigurationClass>
-  void GeometryTesterEnvironment<ConfigurationClass>::Setup()
-  {
-
-    //
-    // parse configuration, set up message facility
-    //
     TesterEnvironment_t::Setup();
-
-    //
-    // set up the geometry
-    //
-    SetupGeometry();
-
+    this->AcquireProvider(CreateNewGeometry());
     mf::LogInfo("Test") << config.ApplicationName() << " Geometry setup complete.";
-
-  } // GeometryTesterEnvironment<>::Setup()
+  }
 
 } // namespace testing
 

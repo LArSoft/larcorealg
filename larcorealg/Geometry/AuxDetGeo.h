@@ -67,7 +67,7 @@ namespace geo {
 
     ///@}
 
-    AuxDetGeo(TGeoNode const& node,
+    AuxDetGeo(TGeoNode const* node,
               geo::TransformationMatrix&& trans,
               AuxDetSensitiveList_t&& sensitive);
 

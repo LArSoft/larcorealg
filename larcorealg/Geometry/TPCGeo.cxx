@@ -35,7 +35,7 @@
 namespace geo {
 
   //......................................................................
-  TPCGeo::TPCGeo(TGeoNode const& node,
+  TPCGeo::TPCGeo(TGeoNode const* node,
                  geo::TransformationMatrix&& trans,
                  PlaneCollection_t&& planes)
     : BoxBoundedGeo() // we initialize boundaries at the end of construction
@@ -52,7 +52,7 @@ namespace geo {
 
     // all planes are going to be contained in the volume named volTPC
     // now get the total volume of the TPC
-    TGeoVolume* vc = node.GetVolume();
+    TGeoVolume* vc = node->GetVolume();
     if (!vc) {
       throw cet::exception("Geometry")
         << "cannot find detector outline volume - bail ungracefully\n";

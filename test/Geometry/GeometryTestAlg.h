@@ -16,16 +16,13 @@
 #include "larcorealg/TestUtils/NameSelector.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
+#include "fhiclcpp/fwd.h"
+
 // C/C++ standard libraries
 #include <array>
 #include <set>
 #include <string>
 #include <vector>
-
-// forward declarations
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace geo {
 
@@ -99,13 +96,12 @@ namespace geo {
    */
   class GeometryTestAlg {
   public:
-    explicit GeometryTestAlg(fhicl::ParameterSet const& pset);
+    explicit GeometryTestAlg(geo::GeometryCore const* geom,
+                             geo::ChannelMapAlg const* channelMapAlg,
+                             fhicl::ParameterSet const& pset);
 
     /// Virtual destructor
     virtual ~GeometryTestAlg() = default;
-
-    /// Runs the test
-    virtual void Setup(geo::GeometryCore const& new_geo) { geom = &new_geo; }
 
     /// Runs the test, returns a number of errors (very unlikely!)
     virtual unsigned int Run();
@@ -114,7 +110,8 @@ namespace geo {
     static std::array<double, 3> GetIncreasingWireDirection(const geo::PlaneGeo& plane);
 
   private:
-    geo::GeometryCore const* geom; ///< pointer to geometry service provider
+    geo::GeometryCore const* geom;
+    geo::ChannelMapAlg const* channelMapAlg;
 
     bool fDisableValidWireIDcheck; ///< disable test on out-of-world NearestWire()
     std::set<std::string> fNonFatalExceptions;
@@ -127,7 +124,6 @@ namespace geo {
     testing::NameSelector fRunTests; ///< test filter
 
     void printDetectorIntro() const;
-    void printChannelSummary();
     void printVolBounds();
     void printDetDim();
     void printWirePos();

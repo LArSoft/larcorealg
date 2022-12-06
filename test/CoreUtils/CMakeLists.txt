@@ -22,17 +22,36 @@ cet_test(SortByPointers_test USE_BOOST_UNIT
 )
 cet_test(span_test USE_BOOST_UNIT
   LIBRARIES PRIVATE
+  larcorealg::CoreUtils
   Boost::headers
 )
-cet_test(MetaUtils_test USE_BOOST_UNIT)
+cet_test(MetaUtils_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)
 cet_test(ContainerMeta_test USE_BOOST_UNIT)
 cet_test(DebugUtils_test USE_BOOST_UNIT
   LIBRARIES PRIVATE
   larcorealg::CoreUtils
 )
-cet_test(counter_test USE_BOOST_UNIT)
-cet_test(zip_test USE_BOOST_UNIT)
-cet_test(enumerate_test USE_BOOST_UNIT)
+cet_test(counter_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)
+cet_test(zip_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)
+cet_test(enumerate_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)
 cet_test(values_test USE_BOOST_UNIT)
-cet_test(get_elements_test USE_BOOST_UNIT)
-cet_test(operations_test USE_BOOST_UNIT)
+cet_test(get_elements_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)
+cet_test(operations_test USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+  larcorealg::CoreUtils
+)

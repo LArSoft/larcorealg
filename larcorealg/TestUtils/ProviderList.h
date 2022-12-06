@@ -21,6 +21,9 @@
 // LArSoft libraries
 #include "larcorealg/TestUtils/ProviderTestHelpers.h"
 
+// art libraries
+#include "cetlib_except/demangle.h"
+
 // C/C++ standard libraries
 #include <memory>    // std::unique_ptr()
 #include <stdexcept> // std::runtime_error
@@ -239,8 +242,6 @@ namespace testing {
         std::make_unique<concrete_type_t<T>>(setupProvider<T>(std::forward<Args>(args)...));
       data.emplace_hint(it, std::move(k), std::move(ptr));
       return true;
-      //   return custom_setup_instance<T>
-      //     (label, setupProvider<T, Args...>, std::forward<Args>(args)...);
     } // setup_instance()
 
     /// Construct and register an object of type T with specified arguments
@@ -386,18 +387,18 @@ namespace testing {
 
     std::unordered_map<key_type, pointer_t> data; ///< all our singletons
 
-    /// Convert a type into a (ugly) type name
+    /// Convert a type into a demangled type name
     template <typename T>
     static std::string type_name()
     {
-      return typeid(T).name();
+      return cet::demangle_symbol(typeid(T).name());
     }
 
-    /// Convert a pointer to object into a (ugly) type name
+    /// Convert a pointer to object into a demangled type name
     template <typename T>
-    static std::string type_name(T const* ptr)
+    static std::string type_name(T const*)
     {
-      return typeid(*ptr).name();
+      return type_name<T>();
     }
 
     /// @{

@@ -84,7 +84,7 @@ namespace geo {
     ///@}
 
     /// Construct a representation of a single cryostat of the detector.
-    CryostatGeo(TGeoNode const& node,
+    CryostatGeo(TGeoNode const* node,
                 geo::TransformationMatrix&& trans,
                 TPCList_t&& TPCs,
                 OpDetList_t&& OpDets);
@@ -394,8 +394,8 @@ namespace geo {
     TPCList_t fTPCs;              ///< List of tpcs in this cryostat
     OpDetList_t fOpDets;          ///< List of opdets in this cryostat
     TGeoVolume* fVolume;          ///< Total volume of cryostat, called volCryostat in GDML file
-    std::string fOpDetGeoName;    ///< Name of opdet geometry elements in gdml
-    geo::CryostatID fID;          ///< ID of this cryostat
+    std::string fOpDetGeoName{"volOpDetSensitive"}; ///< Name of opdet geometry elements in gdml
+    geo::CryostatID fID{};                          ///< ID of this cryostat
   };
 }
 
@@ -408,7 +408,6 @@ void geo::CryostatGeo::PrintCryostatInfo(Stream&& out,
                                          unsigned int verbosity /* = 1 */
                                          ) const
 {
-
   //----------------------------------------------------------------------------
   out << "Cryostat " << std::string(ID());
 
@@ -431,11 +430,7 @@ void geo::CryostatGeo::PrintCryostatInfo(Stream&& out,
   // print also the containing box
   geo::BoxBoundedGeo const& box = BoundingBox();
   out << "\n" << indent << "bounding box: " << box.Min() << " -- " << box.Max();
-
-  //  if (verbosity-- <= 0) return; // 3
-
-  //----------------------------------------------------------------------------
-} // geo::CryostatGeo::PrintCryostatInfo()
+}
 
 //------------------------------------------------------------------------------
 

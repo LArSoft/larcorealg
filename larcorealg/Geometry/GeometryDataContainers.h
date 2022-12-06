@@ -18,7 +18,6 @@
 
 // Boost libraries
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 
 // C/C++ standard libraries
 #include <algorithm> // std::fill(), std::for_each()

@@ -8,7 +8,6 @@
 #define LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
 
 #include "larcorealg/Geometry/ChannelMapAlg.h"
-#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/readout_types.h" // readout::TPCsetID, ...
 
@@ -21,10 +20,8 @@ namespace geo {
 
   class ChannelMapStandardAlg : public ChannelMapAlg {
   public:
-    ChannelMapStandardAlg(fhicl::ParameterSet const& p);
+    explicit ChannelMapStandardAlg(GeometryCore const* geom);
 
-    void Initialize(GeometryData_t const& geodata) override;
-    void Uninitialize() override;
     std::vector<WireID> ChannelToWire(raw::ChannelID_t channel) const override;
     unsigned int Nchannels() const override;
 
@@ -56,8 +53,8 @@ namespace geo {
      * @param cryoid cryostat ID
      * @return number of TPC sets in the cryostat, or 0 if no cryostat found
      *
-     * In this mapping, TPCs have independent readout and there is one TPC in
-     * each TPC set and one TPC set for each TPC.
+     * In this mapping, TPCs have independent readout and there is one TPC in each TPC set
+     * and one TPC set for each TPC.
      */
     unsigned int NTPCsets(readout::CryostatID const& cryoid) const override;
 
@@ -73,11 +70,10 @@ namespace geo {
      * @param tpcid ID of the TPC
      * @return the ID of the corresponding TPC set, or invalid ID when tpcid is
      *
-     * In this mapping, TPC sets and TPCs are mapped one-to-one.
-     * The returned value mirrors the TPC ID in the readout space.
-     * If the TPC ID is not valid, an invalid TPC set ID is returned.
-     * Note that this check is performed on the validity of the TPC ID, that
-     * does not necessarily imply that the TPC specified by the ID actually
+     * In this mapping, TPC sets and TPCs are mapped one-to-one.  The returned value
+     * mirrors the TPC ID in the readout space.  If the TPC ID is not valid, an invalid
+     * TPC set ID is returned.  Note that this check is performed on the validity of the
+     * TPC ID, that does not necessarily imply that the TPC specified by the ID actually
      * exists.
      */
     readout::TPCsetID TPCtoTPCset(TPCID const& tpcid) const override;
@@ -87,13 +83,12 @@ namespace geo {
      * @param tpcsetid ID of the TPC set to convert into TPC IDs
      * @return the list of TPCs, empty if TPC set is invalid
      *
-     * In this mapping, TPC sets and TPCs are mapped one-to-one.
-     * The returned list contains always one entry, unless the specified TPC
-     * set ID is invalid, in which case the list is empty.
-     * Note that the check is performed on the validity of the TPC set ID, that
-     * does not necessarily imply that the TPC set specified by the ID actually
-     * exists. Check the existence of the TPC set first (HasTPCset()).
-     * Behaviour on valid, non-existent TPC set IDs is undefined.
+     * In this mapping, TPC sets and TPCs are mapped one-to-one.  The returned list
+     * contains always one entry, unless the specified TPC set ID is invalid, in which
+     * case the list is empty.  Note that the check is performed on the validity of the
+     * TPC set ID, that does not necessarily imply that the TPC set specified by the ID
+     * actually exists. Check the existence of the TPC set first (HasTPCset()).  Behaviour
+     * on valid, non-existent TPC set IDs is undefined.
      */
     std::vector<TPCID> TPCsetToTPCs(readout::TPCsetID const& tpcsetid) const override;
 
@@ -115,8 +110,8 @@ namespace geo {
      *
      * Note that this methods explicitly check the existence of the TPC set.
      *
-     * In this mapping, planes have independent readout and there is one wire
-     * plane in each readout plane and one readout plane for each wire plane.
+     * In this mapping, planes have independent readout and there is one wire plane in
+     * each readout plane and one readout plane for each wire plane.
      */
     unsigned int NROPs(readout::TPCsetID const& tpcsetid) const override;
 
@@ -132,12 +127,11 @@ namespace geo {
      * @param planeid ID of the plane
      * @return the ID of the corresponding ROP, or invalid ID when planeid is
      *
-     * In this mapping, readout planes and wire planes are mapped one-to-one.
-     * The returned value mirrors the plane ID in the readout space.
-     * If the plane ID is not valid, an invalid readout plane ID is returned.
-     * Note that this check is performed on the validity of the plane ID, that
-     * does not necessarily imply that the plane specified by the ID actually
-     * exists.
+     * In this mapping, readout planes and wire planes are mapped one-to-one.  The
+     * returned value mirrors the plane ID in the readout space.  If the plane ID is not
+     * valid, an invalid readout plane ID is returned.  Note that this check is performed
+     * on the validity of the plane ID, that does not necessarily imply that the plane
+     * specified by the ID actually exists.
      */
     readout::ROPID WirePlaneToROP(PlaneID const& planeid) const override;
 
@@ -146,12 +140,11 @@ namespace geo {
      * @param ropid ID of the readout plane to convert into wire planes
      * @return the list of wire plane IDs, empty if readout plane ID is invalid
      *
-     * In this mapping, readout planes and wire planes are mapped one-to-one.
-     * The returned list contains always one entry, unless the specified readout
-     * plane ID is invalid, in which case the list is empty.
-     * Note that this check is performed on the validity of the readout plane
-     * ID, that does not necessarily imply that the readout plane specified by
-     * the ID actually exists.
+     * In this mapping, readout planes and wire planes are mapped one-to-one.  The
+     * returned list contains always one entry, unless the specified readout plane ID is
+     * invalid, in which case the list is empty.  Note that this check is performed on the
+     * validity of the readout plane ID, that does not necessarily imply that the readout
+     * plane specified by the ID actually exists.
      */
     std::vector<PlaneID> ROPtoWirePlanes(readout::ROPID const& ropid) const override;
 
@@ -160,12 +153,11 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return the list of TPC IDs, empty if readout plane ID is invalid
      *
-     * In this mapping, readout planes and wire planes are mapped one-to-one.
-     * The returned list contains always one entry, unless the specified readout
-     * plane ID is invalid, in which case the list is empty.
-     * Note that this check is performed on the validity of the readout plane
-     * ID, that does not necessarily imply that the readout plane specified by
-     * the ID actually exists. Check if the ROP exists with HasROP().
+     * In this mapping, readout planes and wire planes are mapped one-to-one.  The
+     * returned list contains always one entry, unless the specified readout plane ID is
+     * invalid, in which case the list is empty.  Note that this check is performed on the
+     * validity of the readout plane ID, that does not necessarily imply that the readout
+     * plane specified by the ID actually exists. Check if the ROP exists with HasROP().
      * The behaviour on non-existing readout planes is undefined.
      */
     std::vector<TPCID> ROPtoTPCs(readout::ROPID const& ropid) const override;
@@ -178,10 +170,10 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return ID of first channel, or raw::InvalidChannelID if ID is invalid
      *
-     * Note that this check is performed on the validity of the readout plane
-     * ID, that does not necessarily imply that the readout plane specified by
-     * the ID actually exists. Check if the ROP exists with HasROP().
-     * The behaviour for non-existing readout planes is undefined.
+     * Note that this check is performed on the validity of the readout plane ID, that
+     * does not necessarily imply that the readout plane specified by the ID actually
+     * exists. Check if the ROP exists with HasROP().  The behaviour for non-existing
+     * readout planes is undefined.
      */
     raw::ChannelID_t FirstChannelInROP(readout::ROPID const& ropid) const override;
 
@@ -189,9 +181,6 @@ namespace geo {
     PlaneID FirstWirePlaneInROP(readout::ROPID const& ropid) const override;
 
     /// @} readout plane mapping
-
-    /// Return the sorter
-    GeoObjectSorter const& Sorter() const override { return fSorter; }
 
   private:
     unsigned int fNcryostat;              ///< number of cryostats in the detector
@@ -216,8 +205,6 @@ namespace geo {
     PlaneInfoMap_t<unsigned int> fWiresPerPlane;  ///< The number of wires in this plane
                                                   ///< in the heirachy
 
-    GeoObjectSorterStandard fSorter; ///< class to sort geo objects
-
     SigType_t SignalTypeForChannelImpl(raw::ChannelID_t const channel) const override;
 
     /// Retrieved the wire cound for the specified plane ID
@@ -225,18 +212,6 @@ namespace geo {
 
     /// Returns the largest number of TPCs in a single cryostat
     unsigned int MaxTPCs() const;
-
-    /// Converts a TPC ID into a TPC set ID using the same numerical indices
-    static readout::TPCsetID ConvertTPCtoTPCset(TPCID const& tpcid);
-
-    /// Converts a TPC set ID into a TPC ID using the same numerical indices
-    static TPCID ConvertTPCsetToTPC(readout::TPCsetID const& tpcsetid);
-
-    /// Converts a ROP ID into a wire plane ID using the same numerical indices
-    static readout::ROPID ConvertWirePlaneToROP(PlaneID const& planeid);
-
-    /// Converts a wire plane ID into a ROP ID using the same numerical indices
-    static PlaneID ConvertROPtoWirePlane(readout::ROPID const& ropid);
   };
 
 }

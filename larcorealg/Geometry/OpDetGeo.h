@@ -64,7 +64,7 @@ namespace geo {
 
     ///@}
 
-    OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans);
+    OpDetGeo(TGeoNode const* node, geo::TransformationMatrix&& trans);
 
     /// Returns the geometry ID of this optical detector.
     geo::OpDetID const& ID() const { return fID; }

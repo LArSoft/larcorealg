@@ -16,22 +16,48 @@
 #include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+namespace {
+  //----------------------------------------------------------------------------
+  readout::TPCsetID ConvertTPCtoTPCset(geo::TPCID const& tpcid)
+  {
+    if (!tpcid.isValid) return {}; // invalid ID, default-constructed
+    return {(readout::CryostatID::CryostatID_t)tpcid.Cryostat,
+            (readout::TPCsetID::TPCsetID_t)tpcid.TPC};
+  }
+
+  //----------------------------------------------------------------------------
+  geo::TPCID ConvertTPCsetToTPC(readout::TPCsetID const& tpcsetid)
+  {
+    if (!tpcsetid.isValid) return {};
+    return {(geo::CryostatID::CryostatID_t)tpcsetid.Cryostat, (geo::TPCID::TPCID_t)tpcsetid.TPCset};
+  }
+
+  //----------------------------------------------------------------------------
+  readout::ROPID ConvertWirePlaneToROP(geo::PlaneID const& planeid)
+  {
+    if (!planeid.isValid) return {}; // invalid ID, default-constructed
+    return {(readout::CryostatID::CryostatID_t)planeid.Cryostat,
+            (readout::TPCsetID::TPCsetID_t)planeid.TPC,
+            (readout::ROPID::ROPID_t)planeid.Plane};
+  }
+
+  //----------------------------------------------------------------------------
+  geo::PlaneID ConvertROPtoWirePlane(readout::ROPID const& ropid)
+  {
+    if (!ropid.isValid) return {};
+    return {(geo::CryostatID::CryostatID_t)ropid.Cryostat,
+            (geo::TPCID::TPCID_t)ropid.TPCset,
+            (geo::PlaneID::PlaneID_t)ropid.ROP};
+  }
+
+}
+
 namespace geo {
 
   //----------------------------------------------------------------------------
-  ChannelMapStandardAlg::ChannelMapStandardAlg(fhicl::ParameterSet const& p)
-    : fSorter(GeoObjectSorterStandard(p))
-  {}
-
-  //----------------------------------------------------------------------------
-  void ChannelMapStandardAlg::Initialize(GeometryData_t const& geodata)
+  ChannelMapStandardAlg::ChannelMapStandardAlg(GeometryCore const* geom) : ChannelMapAlg{geom}
   {
-    // start over:
-    Uninitialize();
-
-    std::vector<CryostatGeo> const& cgeo = geodata.cryostats;
-
-    fNcryostat = cgeo.size();
+    fNcryostat = geom->Ncryostats();
 
     mf::LogInfo("ChannelMapStandardAlg") << "Initializing Standard ChannelMap...";
 
@@ -50,8 +76,8 @@ namespace geo {
 
     int RunningTotal = 0;
 
-    for (unsigned int cs = 0; cs != fNcryostat; ++cs) {
-      CryostatGeo const& cryo = cgeo[cs];
+    for (auto const& cryo : geom->Iterate<CryostatGeo>()) {
+      auto const cs = cryo.ID().Cryostat;
       fNTPC[cs] = cryo.NTPC();
 
       // Size up all the vectors
@@ -65,18 +91,18 @@ namespace geo {
       fFirstChannelInThisPlane[cs].resize(fNTPC[cs]);
       fFirstChannelInNextPlane[cs].resize(fNTPC[cs]);
 
-      for (unsigned int TPCCount = 0; TPCCount != fNTPC[cs]; ++TPCCount) {
-        TPCGeo const& TPC = cryo.TPC(TPCCount);
+      for (auto const& TPC : geom->Iterate<TPCGeo>(cryo.ID())) {
+        auto const TPCCount = TPC.ID().TPC;
         unsigned int PlanesThisTPC = TPC.Nplanes();
         fWireCounts[cs][TPCCount].resize(PlanesThisTPC);
         fFirstWireProj[cs][TPCCount].resize(PlanesThisTPC);
         fOrthVectorsY[cs][TPCCount].resize(PlanesThisTPC);
         fOrthVectorsZ[cs][TPCCount].resize(PlanesThisTPC);
         fNPlanes[cs][TPCCount] = PlanesThisTPC;
-        for (unsigned int PlaneCount = 0; PlaneCount != PlanesThisTPC; ++PlaneCount) {
-          PlaneGeo const& plane = TPC.Plane(PlaneCount);
+        for (auto const& plane : geom->Iterate<PlaneGeo>(TPC.ID())) {
+          fPlaneIDs.insert(plane.ID());
+          auto const PlaneCount = plane.ID().Plane;
 
-          fPlaneIDs.emplace(PlaneID(cs, TPCCount, PlaneCount));
           double ThisWirePitch = TPC.WirePitch(PlaneCount);
           fWireCounts[cs][TPCCount][PlaneCount] = plane.Nwires();
 
@@ -128,9 +154,6 @@ namespace geo {
 
     MF_LOG_DEBUG("ChannelMapStandard") << "# of channels is " << fNchannels;
   }
-
-  //----------------------------------------------------------------------------
-  void ChannelMapStandardAlg::Uninitialize() {}
 
   //----------------------------------------------------------------------------
   std::vector<WireID> ChannelMapStandardAlg::ChannelToWire(raw::ChannelID_t channel) const
@@ -407,39 +430,6 @@ namespace geo {
   PlaneID ChannelMapStandardAlg::FirstWirePlaneInROP(readout::ROPID const& ropid) const
   {
     return ConvertROPtoWirePlane(ropid);
-  }
-
-  //----------------------------------------------------------------------------
-  readout::TPCsetID ChannelMapStandardAlg::ConvertTPCtoTPCset(TPCID const& tpcid)
-  {
-    if (!tpcid.isValid) return {}; // invalid ID, default-constructed
-    return {(readout::CryostatID::CryostatID_t)tpcid.Cryostat,
-            (readout::TPCsetID::TPCsetID_t)tpcid.TPC};
-  }
-
-  //----------------------------------------------------------------------------
-  TPCID ChannelMapStandardAlg::ConvertTPCsetToTPC(readout::TPCsetID const& tpcsetid)
-  {
-    if (!tpcsetid.isValid) return {};
-    return {(CryostatID::CryostatID_t)tpcsetid.Cryostat, (TPCID::TPCID_t)tpcsetid.TPCset};
-  }
-
-  //----------------------------------------------------------------------------
-  readout::ROPID ChannelMapStandardAlg::ConvertWirePlaneToROP(PlaneID const& planeid)
-  {
-    if (!planeid.isValid) return {}; // invalid ID, default-constructed
-    return {(readout::CryostatID::CryostatID_t)planeid.Cryostat,
-            (readout::TPCsetID::TPCsetID_t)planeid.TPC,
-            (readout::ROPID::ROPID_t)planeid.Plane};
-  }
-
-  //----------------------------------------------------------------------------
-  PlaneID ChannelMapStandardAlg::ConvertROPtoWirePlane(readout::ROPID const& ropid)
-  {
-    if (!ropid.isValid) return {};
-    return {(CryostatID::CryostatID_t)ropid.Cryostat,
-            (TPCID::TPCID_t)ropid.TPCset,
-            (PlaneID::PlaneID_t)ropid.ROP};
   }
 
 } // namespace

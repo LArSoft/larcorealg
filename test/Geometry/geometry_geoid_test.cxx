@@ -14,7 +14,7 @@
 
 // LArSoft libraries
 #include "GeometryGeoIDTestAlg.h"
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/boost_unit_test_base.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
@@ -34,8 +34,7 @@
 // BoostCommandLineConfiguration<> makes it initialize in time for Boost
 // to catch it when instanciating the fixture.
 struct StandardGeometryConfiguration
-  : public testing::BoostCommandLineConfiguration<
-      testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>> {
+  : public testing::BoostCommandLineConfiguration<testing::BasicGeometryEnvironmentConfiguration> {
   /// Constructor: overrides the application name
   StandardGeometryConfiguration() { SetApplicationName("GeometryGeoIDUnitTest"); }
 }; // class StandardGeometryConfiguration
@@ -61,7 +60,8 @@ struct StandardGeometryConfiguration
  * tester depends on Boost unit test implementation.
  */
 class GeometryGeoIDTestFixture
-  : private testing::GeometryTesterEnvironment<StandardGeometryConfiguration> {
+  : private testing::GeometryTesterEnvironment<StandardGeometryConfiguration,
+                                               geo::GeoObjectSorterStandard> {
   using Tester_t = geo::GeometryGeoIDTestAlg;
 
   using TesterRegistry_t = testing::TestSharedGlobalResource<Tester_t>;
@@ -71,7 +71,7 @@ public:
   GeometryGeoIDTestFixture()
   {
     // create a new tester
-    tester_ptr = std::make_shared<Tester_t>(Provider<geo::GeometryCore>());
+    tester_ptr = std::make_shared<Tester_t>(Geometry());
     // if no tester is default yet, share ours:
     TesterRegistry_t::ProvideDefaultSharedResource(tester_ptr);
   }
