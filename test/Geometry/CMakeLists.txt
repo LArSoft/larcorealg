@@ -143,15 +143,6 @@ cet_test(SimpleGeo_test USE_BOOST_UNIT
   SOURCE SimpleGeo_test.cxx
 )
 
-cet_test(driftvolumes_test SOURCE driftvolumes_test.cxx
-  DATAFILES test_geometry.fcl
-  TEST_ARGS ./test_geometry.fcl
-  LIBRARIES PRIVATE
-  larcorealg::Geometry
-  larcorealg::geometry_unit_test_base
-  messagefacility::MF_MessageLogger
-)
-
 cet_test(geometrydatacontainers_test USE_BOOST_UNIT
   SOURCE geometrydatacontainers_test.cxx
   LIBRARIES PRIVATE

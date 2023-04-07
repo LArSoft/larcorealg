@@ -117,7 +117,6 @@ cet_make_library(SOURCE
   ChannelMapStandardAlg.cxx
   CryostatGeo.cxx
   Decomposer.h
-  DriftPartitions.cxx
   GeometryBuilder.h
   GeometryBuilderStandard.cxx
   GeometryCore.cxx
