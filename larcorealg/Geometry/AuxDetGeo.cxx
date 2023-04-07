@@ -22,6 +22,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // C/C++ libraries
+#include <algorithm>
 #include <limits>
 #include <sstream> // std::ostringstream
 #include <string>
@@ -30,7 +31,7 @@ namespace geo {
 
   //-----------------------------------------
   AuxDetGeo::AuxDetGeo(TGeoNode const* node,
-                       geo::TransformationMatrix&& trans,
+                       TransformationMatrix&& trans,
                        AuxDetSensitiveList_t&& sensitive)
     : fTotalVolume(node->GetVolume()), fTrans(std::move(trans)), fSensitive(std::move(sensitive))
   {
@@ -42,14 +43,13 @@ namespace geo {
     // could be from an older gdml file than the introduction of AuxDetSensitiveGeo
     // in that case assume the full AuxDetGeo is sensitive and copy its information
     // into a single AuxDetSensitive
-    if (fSensitive.empty())
-      fSensitive.emplace_back(node, geo::TransformationMatrix(fTrans.Matrix()));
+    if (fSensitive.empty()) fSensitive.emplace_back(node, TransformationMatrix(fTrans.Matrix()));
 
     InitShapeSize();
   }
 
   //......................................................................
-  geo::Point_t AuxDetGeo::GetCenter(double localz /* = 0.0 */) const
+  Point_t AuxDetGeo::GetCenter(double localz /* = 0.0 */) const
   {
     return toWorldCoords(LocalPoint_t{0.0, 0.0, localz});
   }
@@ -57,13 +57,10 @@ namespace geo {
   //......................................................................
 
   // Return the unit normal vector (0,0,1) in local coordinates to global coordinates
-  geo::Vector_t AuxDetGeo::GetNormalVector() const
-  {
-    return toWorldCoords(geo::Zaxis<LocalVector_t>());
-  }
+  Vector_t AuxDetGeo::GetNormalVector() const { return toWorldCoords(Zaxis<LocalVector_t>()); }
 
   //......................................................................
-  std::size_t AuxDetGeo::FindSensitiveVolume(geo::Point_t const& point) const
+  std::size_t AuxDetGeo::FindSensitiveVolume(Point_t const& point) const
   {
     for (std::size_t a = 0; a < fSensitive.size(); ++a) {
       auto const& sensVol = SensitiveVolume(a);
@@ -88,7 +85,7 @@ namespace geo {
   } // AuxDetGeo::FindSensitiveVolume(geo::Point_t)
 
   //......................................................................
-  AuxDetSensitiveGeo const& AuxDetGeo::PositionToSensitiveVolume(geo::Point_t const& point,
+  AuxDetSensitiveGeo const& AuxDetGeo::PositionToSensitiveVolume(Point_t const& point,
                                                                  size_t& sv) const
   {
     sv = FindSensitiveVolume(point);
@@ -100,9 +97,11 @@ namespace geo {
   }
 
   //......................................................................
-  void AuxDetGeo::SortSubVolumes(GeoObjectSorter const& sorter)
+  void AuxDetGeo::SortSubVolumes(GeoObjectSorter& sorter)
   {
-    sorter.SortAuxDetSensitive(fSensitive);
+    std::sort(fSensitive.begin(), fSensitive.end(), [&sorter](auto const& a, auto const& b) {
+      return sorter.compareAuxDetSensitives(a, b);
+    });
   }
 
   //......................................................................

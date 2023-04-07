@@ -13,14 +13,14 @@ namespace geoalgo {
     _angle = atan(_radius / _length);
   }
 
-  Cone::Cone(const double x,
-             const double y,
-             const double z,
-             const double dirx,
-             const double diry,
-             const double dirz,
-             const double length,
-             const double radius)
+  Cone::Cone(double const x,
+             double const y,
+             double const z,
+             double const dirx,
+             double const diry,
+             double const dirz,
+             double const length,
+             double const radius)
     : HalfLine(x, y, z, dirx, diry, dirz)
   {
     if (length == 0) {
@@ -34,7 +34,7 @@ namespace geoalgo {
     _angle = atan(_radius / _length);
   }
 
-  Cone::Cone(const Point_t& start, const Vector_t& dir, const double length, const double radius)
+  Cone::Cone(Point_t const& start, Vector_t const& dir, double const length, double const radius)
     : HalfLine(start, dir)
   {
     if (length == 0) {
@@ -54,7 +54,7 @@ namespace geoalgo {
 
   double Cone::Angle() const { return _angle; }
 
-  void Cone::Length(const double l)
+  void Cone::Length(double const l)
   {
     if (l == 0) {
       std::ostringstream msg;
@@ -66,7 +66,7 @@ namespace geoalgo {
     _angle = atan(_radius / _length);
   }
 
-  void Cone::Radius(const double r)
+  void Cone::Radius(double const r)
   {
     _radius = r;
     _angle = atan(_radius / _length);

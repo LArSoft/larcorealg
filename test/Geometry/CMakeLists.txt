@@ -167,12 +167,6 @@ cet_test(readoutdatacontainers_test USE_BOOST_UNIT
   larcoreobj::SimpleTypesAndConstants
 )
 
-cet_test(topology_test USE_BOOST_UNIT
-  SOURCE topology_test.cxx
-  LIBRARIES PRIVATE
-  larcorealg::Geometry
-)
-
 set_property(TEST geometry_iterator_test geometry_test geometry_loader_test
   geometry_iterator_loop_test geometry_standardchannelmapping_test
   geometry_geoid_test geometry_thirdplaneslope_test

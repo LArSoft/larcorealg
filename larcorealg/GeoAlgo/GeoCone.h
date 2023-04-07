@@ -34,17 +34,17 @@ namespace geoalgo {
     virtual ~Cone(){};
 
     /// Alternative ctor (1)
-    Cone(const double x,
-         const double y,
-         const double z,
-         const double dirx,
-         const double diry,
-         const double dirz,
-         const double length,
-         const double radius);
+    Cone(double const x,
+         double const y,
+         double const z,
+         double const dirx,
+         double const diry,
+         double const dirz,
+         double const length,
+         double const radius);
 
     /// Alternative ctor (2)
-    Cone(const Point_t& start, const Vector_t& dir, const double length, const double radius);
+    Cone(Point_t const& start, Vector_t const& dir, double const length, double const radius);
 
     //
     // Getters
@@ -56,8 +56,8 @@ namespace geoalgo {
     //
     // Setters
     //
-    void Length(const double l); ///< Length setter
-    void Radius(const double r); ///< Radius setter
+    void Length(double const l); ///< Length setter
+    void Radius(double const r); ///< Radius setter
 
   protected:
     double _length; ///< Helight (length) of the cone
@@ -70,7 +70,7 @@ namespace geoalgo {
     //
     /// Alternative ctor using template (3)
     template <class T, class U>
-    Cone(const T& start, const U& dir) : Cone(Point_t(start), Vector_t(dir))
+    Cone(T const& start, U const& dir) : Cone(Point_t(start), Vector_t(dir))
     {}
   };
 

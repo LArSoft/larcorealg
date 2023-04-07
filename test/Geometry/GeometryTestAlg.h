@@ -96,8 +96,8 @@ namespace geo {
    */
   class GeometryTestAlg {
   public:
-    explicit GeometryTestAlg(geo::GeometryCore const* geom,
-                             geo::ChannelMapAlg const* channelMapAlg,
+    explicit GeometryTestAlg(GeometryCore const* geom,
+                             WireReadoutGeom const* wireReadoutGeom,
                              fhicl::ParameterSet const& pset);
 
     /// Virtual destructor
@@ -107,11 +107,11 @@ namespace geo {
     virtual unsigned int Run();
 
     /// Returns the direction on plane orthogonal to wires where wire number increases
-    static std::array<double, 3> GetIncreasingWireDirection(const geo::PlaneGeo& plane);
+    static std::array<double, 3> GetIncreasingWireDirection(PlaneGeo const& plane);
 
   private:
-    geo::GeometryCore const* geom;
-    geo::ChannelMapAlg const* channelMapAlg;
+    GeometryCore const* geom;
+    WireReadoutGeom const* wireReadoutGeom;
 
     bool fDisableValidWireIDcheck; ///< disable test on out-of-world NearestWire()
     std::set<std::string> fNonFatalExceptions;
@@ -127,11 +127,11 @@ namespace geo {
     void printVolBounds();
     void printDetDim();
     void printWirePos();
-    void printWiresInTPC(const TPCGeo& tpc, std::string indent = "") const;
+    void printWiresInTPC(TPCGeo const& tpc, std::string indent = "") const;
     void printAllGeometry() const;
     void testFindVolumes();
     void testCryostat();
-    void testTPC(geo::CryostatID const& cid);
+    void testTPC(CryostatID const& cid);
     void testPlaneDirections() const;
     void testWireOrientations() const;
     void testChannelToROP() const;
@@ -171,13 +171,13 @@ namespace geo {
     /// Prints information of an auxiliary detector into the specified stream.
     template <typename Stream>
     void printAuxDetGeo(Stream&& out,
-                        geo::AuxDetGeo const& auxDet,
+                        AuxDetGeo const& auxDet,
                         std::string indent,
                         std::string firstIndent) const;
 
     /// Prints information of an auxiliary detector into the specified stream.
     template <typename Stream>
-    void printAuxDetGeo(Stream&& out, geo::AuxDetGeo const& auxDet, std::string indent = "") const
+    void printAuxDetGeo(Stream&& out, AuxDetGeo const& auxDet, std::string indent = "") const
     {
       printAuxDetGeo(std::forward<Stream>(out), auxDet, indent, indent);
     }
@@ -185,43 +185,40 @@ namespace geo {
     /// Prints information of the sensitive auxiliary detector into a stream.
     template <typename Stream>
     void printAuxDetSensitiveGeo(Stream&& out,
-                                 geo::AuxDetSensitiveGeo const& auxDetSens,
+                                 AuxDetSensitiveGeo const& auxDetSens,
                                  std::string indent,
                                  std::string firstIndent) const;
 
     /// Prints information of the sensitive auxiliary detector into a stream.
     template <typename Stream>
     void printAuxDetSensitiveGeo(Stream&& out,
-                                 geo::AuxDetSensitiveGeo const& auxDetSens,
+                                 AuxDetSensitiveGeo const& auxDetSens,
                                  std::string indent = "") const
     {
       printAuxDetSensitiveGeo(std::forward<Stream>(out), auxDetSens, indent, indent);
     }
 
     /// Returns whether the auxiliary detector at `pos` is the `expected` one.
-    bool CheckAuxDetAtPosition(geo::Point_t const pos, unsigned int expected) const;
+    bool CheckAuxDetAtPosition(Point_t const pos, unsigned int expected) const;
 
     /// Returns whether the auxiliary sensitive detector at `pos` is expected.
-    bool CheckAuxDetSensitiveAtPosition(geo::Point_t const pos,
+    bool CheckAuxDetSensitiveAtPosition(Point_t const pos,
                                         unsigned int expectedDet,
                                         unsigned int expectedSens) const;
 
     /// Helper function for `testWireIntersection()`.
-    bool isWireAlignedToPlaneDirections(geo::PlaneGeo const& plane,
-                                        geo::Vector_t const& wireDir) const;
+    bool isWireAlignedToPlaneDirections(PlaneGeo const& plane, Vector_t const& wireDir) const;
 
     /// Performs the wire intersection test at a single point
-    unsigned int testWireIntersectionAt(geo::TPCGeo const& TPC, geo::Point_t const& point) const;
+    unsigned int testWireIntersectionAt(TPCGeo const& TPC, Point_t const& point) const;
 
     /// Returns dT/dW expected from the specified segment A-to-B
-    std::vector<std::pair<geo::PlaneID, double>> ExpectedPlane_dTdW(
-      geo::Point_t const& A,
-      geo::Point_t const& B,
-      const double driftVelocity = -0.1) const;
+    std::vector<std::pair<PlaneID, double>>
+    ExpectedPlane_dTdW(Point_t const& A, Point_t const& B, double const driftVelocity = -0.1) const;
 
     /// Performs the third plane slope test with a single configuration
     unsigned int testThirdPlane_dTdW_at(
-      std::vector<std::pair<geo::PlaneID, double>> const& plane_dTdW) const;
+      std::vector<std::pair<PlaneID, double>> const& plane_dTdW) const;
   };
 
   namespace details {

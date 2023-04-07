@@ -32,7 +32,7 @@ namespace geo {
   template <typename Trans>
   decltype(auto) makeTransformationMatrix(Trans&& trans)
   {
-    return convertTransformationMatrix<geo::TransformationMatrix>(trans);
+    return convertTransformationMatrix<TransformationMatrix>(trans);
   }
 
 } // namespace geo

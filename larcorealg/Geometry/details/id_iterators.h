@@ -254,11 +254,19 @@ namespace geo::details {
     return out << "geometry_iterator{ " << *it << " }";
   }
 
+  template <typename ID, typename Policy>
+  struct supported {
+    static constexpr bool check(unsigned int (Policy::*)(ID const&) const) { return true; }
+    static constexpr bool check(...) { return false; }
+  };
+
   /// Sets the ID to the ID after the specified one.
   /// @return whether the ID is actually valid (validity flag is also set)
   template <typename ID, typename IterationPolicy>
   void IncrementID(ID& id, IterationPolicy const& policy)
   {
+    static_assert(supported<ID, IterationPolicy>::check(&IterationPolicy::NSiblings));
+
     if (++id.deepestIndex() < policy.NSiblings(id)) return;
     if constexpr (has_parent<ID>::value) {
       // go to next parent element and reset index

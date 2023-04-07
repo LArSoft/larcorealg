@@ -26,11 +26,10 @@ void geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorld(double cons
   details::checkVectorBufferOverlap(local, world);
 
   // need direct transformation
-  auto const local_v = geo::vect::makeFromCoords<typename TransformationMatrix_t::Point>(local);
+  auto const local_v = vect::makeFromCoords<typename TransformationMatrix_t::Point>(local);
   auto const world_v = fGeoMatrix(local_v);
-  geo::vect::fillCoords(world, world_v);
-
-} // geo::LocalTransformation::LocalToWorld()
+  vect::fillCoords(world, world_v);
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -40,11 +39,10 @@ void geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorldVect(double 
   details::checkVectorBufferOverlap(local, world);
 
   // need direct transformation
-  auto const local_v = geo::vect::makeFromCoords<typename TransformationMatrix_t::Vector>(local);
+  auto const local_v = vect::makeFromCoords<typename TransformationMatrix_t::Vector>(local);
   auto const world_v = fGeoMatrix(local_v);
-  geo::vect::fillCoords(world, world_v);
-
-} // geo::LocalTransformation::LocalToWorldVect()
+  vect::fillCoords(world, world_v);
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -54,11 +52,10 @@ void geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocal(double cons
   details::checkVectorBufferOverlap(local, world);
 
   // need inverse transformation
-  auto const world_v = geo::vect::makeFromCoords<typename TransformationMatrix_t::Point>(world);
+  auto const world_v = vect::makeFromCoords<typename TransformationMatrix_t::Point>(world);
   auto const local_v = fGeoMatrix.ApplyInverse(world_v);
-  geo::vect::fillCoords(local, local_v);
-
-} // geo::LocalTransformation::WorldToLocal()
+  vect::fillCoords(local, local_v);
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -68,11 +65,10 @@ void geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocalVect(const d
   details::checkVectorBufferOverlap(local, world);
 
   // need inverse transformation
-  auto const world_v = geo::vect::makeFromCoords<typename TransformationMatrix_t::Vector>(world);
+  auto const world_v = vect::makeFromCoords<typename TransformationMatrix_t::Vector>(world);
   auto const local_v = fGeoMatrix.ApplyInverse(world_v);
-  geo::vect::fillCoords(local, local_v);
-
-} // geo::LocalTransformation::WorldToLocalVect()
+  vect::fillCoords(local, local_v);
+}
 
 //------------------------------------------------------------------------------
 ROOT::Math::Transform3D
@@ -99,7 +95,6 @@ geo::details::TransformationMatrixConverter<ROOT::Math::Transform3D, TGeoMatrix>
           rot[7],
           rot[8],
           transl[2]};
-
-} // geo::details::TransformationMatrixConverter<TGeoMatrix, Transform3D>::convert()
+}
 
 //------------------------------------------------------------------------------

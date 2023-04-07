@@ -13,8 +13,11 @@
 #define LARCOREALG_GEOMETRY_STANDALONEGEOMETRYSETUP_H
 
 // LArSoft libraries
-#include "larcorealg/Geometry/ChannelMapAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
+#include "larcorealg/Geometry/WireReadoutSorterStandard.h"
+#include "larcorealg/Geometry/WireReadoutStandardGeom.h"
 
 // art-provided libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -34,7 +37,7 @@ namespace lar::standalone {
   /**
    * @brief  Initializes a LArSoft geometry object.
    * @param pset parameters for geometry configuration
-   * @param channelMap channel mapping object to be used, already constructed
+   * @param wireReadoutGeom channel mapping object to be used, already constructed
    * @return the geometry object, fully initialized
    * @see SetupGeometry()
    *
@@ -42,11 +45,11 @@ namespace lar::standalone {
    * specified channel mapping.
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
    * // create a channel mapping algorithm
-   * std::make_unique<geo::StandardChannelMapAlg> channelMap
+   * std::make_unique<geo::StandardWireReadoutGeom> wireReadoutGeom
    *   (pset.get<fhicl::ParameterSet>("SortingParameters"));
    *
    * std::unique_ptr<geo::GeometryCore> geom
-   *   = SetupGeometryWithChannelMapping(pset, channelMap);
+   *   = SetupGeometryWithChannelMapping(pset, wireReadoutGeom);
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * If no set up is required for channel mapping after construction, the use
    * of `SetupGeometry()` is preferred over this function.
@@ -83,67 +86,45 @@ namespace lar::standalone {
    *   appended before the `.gdml` suffix
    * - *SortingParameters* (a parameter set; default: empty): this
    *   configuration is directly passed to the channel mapping algorithm (see
-   *   `geo::ChannelMapAlg`); its content is dependent on the chosen
-   *   implementation of `geo::ChannelMapAlg`
+   *   `geo::WireReadoutGeom`); its content is dependent on the chosen
+   *   implementation of `geo::WireReadoutGeom`
    */
-  std::unique_ptr<geo::GeometryCore> GeometryFor(
-    fhicl::ParameterSet const& pset,
-    std::unique_ptr<geo::GeoObjectSorter const> sorter);
+  std::unique_ptr<geo::GeometryCore> GeometryFor(fhicl::ParameterSet const& pset,
+                                                 std::unique_ptr<geo::GeoObjectSorter> sorter);
 
-  template <typename ObjectSorter>
-  std::unique_ptr<geo::GeometryCore> SetupGeometryWithoutChannelMapping(
-    fhicl::ParameterSet const& pset)
+  template <typename ObjectSorter = geo::GeoObjectSorterStandard>
+  std::unique_ptr<geo::GeometryCore> SetupGeometry(fhicl::ParameterSet const& pset)
   {
-    return GeometryFor(
-      pset, std::make_unique<ObjectSorter>(pset.get<fhicl::ParameterSet>("SortingParameters", {})));
+    auto sorting_parameters = pset.get<fhicl::ParameterSet>("SortingParameters", {});
+    if (sorting_parameters.is_empty()) {
+      if constexpr (std::is_constructible_v<ObjectSorter>) {
+        return GeometryFor(pset, std::make_unique<ObjectSorter>());
+      }
+    }
+    if constexpr (std::is_constructible_v<ObjectSorter, fhicl::ParameterSet>) {
+      return GeometryFor(pset, std::make_unique<ObjectSorter>(sorting_parameters));
+    }
+    return nullptr;
   }
 
-  //--------------------------------------------------------------------------
-  /**
-   * @brief  Initializes a LArSoft geometry object.
-   * @tparam ChannelMapClass type of `geo::ChannelMapAlg` to be used
-   * @tparam Args (optional) arguments for the construction of channel mapping
-   * @param pset complete set of parameters for geometry configuration
-   * @param args arguments to the channel mapping object constructor
-   * @return the geometry object, fully initialized
-   *
-   * This function creates, sets up and returns a geometry object using the
-   * specified channel mapping.
-   * This is a simplified version of `SetupGeometryWithChannelMapping()`,
-   * that can be used if no special treatment is needed for the channel
-   * mapping after construction and before it is made to interact with the
-   * geometry.
-   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-   * // read FHiCL configuration from a configuration file:
-   * fhicl::ParameterSet pset;
-   * cet::filepath_lookup_after1 policy("FHICL_FILE_PATH");
-   * pset = fhicl::_ParameterSet::make(configPath, policy);
-   *
-   * // set up message facility
-   * mf::StartMessageFacility
-   *   (pset.get<fhicl::ParameterSet>("services.message"));
-   *
-   * // geometry setup
-   * std::unique_ptr<geo::GeometryCore> geom
-   *   = SetupGeometry<geo::StandardChannelMapAlg>(pset);
-   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * Note that this function constructs the channel mapping object using a
-   * constructor with arguments a parameter set and in addition, optionally,
-   * any other argument specified in `args`.
-   *
-   */
-
-  struct GeometryAndChannelMapAlg {
-    std::unique_ptr<geo::GeometryCore> geometry;
-    std::unique_ptr<geo::ChannelMapAlg> channelMapAlg;
-  };
-
-  template <typename ChannelMapClass, typename ObjectSorter, typename... Args>
-  GeometryAndChannelMapAlg SetupGeometry(fhicl::ParameterSet const& pset, Args&&... args)
+  template <typename WireGeom = geo::WireReadoutStandardGeom,
+            typename ObjectSorter = geo::WireReadoutSorterStandard>
+  std::unique_ptr<geo::WireReadoutGeom> SetupReadout(fhicl::ParameterSet const& pset,
+                                                     geo::GeometryCore const* geom)
   {
-    auto geom = SetupGeometryWithoutChannelMapping<ObjectSorter>(pset);
-    auto channelMap = std::make_unique<ChannelMapClass>(geom.get(), std::forward<Args>(args)...);
-    return {move(geom), move(channelMap)};
+    auto sorting_parameters =
+      pset.is_empty() ? pset : pset.get<fhicl::ParameterSet>("SortingParameters", {});
+    if (sorting_parameters.is_empty()) {
+      if constexpr (std::is_constructible_v<ObjectSorter>) {
+        return std::make_unique<WireGeom>(pset, geom, std::make_unique<ObjectSorter>());
+      }
+    }
+
+    if constexpr (std::is_constructible_v<ObjectSorter, fhicl::ParameterSet>) {
+      return std::make_unique<WireGeom>(
+        pset, geom, std::make_unique<ObjectSorter>(sorting_parameters));
+    }
+    return nullptr;
   }
 
   // --- END Geometry group --------------------------------------------------

@@ -10,23 +10,17 @@
 
 #include <vector>
 
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-
-#include "fhiclcpp/ParameterSet.h"
+#include "larcorealg/Geometry/fwd.h"
 
 namespace geo {
 
-  class AuxDetGeo;
-  class AuxDetSensitiveGeo;
-
   /// \ingroup Geometry
   class AuxDetGeoObjectSorter {
-
   public:
     virtual ~AuxDetGeoObjectSorter() = default;
 
-    virtual void SortAuxDets(std::vector<geo::AuxDetGeo>& adgeo) const = 0;
-    virtual void SortAuxDetSensitive(std::vector<geo::AuxDetSensitiveGeo>& adsgeo) const = 0;
+    virtual void SortAuxDets(std::vector<AuxDetGeo>& adgeo) const = 0;
+    virtual void SortAuxDetSensitive(std::vector<AuxDetSensitiveGeo>& adsgeo) const = 0;
   };
 
 }

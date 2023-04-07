@@ -32,59 +32,51 @@
 
 // C/C++ includes
 #include <algorithm> // std::transform()
-#include <cctype>    // ::tolower()
-#include <cmath>     // std::abs() ...
-#include <cstddef>   // size_t
-#include <iterator>  // std::back_inserter()
-#include <limits>    // std::numeric_limits<>
-#include <numeric>   // std::accumulate
-#include <sstream>   // std::ostringstream
-#include <utility>   // std::swap()
+#include <cassert>
+#include <cctype>   // ::tolower()
+#include <cmath>    // std::abs() ...
+#include <cstddef>  // size_t
+#include <iterator> // std::back_inserter()
+#include <limits>   // std::numeric_limits<>
+#include <numeric>  // std::accumulate
+#include <sstream>  // std::ostringstream
+#include <utility>  // std::swap()
 #include <vector>
 
-namespace {
-  /// Throws an exception ("GeometryCore" category) unless pid1 and pid2
-  /// are on different planes of the same TPC (ID validity is not checked)
-  void CheckIndependentPlanesOnSameTPC(geo::PlaneID const& pid1,
-                                       geo::PlaneID const& pid2,
-                                       const char* caller)
-  {
-    if (pid1.asTPCID() != pid2.asTPCID()) {
-      throw cet::exception("GeometryCore")
-        << caller << " needs two planes on the same TPC (got " << std::string(pid1) << " and "
-        << std::string(pid2) << ")\n";
-    }
-    if (pid1 == pid2) { // was: return 999;
-      throw cet::exception("GeometryCore")
-        << caller << " needs two different planes, got " << std::string(pid1) << " twice\n";
-    }
-  }
-}
-
 namespace geo {
+
+  template <typename T, typename Arg>
+  auto bind(bool (T::*ft)(Arg const&, Arg const&) const, T* t)
+  {
+    return [t, ft](auto const& a, auto const& b) { return (t->*ft)(a, b); };
+  }
 
   //......................................................................
   // Constructor.
   GeometryCore::GeometryCore(fhicl::ParameterSet const& pset,
-                             std::unique_ptr<GeoObjectSorter const> sorter)
-    : Iteration{details::GeometryIterationPolicy{this}, ToGeometryElement{this}}
+                             std::unique_ptr<GeometryBuilder> builder,
+                             std::unique_ptr<GeoObjectSorter> sorter)
+    : Iteration{details::GeometryIterationPolicy{this}, details::ToGeometryElement{this}}
     , fSorter{std::move(sorter)}
+    , fCompareAuxDets{bind(&GeoObjectSorter::compareAuxDets, fSorter.get())}
+    , fCompareCryostats{bind(&GeoObjectSorter::compareCryostats, fSorter.get())}
+    , fCompareTPCs{bind(&GeoObjectSorter::compareTPCs, fSorter.get())}
+    , fCompareOpDets{bind(&GeoObjectSorter::compareOpDets, fSorter.get())}
     , fSurfaceY(pset.get<double>("SurfaceY"))
     , fDetectorName(pset.get<std::string>("Name"))
-    , fMinWireZDist(pset.get<double>("MinWireZDist", 3.0))
     , fPositionWiggle(pset.get<double>("PositionEpsilon", 1.e-4))
-    , fBuilderParameters(pset.get<fhicl::ParameterSet>("Builder", {}))
+    , fBuilder{std::move(builder)}
   {
     std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), ::tolower);
   }
 
   //......................................................................
-  void GeometryCore::LoadGeometryFile(std::string gdmlfile,
-                                      std::string rootfile,
-                                      GeometryBuilder& builder,
-                                      bool bForceReload /* = false*/
-  )
+  void GeometryCore::LoadGeometryFile(std::string gdmlfile, std::string rootfile)
   {
+    if (fManager) {
+      throw cet::exception("GeometryCore") << "Reloading a geometry is not supported.\n";
+    }
+
     if (gdmlfile.empty()) {
       throw cet::exception("GeometryCore") << "No GDML Geometry file specified!\n";
     }
@@ -93,34 +85,23 @@ namespace geo {
       throw cet::exception("GeometryCore") << "No ROOT Geometry file specified!\n";
     }
 
-    ClearGeometry();
+    // [20210630, petrillo@slac.stanford.edu]
+    // ROOT 6.22.08 allows us to choose the representation of lengths in the geometry
+    // objects parsed from GDML.  In LArSoft we want them to be centimeters (ROOT
+    // standard).  This was tracked as Redmine issue #25990, and I leave this mark
+    // because I feel that we'll be back to it not too far in the future.  Despite the
+    // documentation (ROOT 6.22/08), it seems the units are locked from the beginning,
+    // so we unlock without prejudice.
+    TGeoManager::LockDefaultUnits(false);
+    TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
+    TGeoManager::LockDefaultUnits(true);
 
-    // Open the GDML file, and convert it into ROOT TGeoManager format.
-    // Then lock the gGeoManager to prevent future imports, for example
-    // in AuxDetGeometry
-    if (!gGeoManager || bForceReload) {
-      if (gGeoManager)
-        TGeoManager::UnlockGeometry();
-      else { // very first time (or so it should)
-        // [20210630, petrillo@slac.stanford.edu]
-        // ROOT 6.22.08 allows us to choose the representation of lengths
-        // in the geometry objects parsed from GDML.
-        // In LArSoft we want them to be centimeters (ROOT standard).
-        // This was tracked as Redmine issue #25990, and I leave this mark
-        // because I feel that we'll be back to it not too far in the future.
-        // Despite the documentation (ROOT 6.22/08),
-        // it seems the units are locked from the beginning,
-        // so we unlock without prejudice.
-        TGeoManager::LockDefaultUnits(false);
-        TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
-        TGeoManager::LockDefaultUnits(true);
-      }
-      TGeoManager::Import(rootfile.c_str());
-      gGeoManager->LockGeometry();
-    }
+    TGeoManager::Import(rootfile.c_str());
+    gGeoManager->LockGeometry();
 
-    BuildGeometry(builder);
+    BuildGeometry();
 
+    fManager = gGeoManager;
     fGDMLfile = std::move(gdmlfile);
     fROOTfile = std::move(rootfile);
 
@@ -128,27 +109,6 @@ namespace geo {
 
     mf::LogInfo("GeometryCore") << "New detector geometry loaded from "
                                 << "\n\t" << fROOTfile << "\n\t" << fGDMLfile << "\n";
-  } // GeometryCore::LoadGeometryFile()
-
-  //......................................................................
-  void GeometryCore::LoadGeometryFile(std::string gdmlfile,
-                                      std::string rootfile,
-                                      bool bForceReload /* = false*/
-  )
-  {
-    fhicl::Table<GeometryBuilderStandard::Config> const builderConfig(fBuilderParameters,
-                                                                      {"tool_type"});
-    // this is a wink to the understanding that we might be using an art-based
-    // service provider configuration sprinkled with tools.
-    GeometryBuilderStandard builder{builderConfig()};
-    LoadGeometryFile(gdmlfile, rootfile, builder, bForceReload);
-  }
-
-  //......................................................................
-  void GeometryCore::ClearGeometry()
-  {
-    fCryostats = {};
-    fAuxDets = {};
   }
 
   //......................................................................
@@ -156,34 +116,30 @@ namespace geo {
   {
     mf::LogInfo("GeometryCore") << "Sorting volumes...";
 
-    fSorter->SortAuxDets(fAuxDets);
-    fSorter->SortCryostats(fCryostats);
+    std::sort(fAuxDets.begin(), fAuxDets.end(), fCompareAuxDets);
+    std::sort(fCryostats.begin(), fCryostats.end(), fCompareCryostats);
 
     // Renumber cryostats according to sorted order
     CryostatID::CryostatID_t c = 0;
     for (CryostatGeo& cryo : fCryostats) {
-      cryo.SortSubVolumes(*fSorter);
+      cryo.SortSubVolumes(fCompareTPCs, fCompareOpDets);
       cryo.UpdateAfterSorting(CryostatID{c});
       ++c;
     }
-
-    // Update views
-    std::set<View_t> updatedViews;
-    for (auto const& tpc : Iterate<TPCGeo>()) {
-      auto const& TPCviews = tpc.Views();
-      updatedViews.insert(TPCviews.cbegin(), TPCviews.cend());
-    }
-    allViews = move(updatedViews);
   }
 
   //......................................................................
-  TGeoManager* GeometryCore::ROOTGeoManager() const { return gGeoManager; }
+  TGeoManager* GeometryCore::ROOTGeoManager() const
+  {
+    assert(fManager == gGeoManager);
+    return fManager;
+  }
 
   //......................................................................
   unsigned int GeometryCore::NOpDets() const
   {
     int N = 0;
-    for (auto const& cryo : Iterate<geo::CryostatGeo>())
+    for (auto const& cryo : Iterate<CryostatGeo>())
       N += cryo.NOpDet();
     return N;
   }
@@ -197,12 +153,8 @@ namespace geo {
   }
 
   //......................................................................
-  // Number of different views, or wire orientations
-  unsigned int GeometryCore::Nviews() const { return MaxPlanes(); }
-
-  //......................................................................
   //
-  // Return the geometry description of the ith plane in the detector.
+  // Return the geometry description of the ith cryostat in the detector.
   //
   // \param cstat : input cryostat number, starting from 0
   // \returns cryostat geometry for ith cryostat
@@ -224,7 +176,7 @@ namespace geo {
   //
   // \throws geo::Exception if "ad" is outside allowed range
   //
-  const AuxDetGeo& GeometryCore::AuxDet(unsigned int const ad) const
+  AuxDetGeo const& GeometryCore::AuxDet(unsigned int const ad) const
   {
     if (ad >= NAuxDets())
       throw cet::exception("GeometryCore") << "AuxDet " << ad << " does not exist\n";
@@ -289,8 +241,8 @@ namespace geo {
   //......................................................................
   std::string const& GeometryCore::GetWorldVolumeName() const
   {
-    // For now, and possibly forever, this is a constant (given the
-    // definition of "nodeNames" above).
+    // For now, and possibly forever, this is a constant (given the definition of
+    // "nodeNames" above).
     static std::string const worldVolumeName{"volWorld"};
     return worldVolumeName;
   }
@@ -318,9 +270,9 @@ namespace geo {
 
     LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
     // get the half width, height, etc of the cryostat
-    const double halfwidth = pBox->GetDX();
-    const double halfheight = pBox->GetDY();
-    const double halflength = pBox->GetDZ();
+    double const halfwidth = pBox->GetDX();
+    double const halfheight = pBox->GetDY();
+    double const halflength = pBox->GetDZ();
 
     return {trans.LocalToWorld(Point_t{-halfwidth, -halfheight, -halflength}),
             trans.LocalToWorld(Point_t{+halfwidth, +halfheight, +halflength})};
@@ -330,11 +282,10 @@ namespace geo {
   /** **************************************************************************
    * @brief Iterator to navigate through all the nodes
    *
-   * Note that this is not a fully standard forward iterator in that it lacks
-   * of the postfix operator. The reason is that it's too expensive and it
-   * should be avoided.
-   * Also I did not bother declaring the standard type definitions
-   * (that's just laziness).
+   * Note that this is not a fully standard forward iterator in that it lacks of the
+   * postfix operator. The reason is that it's too expensive and it should be avoided.
+   *
+   * Also I did not bother declaring the standard type definitions (that's just laziness).
    *
    * An example of iteration:
    *
@@ -346,8 +297,7 @@ namespace geo {
    *       ++iNode;
    *     } // while
    *
-   * These iterators are one use only, and they can't be reset after a loop
-   * is completed.
+   * These iterators are one use only, and they can't be reset after a loop is completed.
    */
   class ROOTGeoNodeForwardIterator {
   public:
@@ -388,8 +338,7 @@ namespace geo {
       if (!vol_names) return true;
       return vol_names->find(node.GetVolume()->GetName()) != vol_names->end();
     }
-
-  }; // NodeNameMatcherClass
+  };
 
   struct CollectNodesByName {
     std::vector<TGeoNode const*> nodes;
@@ -406,7 +355,7 @@ namespace geo {
 
   private:
     NodeNameMatcherClass matcher;
-  }; // CollectNodesByName
+  };
 
   struct CollectPathsByName {
     std::vector<std::vector<TGeoNode const*>> paths;
@@ -421,7 +370,7 @@ namespace geo {
 
   private:
     NodeNameMatcherClass matcher;
-  }; // CollectPathsByName
+  };
 
   //......................................................................
   std::vector<TGeoNode const*> GeometryCore::FindAllVolumes(
@@ -457,27 +406,10 @@ namespace geo {
   }
 
   //......................................................................
-  // This method returns the distance between wires in the specified view
-  // it assumes all planes of a given view have the same pitch
-  double GeometryCore::WireAngleToVertical(View_t view, TPCID const& tpcid) const
-  {
-    // loop over the planes in cryostat 0, tpc 0 to find the plane with the
-    // specified view
-    TPCGeo const& tpc = TPC(tpcid);
-    for (unsigned int p = 0; p < tpc.Nplanes(); ++p) {
-      PlaneGeo const& plane = tpc.Plane(p);
-      if (plane.View() == view) return plane.ThetaZ();
-    } // for
-    throw cet::exception("GeometryCore")
-      << "WireAngleToVertical(): no view \"" << PlaneGeo::ViewName(view) << "\" (#" << ((int)view)
-      << ") in " << std::string(tpcid);
-  }
-
-  //......................................................................
   unsigned int GeometryCore::MaxTPCs() const
   {
     unsigned int maxTPCs = 0;
-    for (CryostatGeo const& cryo : Cryostats()) {
+    for (CryostatGeo const& cryo : fCryostats) {
       unsigned int maxTPCsInCryo = cryo.NTPC();
       if (maxTPCsInCryo > maxTPCs) maxTPCs = maxTPCsInCryo;
     }
@@ -487,34 +419,12 @@ namespace geo {
   //......................................................................
   unsigned int GeometryCore::TotalNTPC() const
   {
-    // it looks like C++11 lambdas have made STL algorithms easier to use,
-    // but only so much:
+    // it looks like C++11 lambdas have made STL algorithms easier to use, but only so
+    // much:
     return std::accumulate(
-      Cryostats().begin(), Cryostats().end(), 0U, [](unsigned int sum, CryostatGeo const& cryo) {
+      fCryostats.begin(), fCryostats.end(), 0U, [](unsigned int sum, CryostatGeo const& cryo) {
         return sum + cryo.NTPC();
       });
-  }
-
-  //......................................................................
-  unsigned int GeometryCore::MaxPlanes() const
-  {
-    unsigned int maxPlanes = 0;
-    for (CryostatGeo const& cryo : Cryostats()) {
-      unsigned int maxPlanesInCryo = cryo.MaxPlanes();
-      if (maxPlanesInCryo > maxPlanes) maxPlanes = maxPlanesInCryo;
-    }
-    return maxPlanes;
-  }
-
-  //......................................................................
-  unsigned int GeometryCore::MaxWires() const
-  {
-    unsigned int maxWires = 0;
-    for (CryostatGeo const& cryo : Cryostats()) {
-      unsigned int maxWiresInCryo = cryo.MaxWires();
-      if (maxWiresInCryo > maxWires) maxWires = maxWiresInCryo;
-    }
-    return maxWires;
   }
 
   //......................................................................
@@ -644,11 +554,12 @@ namespace geo {
   }
 
   //......................................................................
-  void GeometryCore::BuildGeometry(GeometryBuilder& builder)
+  void GeometryCore::BuildGeometry()
   {
+    std::cerr << "GeometryCore top node:" << gGeoManager->GetTopNode() << '\n';
     GeoNodePath path{gGeoManager->GetTopNode()};
-    fCryostats = builder.extractCryostats(path);
-    fAuxDets = builder.extractAuxiliaryDetectors(path);
+    fCryostats = fBuilder->extractCryostats(path);
+    fAuxDets = fBuilder->extractAuxiliaryDetectors(path);
   }
 
   //......................................................................
@@ -658,8 +569,8 @@ namespace geo {
   //
   double GeometryCore::TotalMass(std::string vol) const
   {
-    //the TGeoNode::GetVolume() returns the TGeoVolume of the detector outline
-    //and ROOT calculates the mass in kg for you
+    //the TGeoNode::GetVolume() returns the TGeoVolume of the detector outline and ROOT
+    //calculates the mass in kg for you
     TGeoVolume* gvol = gGeoManager->FindVolumeFast(vol.c_str());
     if (gvol) return gvol->Weight();
 
@@ -670,11 +581,10 @@ namespace geo {
   //......................................................................
   double GeometryCore::MassBetweenPoints(Point_t const& p1, Point_t const& p2) const
   {
-    //The purpose of this method is to determine the column density
-    //between the two points given.  Do that by starting at p1 and
-    //stepping until you get to the node of p2.  calculate the distance
-    //between the point just inside that node and p2 to get the last
-    //bit of column density
+    //The purpose of this method is to determine the column density between the two points
+    //given.  Do that by starting at p1 and stepping until you get to the node of p2.
+    //calculate the distance between the point just inside that node and p2 to get the
+    //last bit of column density
     double columnD = 0.;
 
     //first initialize a track - get the direction cosines
@@ -687,9 +597,8 @@ namespace geo {
     //might be helpful to have a point to a TGeoNode
     TGeoNode* node = gGeoManager->GetCurrentNode();
 
-    //check that the points are not in the same volume already.
-    //if they are in different volumes, keep stepping until you
-    //are in the same volume as the second point
+    //check that the points are not in the same volume already.  if they are in different
+    //volumes, keep stepping until you are in the same volume as the second point
     while (!gGeoManager->IsSameLocation(p2.X(), p2.Y(), p2.Z())) {
       gGeoManager->FindNextBoundary();
       columnD += gGeoManager->GetStep() * node->GetMedium()->GetMaterial()->GetDensity();
@@ -698,8 +607,8 @@ namespace geo {
       node = gGeoManager->Step();
     } //end loop to get to volume of second point
 
-    //now you are in the same volume as the last point, but not at that point.
-    //get the distance between the current point and the last one
+    //now you are in the same volume as the last point, but not at that point.  get the
+    //distance between the current point and the last one
     Point_t const last = vect::makePointFromCoords(gGeoManager->GetCurrentPoint());
     double const lastStep = (p2 - last).R();
     columnD += lastStep * node->GetMedium()->GetMaterial()->GetDensity();
@@ -713,250 +622,6 @@ namespace geo {
     std::ostringstream sstr;
     Print(sstr, indent);
     return sstr.str();
-  }
-
-  //......................................................................
-  void GeometryCore::WireEndPoints(WireID const& wireid, double* xyzStart, double* xyzEnd) const
-  {
-    Segment_t result = WireEndPoints(wireid);
-
-    xyzStart[0] = result.start().X();
-    xyzStart[1] = result.start().Y();
-    xyzStart[2] = result.start().Z();
-    xyzEnd[0] = result.end().X();
-    xyzEnd[1] = result.end().Y();
-    xyzEnd[2] = result.end().Z();
-
-    if (xyzEnd[2] < xyzStart[2]) {
-      //ensure that "End" has higher z-value than "Start"
-      std::swap(xyzStart[0], xyzEnd[0]);
-      std::swap(xyzStart[1], xyzEnd[1]);
-      std::swap(xyzStart[2], xyzEnd[2]);
-    }
-    if (xyzEnd[1] < xyzStart[1] && std::abs(xyzEnd[2] - xyzStart[2]) < 0.01) {
-      // if wire is vertical ensure that "End" has higher y-value than "Start"
-      std::swap(xyzStart[0], xyzEnd[0]);
-      std::swap(xyzStart[1], xyzEnd[1]);
-      std::swap(xyzStart[2], xyzEnd[2]);
-    }
-  }
-
-  //......................................................................
-  std::optional<WireIDIntersection> GeometryCore::WireIDsIntersect(const WireID& wid1,
-                                                                   const WireID& wid2) const
-  {
-    if (!WireIDIntersectionCheck(wid1, wid2)) { return std::nullopt; }
-
-    // get the endpoints to see if wires intersect
-    Segment_t const w1 = WireEndPoints(wid1);
-    Segment_t const w2 = WireEndPoints(wid2);
-
-    // TODO extract the coordinates in the right way;
-    // is it any worth, since then the result is in (y, z), whatever it means?
-    WireIDIntersection result;
-    bool const cross = IntersectLines(w1.start().Y(),
-                                      w1.start().Z(),
-                                      w1.end().Y(),
-                                      w1.end().Z(),
-                                      w2.start().Y(),
-                                      w2.start().Z(),
-                                      w2.end().Y(),
-                                      w2.end().Z(),
-                                      result.y,
-                                      result.z);
-    if (!cross) { return std::nullopt; }
-    bool const within = lar::util::PointWithinSegments(w1.start().Y(),
-                                                       w1.start().Z(),
-                                                       w1.end().Y(),
-                                                       w1.end().Z(),
-                                                       w2.start().Y(),
-                                                       w2.start().Z(),
-                                                       w2.end().Y(),
-                                                       w2.end().Z(),
-                                                       result.y,
-                                                       result.z);
-
-    result.TPC = (within ? wid1.TPC : TPCID::InvalidID);
-    return result;
-  }
-
-  //......................................................................
-  bool GeometryCore::WireIDsIntersect(const WireID& wid1,
-                                      const WireID& wid2,
-                                      Point_t& intersection) const
-  {
-    // This is not a real 3D intersection: the wires do not cross, since they
-    // are required to belong to two different planes.
-    //
-    // We take the point on the first wire which is closest to the
-    // other one.
-    static_assert(std::numeric_limits<decltype(intersection.X())>::has_infinity,
-                  "the vector coordinate type can't represent infinity!");
-    constexpr auto infinity = std::numeric_limits<decltype(intersection.X())>::infinity();
-
-    if (!WireIDIntersectionCheck(wid1, wid2)) {
-      intersection = {infinity, infinity, infinity};
-      return false;
-    }
-
-    WireGeo const& wire1 = Wire(wid1);
-    WireGeo const& wire2 = Wire(wid2);
-
-    // distance of the intersection point from the center of the two wires:
-    IntersectionPointAndOffsets<Point_t> intersectionAndOffset =
-      WiresIntersectionAndOffsets(wire1, wire2);
-    intersection = intersectionAndOffset.point;
-
-    return std::abs(intersectionAndOffset.offset1) <= wire1.HalfL() &&
-           std::abs(intersectionAndOffset.offset2) <= wire2.HalfL();
-  }
-
-  //----------------------------------------------------------------------------
-  PlaneID GeometryCore::ThirdPlane(PlaneID const& pid1, PlaneID const& pid2) const
-  {
-    // how many planes in the TPC pid1 belongs to:
-    const unsigned int nPlanes = Nplanes(pid1);
-    if (nPlanes != 3) {
-      throw cet::exception("GeometryCore")
-        << "ThirdPlane() supports only TPCs with 3 planes, and I see " << nPlanes << " instead\n";
-    }
-
-    PlaneID::PlaneID_t target_plane = nPlanes;
-    for (PlaneID::PlaneID_t iPlane = 0; iPlane < nPlanes; ++iPlane) {
-      if ((iPlane == pid1.Plane) || (iPlane == pid2.Plane)) continue;
-      if (target_plane != nPlanes) {
-        throw cet::exception("GeometryCore")
-          << "ThirdPlane() found too many planes that are not " << std::string(pid1) << " nor "
-          << std::string(pid2) << "! (first " << target_plane << ", then " << iPlane << ")\n";
-      } // if we had a target already
-      target_plane = iPlane;
-    } // for
-    if (target_plane == nPlanes) {
-      throw cet::exception("GeometryCore")
-        << "ThirdPlane() can't find a plane that is not " << std::string(pid1) << " nor "
-        << std::string(pid2) << "!\n";
-    }
-
-    return PlaneID(pid1, target_plane);
-  }
-
-  //----------------------------------------------------------------------------
-  double GeometryCore::ThirdPlaneSlope(PlaneID const& pid1,
-                                       double slope1,
-                                       PlaneID const& pid2,
-                                       double slope2,
-                                       PlaneID const& output_plane) const
-  {
-    CheckIndependentPlanesOnSameTPC(pid1, pid2, "ThirdPlaneSlope()");
-
-    TPCGeo const& tpc = TPC(pid1);
-
-    // We need the "wire coordinate direction" for each plane.
-    // This is perpendicular to the wire orientation.
-    // PlaneGeo::PhiZ() defines the right orientation too.
-    return ComputeThirdPlaneSlope(tpc.Plane(pid1).PhiZ(),
-                                  slope1,
-                                  tpc.Plane(pid2).PhiZ(),
-                                  slope2,
-                                  tpc.Plane(output_plane).PhiZ());
-  }
-
-  //----------------------------------------------------------------------------
-  double GeometryCore::ThirdPlaneSlope(PlaneID const& pid1,
-                                       double slope1,
-                                       PlaneID const& pid2,
-                                       double slope2) const
-  {
-    return ThirdPlaneSlope(pid1, slope1, pid2, slope2, ThirdPlane(pid1, pid2));
-  }
-
-  //----------------------------------------------------------------------------
-  double GeometryCore::ThirdPlane_dTdW(PlaneID const& pid1,
-                                       double slope1,
-                                       PlaneID const& pid2,
-                                       double slope2,
-                                       PlaneID const& output_plane) const
-  {
-    CheckIndependentPlanesOnSameTPC(pid1, pid2, "ThirdPlane_dTdW()");
-
-    TPCGeo const& tpc = TPC(pid1);
-
-    double angle[3], pitch[3];
-    PlaneGeo const* const planes[3] = {
-      &tpc.Plane(pid1), &tpc.Plane(pid2), &tpc.Plane(output_plane)};
-
-    // We need wire pitch and "wire coordinate direction" for each plane.
-    // The latter is perpendicular to the wire orientation.
-    // PlaneGeo::PhiZ() defines the right orientation too.
-    for (size_t i = 0; i < 3; ++i) {
-      angle[i] = planes[i]->PhiZ();
-      pitch[i] = planes[i]->WirePitch();
-    }
-
-    return ComputeThirdPlane_dTdW(
-      angle[0], pitch[0], slope1, angle[1], pitch[1], slope2, angle[2], pitch[2]);
-  }
-
-  //----------------------------------------------------------------------------
-  double GeometryCore::ThirdPlane_dTdW(PlaneID const& pid1,
-                                       double slope1,
-                                       PlaneID const& pid2,
-                                       double slope2) const
-  {
-    return ThirdPlane_dTdW(pid1, slope1, pid2, slope2, ThirdPlane(pid1, pid2));
-  }
-
-  //----------------------------------------------------------------------------
-  // Given slopes dTime/dWire in two planes, return with the slope in the 3rd plane.
-  // Requires slopes to be in the same metrics,
-  // e.g. converted in a distances ratio.
-  // Note: Uses equation in H. Greenlee's talk:
-  //       https://cdcvs.fnal.gov/redmine/attachments/download/1821/larsoft_apr20_2011.pdf
-  //       slide 2
-  double GeometryCore::ComputeThirdPlaneSlope(double angle1,
-                                              double slope1,
-                                              double angle2,
-                                              double slope2,
-                                              double angle3)
-  {
-    // note that, if needed, the trigonometric functions can be pre-calculated.
-
-    // Can't resolve very small slopes
-    if ((std::abs(slope1) < 0.001) && (std::abs(slope2)) < 0.001) return 0.001;
-
-    // We need the "wire coordinate direction" for each plane.
-    // This is perpendicular to the wire orientation.
-    double slope3 = 0.001;
-    if (std::abs(slope1) > 0.001 && std::abs(slope2) > 0.001) {
-      slope3 =
-        (+(1. / slope1) * std::sin(angle3 - angle2) - (1. / slope2) * std::sin(angle3 - angle1)) /
-        std::sin(angle1 - angle2);
-    }
-    if (slope3 != 0.)
-      slope3 = 1. / slope3;
-    else
-      slope3 = 999.;
-
-    return slope3;
-  }
-
-  //----------------------------------------------------------------------------
-  double GeometryCore::ComputeThirdPlane_dTdW(double angle1,
-                                              double pitch1,
-                                              double dTdW1,
-                                              double angle2,
-                                              double pitch2,
-                                              double dTdW2,
-                                              double angle_target,
-                                              double pitch_target)
-  {
-    // we need to convert dt/dw into homogeneous coordinates, and then back;
-    // slope = [dT * (TDCperiod / driftVelocity)] / [dW * wirePitch]
-    // The coefficient of dT is assumed to be the same for all the planes,
-    // and it finally cancels out. Pitches cancel out only if they are all
-    // the same.
-    return pitch_target *
-           ComputeThirdPlaneSlope(angle1, dTdW1 / pitch1, angle2, dTdW2 / pitch2, angle_target);
   }
 
   //============================================================================
@@ -990,7 +655,7 @@ namespace geo {
   }
 
   //--------------------------------------------------------------------
-  const OpDetGeo& GeometryCore::OpDetGeoFromOpDet(unsigned int OpDet) const
+  OpDetGeo const& GeometryCore::OpDetGeoFromOpDet(unsigned int OpDet) const
   {
     static bool Loaded = false;
     static std::vector<unsigned int> LowestID;
@@ -1031,34 +696,6 @@ namespace geo {
   }
 
   //--------------------------------------------------------------------
-  bool GeometryCore::WireIDIntersectionCheck(const WireID& wid1, const WireID& wid2) const
-  {
-    if (wid1.asTPCID() != wid2) {
-      mf::LogError("WireIDIntersectionCheck")
-        << "Comparing two wires on different TPCs: return failure.";
-      return false;
-    }
-    if (wid1.Plane == wid2.Plane) {
-      mf::LogError("WireIDIntersectionCheck")
-        << "Comparing two wires in the same plane: return failure";
-      return false;
-    }
-    if (!HasWire(wid1)) {
-      mf::LogError("WireIDIntersectionCheck")
-        << "1st wire " << wid1 << " does not exist (max wire number: " << Nwires(wid1.planeID())
-        << ")";
-      return false;
-    }
-    if (!HasWire(wid2)) {
-      mf::LogError("WireIDIntersectionCheck")
-        << "2nd wire " << wid2 << " does not exist (max wire number: " << Nwires(wid2.planeID())
-        << ")";
-      return false;
-    }
-    return true;
-  }
-
-  //--------------------------------------------------------------------
   //--- ROOTGeoNodeForwardIterator
   //---
 
@@ -1078,8 +715,8 @@ namespace geo {
       return *this;
     }
 
-    // I am done; all my descendants were also done already;
-    // first look at my younger siblings
+    // I am done; all my descendants were also done already; first look at my younger
+    // siblings
     NodeInfo_t& current = current_path.back();
     NodeInfo_t const& parent = current_path[current_path.size() - 2];
     if (++(current.sibling) < parent.self->GetNdaughters()) {

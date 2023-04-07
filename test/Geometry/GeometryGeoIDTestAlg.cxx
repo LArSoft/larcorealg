@@ -10,6 +10,7 @@
 // LArSoft libraries
 #include "GeometryGeoIDTestAlg.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
 // Boost libraries
@@ -29,16 +30,15 @@ unsigned int geo::GeometryGeoIDTestAlg::Run() const
   WireGeoIDTest();
 
   return 0;
-} // GeometryGeoIDTestAlg::Run()
+}
 
 //-----------------------------------------------------------------------------
 void geo::GeometryGeoIDTestAlg::CryostatGeoIDTest() const
 {
-
   auto iCryo = geom->begin<CryostatID>();
-  for (geo::CryostatGeo const& cryostat : geom->Iterate<CryostatGeo>()) {
+  for (CryostatGeo const& cryostat : geom->Iterate<CryostatGeo>()) {
 
-    geo::CryostatID const& ID = cryostat.ID();
+    CryostatID const& ID = cryostat.ID();
 
     // the ID of this CryostatGeo is the expected one in a sequential scheme:
     BOOST_TEST(ID == *iCryo);
@@ -49,17 +49,15 @@ void geo::GeometryGeoIDTestAlg::CryostatGeoIDTest() const
 
     ++iCryo;
   } // for cryostat
-
-} // GeometryGeoIDTestAlg::CryostatGeoIDTest()
+}
 
 //-----------------------------------------------------------------------------
 void geo::GeometryGeoIDTestAlg::TPCGeoIDTest() const
 {
-
   auto iTPC = geom->begin<TPCID>();
-  for (geo::TPCGeo const& tpc : geom->Iterate<TPCGeo>()) {
+  for (TPCGeo const& tpc : geom->Iterate<TPCGeo>()) {
 
-    geo::TPCID const& ID = tpc.ID();
+    TPCID const& ID = tpc.ID();
 
     // the ID of this TPCGeo is the expected one in a sequential scheme:
     BOOST_TEST(ID == *iTPC);
@@ -70,53 +68,34 @@ void geo::GeometryGeoIDTestAlg::TPCGeoIDTest() const
 
     ++iTPC;
   } // for TPC
-
-} // GeometryGeoIDTestAlg::TPCGeoIDTest()
+}
 
 //-----------------------------------------------------------------------------
 void geo::GeometryGeoIDTestAlg::PlaneGeoIDTest() const
 {
+  auto iPlane = wireReadoutGeom->begin<PlaneID>();
+  for (PlaneGeo const& plane : wireReadoutGeom->Iterate<PlaneGeo>()) {
 
-  auto iPlane = geom->begin<PlaneID>();
-  for (geo::PlaneGeo const& plane : geom->Iterate<PlaneGeo>()) {
-
-    geo::PlaneID const& ID = plane.ID();
+    PlaneID const& ID = plane.ID();
 
     // the ID of this PlaneGeo is the expected one in a sequential scheme:
     BOOST_TEST(ID == *iPlane);
 
     // the ID of this PlaneGeo is associated to the PlaneGeo itself
-    auto const& planeFromID = geom->Plane(ID);
+    auto const& planeFromID = wireReadoutGeom->Plane(ID);
     BOOST_TEST(&plane == &planeFromID);
 
     ++iPlane;
   } // for plane
-
-} // GeometryGeoIDTestAlg::PlaneGeoIDTest()
+}
 
 //-----------------------------------------------------------------------------
 void geo::GeometryGeoIDTestAlg::WireGeoIDTest() const
 {
-
-  auto iWire = geom->begin<WireID>();
-  for (geo::WireGeo const& wire [[maybe_unused]] : geom->Iterate<WireGeo>()) {
-
-    // this test is disabled since geo::WireID does not support ID()
-    // (as of LArSoft 6.13)
-    /*
-    geo::WireID const& ID = wire.ID();
-
-    // the ID of this WireGeo is the expected one in a sequential scheme:
-    BOOST_TEST(ID == *iWire);
-
-    // the ID of this WireGeo is associated to the WireGeo itself
-    auto const& wireFromID = geom->Wire(ID);
-    BOOST_TEST(&wire == &wireFromID);
-    */
-
+  auto iWire = wireReadoutGeom->begin<WireID>();
+  for (WireGeo const& wire [[maybe_unused]] : wireReadoutGeom->Iterate<WireGeo>()) {
     ++iWire;
-  } // for wire
-
-} // GeometryGeoIDTestAlg::WireGeoIDTest()
+  }
+}
 
 //-----------------------------------------------------------------------------

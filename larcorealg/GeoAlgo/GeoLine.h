@@ -34,31 +34,31 @@ namespace geoalgo {
     virtual ~Line() {}
 
     /// Alternative ctor (1)
-    Line(const double x1,
-         const double y1,
-         const double z1,
-         const double x2,
-         const double y2,
-         const double z2);
+    Line(double const x1,
+         double const y1,
+         double const z1,
+         double const x2,
+         double const y2,
+         double const z2);
 
     /// Altenartive ctor (2)
-    Line(const Point_t& pt1, const Point_t& pt2);
+    Line(Point_t const& pt1, Point_t const& pt2);
 
     //
     // Getters
     //
-    const Point_t& Pt1() const; ///< Start getter
-    const Point_t& Pt2() const; ///< Direction getter
+    Point_t const& Pt1() const; ///< Start getter
+    Point_t const& Pt2() const; ///< Direction getter
 
     //
     // Setters
     //
-    void Pt1(const double x, const double y, const double z); ///< Pt1 setter
-    void Pt2(const double x, const double y, const double z); ///< Pt2 setter
+    void Pt1(double const x, double const y, double const z); ///< Pt1 setter
+    void Pt2(double const x, double const y, double const z); ///< Pt2 setter
 
   protected:
     /// Compatibility check
-    void check_and_raise(const Point_t& p1, const Point_t& p2) const;
+    void check_and_raise(Point_t const& p1, Point_t const& p2) const;
 
     Point_t _pt1;  ///< First point denoting infinite line
     Vector_t _pt2; ///< Second point denoting infinite line
@@ -69,12 +69,12 @@ namespace geoalgo {
     //
     /// Alternative ctor using template (3)
     template <class T, class U>
-    Line(const T& pt1, const U& pt2) : Line(Point_t(pt1), Point_t(pt2))
+    Line(T const& pt1, U const& pt2) : Line(Point_t(pt1), Point_t(pt2))
     {}
 
     /// Pt1 setter template
     template <class T>
-    void Pt1(const T& pt1)
+    void Pt1(T const& pt1)
     {
       _pt1 = Point_t(pt1);
       check_and_raise(_pt1, _pt2);
@@ -82,7 +82,7 @@ namespace geoalgo {
 
     /// Pt2 setter template
     template <class T>
-    void Pt2(const T& pt2)
+    void Pt2(T const& pt2)
     {
       _pt2 = Vector_t(pt2);
       check_and_raise(_pt1, _pt2);

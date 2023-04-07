@@ -99,7 +99,7 @@ namespace geo {
 template <typename T, typename Mapper>
 class geo::GeoIDdataContainer {
 
-  using This_t = geo::GeoIDdataContainer<T, Mapper>; ///< Type of this class.
+  using This_t = GeoIDdataContainer<T, Mapper>; ///< Type of this class.
 
   /// Type of data container helper.
   using Container_t = details::GeoContainerData<T>;
@@ -135,8 +135,6 @@ public:
   using const_pointer = typename Container_t::const_pointer;
   using iterator = details::GeoIDdataContainerIterator<Mapper_t, BaseIter_t>;
   using const_iterator = details::GeoIDdataContainerIterator<Mapper_t, BaseConstIter_t>;
-  //     using reverse_iterator       = typename Container_t::reverse_iterator      ;
-  //     using const_reverse_iterator = typename Container_t::const_reverse_iterator;
   using difference_type = typename Container_t::difference_type;
   using size_type = typename Container_t::size_type;
 
@@ -446,7 +444,7 @@ public:
    * non-straightforward way.
    */
   template <typename OT>
-  void resizeAs(geo::GeoIDdataContainer<OT, Mapper_t> const& other);
+  void resizeAs(GeoIDdataContainer<OT, Mapper_t> const& other);
 
   /**
    * @brief Prepares the container initializing all its data.
@@ -461,7 +459,7 @@ public:
    * non-straightforward way.
    */
   template <typename OT>
-  void resizeAs(geo::GeoIDdataContainer<OT, Mapper_t> const& other, value_type const& defValue);
+  void resizeAs(GeoIDdataContainer<OT, Mapper_t> const& other, value_type const& defValue);
 
   /**
    * @brief Makes the container empty, with no usable storage space.
@@ -525,7 +523,7 @@ private:
 template <typename T>
 class geo::TPCDataContainer : public geo::GeoIDdataContainer<T, geo::TPCIDmapper<>> {
 
-  using BaseContainer_t = geo::GeoIDdataContainer<T, geo::TPCIDmapper<>>;
+  using BaseContainer_t = GeoIDdataContainer<T, TPCIDmapper<>>;
 
 public:
   using value_type = typename BaseContainer_t::value_type;
@@ -619,13 +617,10 @@ public:
   /// @{
 
   /// Returns whether this container hosts data for the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const
-  {
-    return BaseContainer_t::hasElement(cryoid);
-  }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseContainer_t::hasElement(cryoid); }
 
   /// Returns whether this container hosts data for the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseContainer_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseContainer_t::hasElement(tpcid); }
 
   /// @}
   // --- END Container status query --------------------------------------------
@@ -670,7 +665,7 @@ template <typename T>
 class geo::PlaneDataContainer : public geo::GeoIDdataContainer<T, geo::PlaneIDmapper<>> {
 
   /// Base class.
-  using BaseContainer_t = geo::GeoIDdataContainer<T, geo::PlaneIDmapper<>>;
+  using BaseContainer_t = GeoIDdataContainer<T, PlaneIDmapper<>>;
 
 public:
   /**
@@ -777,16 +772,13 @@ public:
   /// @{
 
   /// Returns whether this container hosts data for the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const
-  {
-    return BaseContainer_t::hasElement(cryoid);
-  }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseContainer_t::hasElement(cryoid); }
 
   /// Returns whether this container hosts data for the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseContainer_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseContainer_t::hasElement(tpcid); }
 
   /// Returns whether this container hosts data for the specified plane.
-  bool hasPlane(geo::PlaneID const& planeid) const { return BaseContainer_t::hasElement(planeid); }
+  bool hasPlane(PlaneID const& planeid) const { return BaseContainer_t::hasElement(planeid); }
 
   /// @}
   // --- END Container status query --------------------------------------------
@@ -1256,7 +1248,7 @@ auto geo::GeoIDdataContainer<T, Mapper>::at(ID_t const& id) -> reference
 {
   if (hasElement(id)) return operator[](id);
   throw std::out_of_range("No data for " + std::string(id));
-} // geo::GeoIDdataContainer<>::at()
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
@@ -1264,7 +1256,7 @@ auto geo::GeoIDdataContainer<T, Mapper>::at(ID_t const& id) const -> const_refer
 {
   if (hasElement(id)) return operator[](id);
   throw std::out_of_range("No data for " + std::string(id));
-} // geo::GeoIDdataContainer<>::at() const
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
@@ -1420,7 +1412,7 @@ void geo::GeoIDdataContainer<T, Mapper>::resize(std::initializer_list<unsigned i
 {
   fMapper.resize(dims);
   fData.resize(mapper().size());
-} // geo::GeoIDdataContainer<T, Mapper>::resize()
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
@@ -1429,28 +1421,26 @@ void geo::GeoIDdataContainer<T, Mapper>::resize(std::initializer_list<unsigned i
 {
   fMapper.resize(dims);
   fData.resize(mapper().size(), defValue);
-} // geo::GeoIDdataContainer<T, Mapper>::resize(value_type)
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
 template <typename OT>
-void geo::GeoIDdataContainer<T, Mapper>::resizeAs(
-  geo::GeoIDdataContainer<OT, Mapper_t> const& other)
+void geo::GeoIDdataContainer<T, Mapper>::resizeAs(GeoIDdataContainer<OT, Mapper_t> const& other)
 {
   fMapper.resizeAs(other.mapper());
   fData.resize(mapper().size());
-} // geo::GeoIDdataContainer<T, Mapper>::resizeAs()
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
 template <typename OT>
-void geo::GeoIDdataContainer<T, Mapper>::resizeAs(
-  geo::GeoIDdataContainer<OT, Mapper_t> const& other,
-  value_type const& defValue)
+void geo::GeoIDdataContainer<T, Mapper>::resizeAs(GeoIDdataContainer<OT, Mapper_t> const& other,
+                                                  value_type const& defValue)
 {
   fMapper.resizeAs(other.mapper());
   fData.resize(mapper().size(), defValue);
-} // geo::GeoIDdataContainer<T, Mapper>::resizeAs(value_type)
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>
@@ -1458,7 +1448,7 @@ void geo::GeoIDdataContainer<T, Mapper>::clear()
 {
   fMapper.clear();
   fData.clear();
-} // geo::GeoIDdataContainer<>::clear()
+}
 
 //------------------------------------------------------------------------------
 template <typename T, typename Mapper>

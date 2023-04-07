@@ -51,7 +51,7 @@ namespace geo {
   public:
     // --- BEGIN Data types ----------------------------------------------------
     /// Identification of a single node in ROOT geometry.
-    using Path_t = geo::GeoNodePath;
+    using Path_t = GeoNodePath;
 
     /// Type of direct collection of geometry objects.
     template <typename GeoObj>
@@ -70,7 +70,7 @@ namespace geo {
     /// @{
 
     /// Collection of cryostat information objects.
-    using Cryostats_t = GeoColl_t<geo::CryostatGeo>;
+    using Cryostats_t = GeoColl_t<CryostatGeo>;
 
     /**
      * @brief Looks for all cryostats under the specified path.
@@ -90,7 +90,7 @@ namespace geo {
     /// @{
 
     /// Collection of auxiliary detector information objects.
-    using AuxDets_t = GeoColl_t<geo::AuxDetGeo>;
+    using AuxDets_t = GeoColl_t<AuxDetGeo>;
 
     /**
      * @brief Looks for all auxiliary detectors under the specified path.

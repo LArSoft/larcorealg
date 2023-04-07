@@ -39,7 +39,7 @@
 	  <xs:choice minOccurs="0">
 	    <xs:element maxOccurs="unbounded" name="property">
 	      <xs:annotation>
-		<xs:documentation>General material property (const or vector)</xs:documentation>
+		<xs:documentation>General material property (or const vector)</xs:documentation>
 	      </xs:annotation>
 	      <xs:complexType>
 		<xs:complexContent>

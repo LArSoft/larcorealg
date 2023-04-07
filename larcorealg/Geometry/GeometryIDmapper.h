@@ -168,7 +168,7 @@ public:
    * The size of each dimension is taken by the matching one in `other`.
    */
   template <typename OIDType, typename OIndex>
-  void resizeAs(geo::GeoIDmapper<OIDType, OIndex> const& other);
+  void resizeAs(GeoIDmapper<OIDType, OIndex> const& other);
 
   /**
    * @brief Sets all dimension sizes to `0`.
@@ -216,8 +216,7 @@ private:
 
   /// Implementation for `resizeAs()`.
   template <typename OIDType, typename OIndex, std::size_t... Indices>
-  void resizeAsImpl(geo::GeoIDmapper<OIDType, OIndex> const& other,
-                    std::index_sequence<Indices...>);
+  void resizeAsImpl(GeoIDmapper<OIDType, OIndex> const& other, std::index_sequence<Indices...>);
 
   /// Returns the number of elements at the specified `Level`.
   /// @param dimSizes the sizes of each of the levels
@@ -253,7 +252,7 @@ template <typename Index /* = std::size_t */>
 class geo::TPCIDmapper : public geo::GeoIDmapper<geo::TPCID, Index> {
 
   /// Base class.
-  using BaseMapper_t = geo::GeoIDmapper<geo::TPCID, Index>;
+  using BaseMapper_t = GeoIDmapper<TPCID, Index>;
 
 public:
   // import types
@@ -296,10 +295,10 @@ public:
   /// @{
 
   /// Returns whether this mapping covers the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
 
   /// Returns whether this mapping covers the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
 
   /// @}
   // --- END Mapping status query ----------------------------------------------
@@ -318,7 +317,7 @@ template <typename Index /* = std::size_t */>
 class geo::PlaneIDmapper : public geo::GeoIDmapper<geo::PlaneID, Index> {
 
   /// Base class.
-  using BaseMapper_t = geo::GeoIDmapper<geo::PlaneID, Index>;
+  using BaseMapper_t = GeoIDmapper<PlaneID, Index>;
 
 public:
   // import types
@@ -370,13 +369,13 @@ public:
   /// @{
 
   /// Returns whether this mapping covers the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
 
   /// Returns whether this mapping covers the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
 
   /// Returns whether this mapping covers the specified plane.
-  bool hasPlane(geo::PlaneID const& planeid) const { return BaseMapper_t::hasElement(planeid); }
+  bool hasPlane(PlaneID const& planeid) const { return BaseMapper_t::hasElement(planeid); }
 
   /// @}
   // --- END Mapping status query ----------------------------------------------
@@ -519,7 +518,7 @@ void geo::GeoIDmapper<IDType, Index>::resize(std::initializer_list<unsigned int>
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
 template <typename OIDType, typename OIndex>
-void geo::GeoIDmapper<IDType, Index>::resizeAs(geo::GeoIDmapper<OIDType, OIndex> const& other)
+void geo::GeoIDmapper<IDType, Index>::resizeAs(GeoIDmapper<OIDType, OIndex> const& other)
 {
   resizeAsImpl(other, std::make_index_sequence<dimensions()>{});
 }
@@ -578,11 +577,11 @@ auto geo::GeoIDmapper<IDType, Index>::computeSize() const -> index_type
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
 template <typename OIDType, typename OIndex, std::size_t... Indices>
-void geo::GeoIDmapper<IDType, Index>::resizeAsImpl(geo::GeoIDmapper<OIDType, OIndex> const& other,
+void geo::GeoIDmapper<IDType, Index>::resizeAsImpl(GeoIDmapper<OIDType, OIndex> const& other,
                                                    std::index_sequence<Indices...>)
 {
   // Clang 5.0.1 does not understand `other.dimensions()` is constexpr
-  static_assert(geo::GeoIDmapper<OIDType, OIndex>::dimensions() >= dimensions(),
+  static_assert(GeoIDmapper<OIDType, OIndex>::dimensions() >= dimensions(),
                 "Can't resize a deeper mapping to a shallower one.");
   resize({other.template dimSize<Indices>()...});
 }

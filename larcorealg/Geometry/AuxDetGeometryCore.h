@@ -9,8 +9,8 @@
 #define GEO_AUXDETGEOMETRYCORE_H
 
 // LArSoft libraries
-#include "larcorealg/Geometry/AuxDetChannelMapAlg.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
+#include "larcorealg/Geometry/AuxDetWireReadoutGeom.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
 // Framework and infrastructure libraries
@@ -61,7 +61,7 @@ namespace geo {
    *    is forbidden and it would yield undefined behaviour (expected to be
    *    catastrophic)
    * 4. acquire the channel mapping algorithm with
-   *    GeometryCore::ApplyChannelMap(); at this point, the ChannelMapAlg object
+   *    GeometryCore::ApplyChannelMap(); at this point, the WireReadoutGeom object
    *    is asked to initialize itself and to perform whatever modifications to
    *    the geometry provider is needed.
    *
@@ -261,7 +261,7 @@ namespace geo {
     void LoadGeometryFile(std::string gdmlfile, std::string rootfile);
 
     /// Returns whether we have a channel map
-    bool hasAuxDetChannelMap() const { return bool(fChannelMapAlg); }
+    bool hasAuxDetChannelMap() const { return bool(fWireReadoutGeom); }
 
     /**
      * @brief Initializes the geometry to work with this channel map
@@ -281,12 +281,12 @@ namespace geo {
      * This method needs to be called after LoadGeometryFile() to complete the
      * geometry initialization.
      */
-    void ApplyChannelMap(std::unique_ptr<geo::AuxDetChannelMapAlg> pChannelMap);
+    void ApplyChannelMap(std::unique_ptr<AuxDetWireReadoutGeom> pChannelMap);
     /// @}
 
   protected:
     /// Returns the object handling the channel map
-    geo::AuxDetChannelMapAlg const* AuxDetChannelMap() const { return fChannelMapAlg.get(); }
+    AuxDetWireReadoutGeom const* AuxDetChannelMap() const { return fWireReadoutGeom.get(); }
 
     //@{
     /// Return the internal auxiliary detectors list
@@ -304,9 +304,9 @@ namespace geo {
     std::string fGDMLfile;                  ///< path to geometry file used for Geant4 simulation
     std::string fROOTfile;                  ///< path to geometry file for geometry in GeometryCore
     fhicl::ParameterSet fBuilderParameters; ///< Configuration of geometry builder.
-    std::unique_ptr<AuxDetChannelMapAlg const>
-      fChannelMapAlg; ///< Object containing the channel to wire mapping
-  };                  // class GeometryCore
+    std::unique_ptr<AuxDetWireReadoutGeom const>
+      fWireReadoutGeom; ///< Object containing the channel to wire mapping
+  };                    // class GeometryCore
 
 } // namespace geo
 

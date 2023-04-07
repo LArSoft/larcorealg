@@ -11,6 +11,7 @@
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
+#include <functional>
 #include <vector>
 
 namespace geo {
@@ -19,14 +20,13 @@ namespace geo {
   public:
     virtual ~GeoObjectSorter() = default;
 
-    virtual void SortAuxDets(std::vector<geo::AuxDetGeo>& adgeo) const = 0;
-    virtual void SortAuxDetSensitive(std::vector<geo::AuxDetSensitiveGeo>& adsgeo) const = 0;
-    virtual void SortCryostats(std::vector<geo::CryostatGeo>& cgeo) const = 0;
-    virtual void SortTPCs(std::vector<geo::TPCGeo>& tgeo) const = 0;
-    virtual void SortPlanes(std::vector<geo::PlaneGeo>& pgeo,
-                            geo::DriftDirection_t driftDir) const = 0;
-    virtual void SortWires(std::vector<geo::WireGeo>& wgeo) const = 0;
-    virtual void SortOpDets(std::vector<geo::OpDetGeo>& opdet) const;
+    virtual bool compareAuxDets(AuxDetGeo const& ad1, AuxDetGeo const& ad2) const = 0;
+    virtual bool compareAuxDetSensitives(AuxDetSensitiveGeo const& ads1,
+                                         AuxDetSensitiveGeo const& ads2) const = 0;
+    virtual bool compareCryostats(CryostatGeo const& c1, CryostatGeo const& c2) const = 0;
+    virtual bool compareTPCs(TPCGeo const& t1, TPCGeo const& t2) const = 0;
+
+    virtual bool compareOpDets(OpDetGeo const& od1, OpDetGeo const& od2) const;
   };
 
 }

@@ -37,24 +37,24 @@ namespace geoalgo {
     virtual ~HalfLine(){};
 
     /// Alternative ctor (1)
-    HalfLine(const double x,
-             const double y,
-             const double z,
-             const double dirx,
-             const double diry,
-             const double dirz);
+    HalfLine(double const x,
+             double const y,
+             double const z,
+             double const dirx,
+             double const diry,
+             double const dirz);
 
     /// Altenartive ctor (2)
-    HalfLine(const Point_t& start, const Vector_t& dir);
+    HalfLine(Point_t const& start, Vector_t const& dir);
 
-    const Point_t& Start() const; ///< Start getter
-    const Vector_t& Dir() const;  ///< Direction getter
+    Point_t const& Start() const; ///< Start getter
+    Vector_t const& Dir() const;  ///< Direction getter
 
-    void Start(const double x, const double y, const double z); ///< Start setter
-    void Dir(const double x, const double y, const double z);   ///< Dir setter
+    void Start(double const x, double const y, double const z); ///< Start setter
+    void Dir(double const x, double const y, double const z);   ///< Dir setter
 
-    void Start(const TVector3& pt); ///< Start setter
-    void Dir(const TVector3& dir);  ///< Dir setter
+    void Start(TVector3 const& pt); ///< Start setter
+    void Dir(TVector3 const& dir);  ///< Dir setter
 
   protected:
     void Normalize(); ///< Normalize direction
@@ -68,12 +68,12 @@ namespace geoalgo {
 
     /// Alternative ctor using template (3)
     template <class T, class U>
-    HalfLine(const T& start, const U& dir) : HalfLine(Point_t(start), Vector_t(dir))
+    HalfLine(T const& start, U const& dir) : HalfLine(Point_t(start), Vector_t(dir))
     {}
 
     /// Start setter template
     template <class T>
-    void Start(const T& pos)
+    void Start(T const& pos)
     {
       _start = Point_t(pos);
       if (_start.size() != 3)
@@ -82,7 +82,7 @@ namespace geoalgo {
 
     /// Dir setter template
     template <class T>
-    void Dir(const T& dir)
+    void Dir(T const& dir)
     {
       _dir = Vector_t(dir);
       if (_dir.size() != 3)

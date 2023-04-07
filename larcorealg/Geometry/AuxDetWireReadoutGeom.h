@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  ChannelMapAlg.h
-/// \brief Interface to algorithm class for a specific detector channel mapping
+/// \file  AuxDetWireReadoutGeom.h
+/// \brief Interface to auxiliary-detector geometry for wire readouts.
 /// \ingroup Geometry
 ///
 /// \author  brebel@fnal.gov
@@ -24,12 +24,12 @@ namespace geo {
   class AuxDetGeo;
 
   /// \ingroup Geometry
-  class AuxDetChannelMapAlg {
+  class AuxDetWireReadoutGeom {
 
     using chanAndSV = std::pair<uint32_t, size_t>;
 
   public:
-    virtual ~AuxDetChannelMapAlg() = default;
+    virtual ~AuxDetWireReadoutGeom() = default;
 
     virtual void Initialize(AuxDetGeometryData_t& geodata) = 0;
     virtual void Uninitialize() = 0;

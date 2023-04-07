@@ -37,19 +37,19 @@ namespace geoalgo {
   public:
     void Clear();
 
-    void Add(const Point_t& pt, std::string label = "", std::string c = "");
+    void Add(Point_t const& pt, std::string label = "", std::string c = "");
 
-    void Add(const AABox_t& box, std::string label = "", std::string c = "");
+    void Add(AABox_t const& box, std::string label = "", std::string c = "");
 
-    void Add(const LineSegment_t& seg, std::string label = "", std::string c = "");
+    void Add(LineSegment_t const& seg, std::string label = "", std::string c = "");
 
-    void Add(const HalfLine_t& seg, std::string label = "", std::string c = "");
+    void Add(HalfLine_t const& seg, std::string label = "", std::string c = "");
 
-    void Add(const Trajectory_t& trj, std::string label = "", std::string c = "");
+    void Add(Trajectory_t const& trj, std::string label = "", std::string c = "");
 
-    void Add(const Cone_t& cone, std::string label = "", std::string c = "");
+    void Add(Cone_t const& cone, std::string label = "", std::string c = "");
 
-    void Add(const Sphere_t& sphere, std::string label = "", std::string c = "");
+    void Add(Sphere_t const& sphere, std::string label = "", std::string c = "");
 
     const std::vector<geoalgo::Point_t>& Point() const { return _pt_v; }
     const std::vector<std::string>& PointColor() const { return _pt_col; }
@@ -75,19 +75,19 @@ namespace geoalgo {
     const std::map<geoalgo::Point_t, std::string>& Labels() const { return _labels; }
 
   protected:
-    const Point_t& _Point_(size_t i) const { return _pt_v[i]; }
+    Point_t const& _Point_(size_t i) const { return _pt_v[i]; }
 
-    const AABox_t& _AABox_(size_t i) const { return _box_v[i]; }
+    AABox_t const& _AABox_(size_t i) const { return _box_v[i]; }
 
-    const LineSegment_t& _LineSegment_(size_t i) const { return _seg_v[i]; }
+    LineSegment_t const& _LineSegment_(size_t i) const { return _seg_v[i]; }
 
-    const Trajectory_t& _Trajectory_(size_t i) const { return _trj_v[i]; }
+    Trajectory_t const& _Trajectory_(size_t i) const { return _trj_v[i]; }
 
-    const Cone_t& _Cone_(size_t i) const { return _cone_v[i]; }
+    Cone_t const& _Cone_(size_t i) const { return _cone_v[i]; }
 
-    const Sphere_t& _Sphere_(size_t i) const { return _sphere_v[i]; }
+    Sphere_t const& _Sphere_(size_t i) const { return _sphere_v[i]; }
 
-    void _AddLabel_(const Point_t& pt, std::string label);
+    void _AddLabel_(Point_t const& pt, std::string label);
 
     std::vector<geoalgo::Point_t> _pt_v;
     std::vector<std::string> _pt_col;

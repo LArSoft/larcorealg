@@ -8,8 +8,9 @@
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h"
 
 // LArSoft libraries
-#include "larcorealg/Geometry/ChannelMapAlg.h"
+#include "larcorealg/Geometry/GeometryBuilderStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 
 // CET libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -25,22 +26,23 @@
 //------------------------------------------------------------------------------
 std::unique_ptr<geo::GeometryCore> lar::standalone::GeometryFor(
   fhicl::ParameterSet const& pset,
-  std::unique_ptr<geo::GeoObjectSorter const> sorter)
+  std::unique_ptr<geo::GeoObjectSorter> sorter)
 {
-  auto const bForceReload = true;
-
   //
   // create the geometry object
   //
-  auto geom = std::make_unique<geo::GeometryCore>(pset, std::move(sorter));
+  auto geom = std::make_unique<geo::GeometryCore>(
+    pset,
+    std::make_unique<geo::GeometryBuilderStandard>(pset.get<fhicl::ParameterSet>("Builder", {})),
+    std::move(sorter));
 
   //
   // extract of relevant configuration parameters
   //
   std::string relPath = pset.get<std::string>("RelativePath", "");
-  const bool disableWiresInG4 = pset.get<bool>("DisableWiresInG4", false);
-  const std::string GDMLFileName = pset.get<std::string>("GDML");
-  //  const std::string ROOTFileName   = pset.get<std::string>("ROOT"                   );
+  bool const disableWiresInG4 = pset.get<bool>("DisableWiresInG4", false);
+  std::string const GDMLFileName = pset.get<std::string>("GDML");
+  //  std::string const ROOTFileName   = pset.get<std::string>("ROOT"                   );
 
   // add a final directory separator ("/") to relPath if not already there
   if (!relPath.empty() && (relPath.back() != '/')) relPath += '/';
@@ -83,7 +85,7 @@ std::unique_ptr<geo::GeometryCore> lar::standalone::GeometryFor(
   //
   // initialize the geometry with the files we have found
   //
-  geom->LoadGeometryFile(GDMLFilePath, ROOTFilePath, bForceReload);
+  geom->LoadGeometryFile(std::move(GDMLFilePath), std::move(ROOTFilePath));
 
   return geom;
 } // lar::standalone::SetupGeometryWithChannelMapping()

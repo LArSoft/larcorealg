@@ -56,6 +56,13 @@ namespace geo {
     /// Returns the current node. Undefined if the path is empty.
     TGeoNode const* current() const { return fNodes.back(); }
 
+    /// Returns the parent of the current node, or null if there is no parent.
+    TGeoNode const* parent() const
+    {
+      if (auto const size = depth(); size > 1ull) { return fNodes[size - 2ull]; }
+      return nullptr;
+    }
+
     // --- END Query and access ------------------------------------------------
 
     // --- BEGIN Content management --------------------------------------------
@@ -86,7 +93,7 @@ namespace geo {
 template <typename Matrix /* = TGeoHMatrix */>
 Matrix geo::GeoNodePath::currentTransformation() const
 {
-  return geo::transformationFromPath<Matrix>(fNodes.begin(), fNodes.end());
+  return transformationFromPath<Matrix>(fNodes.begin(), fNodes.end());
 }
 
 //------------------------------------------------------------------------------

@@ -46,9 +46,9 @@ DestPoint geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocalImpl(
 {
   // need inverse transformation
   using geo::vect::convertTo;
-  return geo::vect::convertTo<DestPoint>(
+  return convertTo<DestPoint>(
     fGeoMatrix.ApplyInverse(convertTo<typename TransformationMatrix_t::Point>(world)));
-} // geo::LocalTransformation::WorldToLocal()
+}
 
 //......................................................................
 template <>
@@ -58,9 +58,9 @@ DestVector geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocalVectIm
 {
   // need inverse transformation
   using geo::vect::convertTo;
-  return geo::vect::convertTo<DestVector>(
+  return convertTo<DestVector>(
     fGeoMatrix.ApplyInverse(convertTo<typename TransformationMatrix_t::Vector>(world)));
-} // geo::LocalTransformation::WorldToLocalVect()
+}
 
 //......................................................................
 template <>
@@ -71,8 +71,7 @@ DestPoint geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorldImpl(
   // need direct transformation
   using geo::vect::convertTo;
   return convertTo<DestPoint>(fGeoMatrix(convertTo<typename TransformationMatrix_t::Point>(local)));
-
-} // geo::LocalTransformation::LocalToWorld()
+}
 
 //......................................................................
 template <>
@@ -84,7 +83,7 @@ DestVector geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorldVectIm
   using geo::vect::convertTo;
   return convertTo<DestVector>(
     fGeoMatrix(convertTo<typename TransformationMatrix_t::Vector>(local)));
-} // geo::LocalTransformation::LocalToWorldVect()
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -100,7 +99,7 @@ inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform
     matrix *= convertTransformationMatrix<ROOT::Math::Transform3D>(*(*iNode)->GetMatrix());
   }
   return matrix;
-} // geo::LocalTransformation<ROOT::Transform3D>::transformationFromPath()
+}
 
 //------------------------------------------------------------------------------
 template <>

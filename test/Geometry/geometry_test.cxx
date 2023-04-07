@@ -9,29 +9,27 @@
  *
  * By default, GeometryTestParameterSet is set to "physics.analysers.geotest".
  *
- * This unit test uses geometry_unit_test_base.h to build an environment with a
- * geometry set up.
- * For an example of use with Boost unit test module, see
+ * This unit test uses geometry_unit_test_base.h to build an environment with a geometry
+ * set up.  For an example of use with Boost unit test module, see
  * geometry_iterator_test.cxx .
  */
 
 // LArSoft libraries
 #include "GeometryTestAlg.h"
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
 #include "larcorealg/Geometry/GeoObjectSorterStandard.h"
-#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/StandaloneGeometrySetup.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
 
-// utility libraries
+// art libraries
+#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //------------------------------------------------------------------------------
 //---  The test environment
 //---
 
-// we define here all the configuration that is needed;
-// we use an existing class provided for this purpose, since our test
-// environment allows us to tailor it at run time.
+// we define here all the configuration that is needed; we use an existing class provided
+// for this purpose, since our test environment allows us to tailor it at run time.
 using StandardGeometryConfiguration = testing::BasicGeometryEnvironmentConfiguration;
 
 /*
@@ -70,9 +68,7 @@ int main(int argc, char const** argv)
   StandardGeometryConfiguration config("geometry_test");
   config.SetMainTesterParameterSetName("geotest");
 
-  //
   // parameter parsing
-  //
   int iParam = 0;
 
   // first argument: configuration file (mandatory)
@@ -86,19 +82,15 @@ int main(int argc, char const** argv)
   // (optional; default: "services.Geometry" from the inherited object)
   if (++iParam < argc) config.SetGeometryParameterSetPath(argv[iParam]);
 
-  //
   // testing environment setup
-  //
   StandardGeometryTestEnvironment TestEnvironment(config);
-  auto const channelMap = std::make_unique<geo::ChannelMapStandardAlg>(TestEnvironment.Geometry());
+  auto const wireReadoutGeom = lar::standalone::SetupReadout({}, TestEnvironment.Geometry());
 
-  //
   // run the test algorithm
-  //
 
   // 1. we initialize it from the configuration in the environment,
   geo::GeometryTestAlg Tester{
-    TestEnvironment.Geometry(), channelMap.get(), TestEnvironment.TesterParameters()};
+    TestEnvironment.Geometry(), wireReadoutGeom.get(), TestEnvironment.TesterParameters()};
 
   // 2. then we run it!
   unsigned int nErrors = Tester.Run();

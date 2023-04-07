@@ -42,12 +42,12 @@ namespace geo {
     static constexpr int InvalidWireNo = std::numeric_limits<int>::max();
 
     /// Constructor with the complete information
-    InvalidWireError(std::string cat, geo::PlaneID const& planeID, int badWireNo, int betterWireNo)
+    InvalidWireError(std::string cat, PlaneID const& planeID, int badWireNo, int betterWireNo)
       : cet::exception(cat), fPlaneID(planeID), fWireNumber(badWireNo), fBetterWireNo(betterWireNo)
     {}
 
     /// Constructor: no wire suggestions
-    InvalidWireError(std::string cat, geo::PlaneID const& planeID, int badWireNo)
+    InvalidWireError(std::string cat, PlaneID const& planeID, int badWireNo)
       : cet::exception(cat), fPlaneID(planeID), fWireNumber(badWireNo)
     {}
 
@@ -70,7 +70,7 @@ namespace geo {
     int badWire() const { return fWireNumber; }
 
     /// Returns the bad wire ID
-    geo::WireID badWireID() const { return makeWireID(fWireNumber); }
+    WireID badWireID() const { return makeWireID(fWireNumber); }
 
     /// @}
 
@@ -84,7 +84,7 @@ namespace geo {
     int suggestedWire() const { return fBetterWireNo; }
 
     /// Returns a better wire ID
-    geo::WireID suggestedWireID() const { return makeWireID(fBetterWireNo); }
+    WireID suggestedWireID() const { return makeWireID(fBetterWireNo); }
 
     /// @}
 
@@ -95,12 +95,12 @@ namespace geo {
     bool hasPlane() const { return fPlaneID.isValid; }
 
     /// Return the plane ID recorded with the exception
-    geo::PlaneID const& planeID() const { return fPlaneID; }
+    PlaneID const& planeID() const { return fPlaneID; }
 
     /// @}
 
   private:
-    geo::PlaneID fPlaneID; ///< plane the wire belongs to
+    PlaneID fPlaneID; ///< plane the wire belongs to
 
     /// the invalid wire number
     int fWireNumber = InvalidWireNo;
@@ -109,7 +109,7 @@ namespace geo {
     int fBetterWireNo = InvalidWireNo;
 
     /// Transform a wire number into wire ID
-    geo::WireID makeWireID(int wireNo) const { return {fPlaneID, (geo::WireID::WireID_t)wireNo}; }
+    WireID makeWireID(int wireNo) const { return {fPlaneID, (WireID::WireID_t)wireNo}; }
 
   }; // class InvalidWireError
 

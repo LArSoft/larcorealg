@@ -10,8 +10,8 @@
 #include "larcorealg/Geometry/AuxDetGeometryCore.h"
 
 // lar includes
-#include "larcorealg/Geometry/AuxDetChannelMapAlg.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
+#include "larcorealg/Geometry/AuxDetWireReadoutGeom.h"
 #include "larcorealg/Geometry/GeoNodePath.h"
 #include "larcorealg/Geometry/GeometryBuilder.h"
 #include "larcorealg/Geometry/GeometryBuilderStandard.h"
@@ -45,10 +45,10 @@ namespace geo {
   }
 
   //......................................................................
-  void AuxDetGeometryCore::ApplyChannelMap(std::unique_ptr<geo::AuxDetChannelMapAlg> pChannelMap)
+  void AuxDetGeometryCore::ApplyChannelMap(std::unique_ptr<AuxDetWireReadoutGeom> pChannelMap)
   {
     pChannelMap->Initialize(fGeoData);
-    fChannelMapAlg = move(pChannelMap);
+    fWireReadoutGeom = move(pChannelMap);
   }
 
   //......................................................................
@@ -79,9 +79,9 @@ namespace geo {
       gGeoManager->LockGeometry();
     }
 
-    geo::GeometryBuilderStandard builder(
-      fhicl::Table<geo::GeometryBuilderStandard::Config>(fBuilderParameters, {"tool_type"})());
-    geo::GeoNodePath path{gGeoManager->GetTopNode()};
+    GeometryBuilderStandard builder(
+      fhicl::Table<GeometryBuilderStandard::Config>(fBuilderParameters, {"tool_type"}));
+    GeoNodePath path{gGeoManager->GetTopNode()};
 
     AuxDets() = builder.extractAuxiliaryDetectors(path);
 
@@ -115,7 +115,7 @@ namespace geo {
   //
   // \throws geo::Exception if "ad" is outside allowed range
   //
-  const AuxDetGeo& AuxDetGeometryCore::AuxDet(unsigned int const ad) const
+  AuxDetGeo const& AuxDetGeometryCore::AuxDet(unsigned int const ad) const
   {
     if (ad >= NAuxDets())
       throw cet::exception("AuxDetGeometryCore") << "AuxDet " << ad << " does not exist\n";
@@ -127,11 +127,11 @@ namespace geo {
   unsigned int AuxDetGeometryCore::FindAuxDetAtPosition(Point_t const& worldPos,
                                                         double tolerance) const
   {
-    return fChannelMapAlg->NearestAuxDet(worldPos, AuxDets(), tolerance);
+    return fWireReadoutGeom->NearestAuxDet(worldPos, AuxDets(), tolerance);
   }
 
   //......................................................................
-  const AuxDetGeo& AuxDetGeometryCore::PositionToAuxDet(Point_t const& worldLoc,
+  AuxDetGeo const& AuxDetGeometryCore::PositionToAuxDet(Point_t const& worldLoc,
                                                         unsigned int& ad,
                                                         double tolerance) const
   {
@@ -147,7 +147,7 @@ namespace geo {
                                                          double tolerance) const
   {
     adg = FindAuxDetAtPosition(worldPos, tolerance);
-    sv = fChannelMapAlg->NearestSensitiveAuxDet(worldPos, AuxDets(), adg, tolerance);
+    sv = fWireReadoutGeom->NearestSensitiveAuxDet(worldPos, AuxDets(), adg, tolerance);
   }
 
   //......................................................................
@@ -166,21 +166,21 @@ namespace geo {
                                                        size_t& ad,
                                                        size_t& sv) const
   {
-    return fChannelMapAlg->PositionToAuxDetChannel(worldLoc, AuxDets(), ad, sv);
+    return fWireReadoutGeom->PositionToAuxDetChannel(worldLoc, AuxDets(), ad, sv);
   }
 
   //......................................................................
   Point_t AuxDetGeometryCore::AuxDetChannelToPosition(std::string const& auxDetName,
                                                       uint32_t const channel) const
   {
-    return fChannelMapAlg->AuxDetChannelToPosition(channel, auxDetName, AuxDets());
+    return fWireReadoutGeom->AuxDetChannelToPosition(channel, auxDetName, AuxDets());
   }
 
   //......................................................................
   AuxDetGeo const& AuxDetGeometryCore::ChannelToAuxDet(std::string const& auxDetName,
                                                        uint32_t const channel) const
   {
-    size_t adIdx = fChannelMapAlg->ChannelToAuxDet(AuxDets(), auxDetName, channel);
+    size_t adIdx = fWireReadoutGeom->ChannelToAuxDet(AuxDets(), auxDetName, channel);
     return AuxDet(adIdx);
   }
 
@@ -189,7 +189,7 @@ namespace geo {
     std::string const& auxDetName,
     uint32_t const channel) const
   {
-    auto idx = fChannelMapAlg->ChannelToSensitiveAuxDet(AuxDets(), auxDetName, channel);
+    auto idx = fWireReadoutGeom->ChannelToSensitiveAuxDet(AuxDets(), auxDetName, channel);
     return AuxDet(idx.first).SensitiveVolume(idx.second);
   }
 

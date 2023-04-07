@@ -75,7 +75,7 @@ namespace geo {
     /// Normalizes and rounds a direction vector
     static Vector_t PastorizeUnitVector(Vector_t dir)
     {
-      return geo::vect::rounded01(geo::vect::normalize(dir), RoundingTol);
+      return vect::rounded01(vect::normalize(dir), RoundingTol);
     }
 
   private:
@@ -145,7 +145,7 @@ namespace geo {
     using Projection_t = ProjVector; ///< Type for 2D projection
 
     /// Type for distance from plane
-    using Distance_t = decltype(geo::vect::mag2(std::declval<Projection_t>()));
+    using Distance_t = decltype(vect::mag2(std::declval<Projection_t>()));
 
     Projection_t projection; ///< Projection of the vector on the plane
     Distance_t distance;     ///< Distance of the vector from the plane
@@ -291,13 +291,10 @@ namespace geo {
     }
 
     /// Returns the main component of a projection vector
-    auto VectorMainComponent(Vector_t const& v) const { return geo::vect::dot(v, MainDir()); }
+    auto VectorMainComponent(Vector_t const& v) const { return vect::dot(v, MainDir()); }
 
     /// Returns the secondary component of a projection vector
-    auto VectorSecondaryComponent(Vector_t const& v) const
-    {
-      return geo::vect::dot(v, SecondaryDir());
-    }
+    auto VectorSecondaryComponent(Vector_t const& v) const { return vect::dot(v, SecondaryDir()); }
 
     /**
      * @brief Returns the projection of the specified vector on the plane
@@ -533,7 +530,7 @@ namespace geo {
     }
 
     /// Returns the secondary component of a vector
-    auto VectorNormalComponent(Vector_t const& v) const { return geo::vect::dot(v, NormalDir()); }
+    auto VectorNormalComponent(Vector_t const& v) const { return vect::dot(v, NormalDir()); }
 
     /**
      * @brief Returns the projection of the specified vector on the plane

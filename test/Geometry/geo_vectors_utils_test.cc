@@ -50,7 +50,6 @@ void CheckPoint(PointA const& test, PointB const& ref, std::string tag = "")
 //------------------------------------------------------------------------------
 void test_MiddlePointAccumulator_defaultConstructor()
 {
-
   geo::Point_t expected(2., 4., 6.);
 
   std::vector<geo::Point_t> points{

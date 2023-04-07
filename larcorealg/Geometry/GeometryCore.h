@@ -10,7 +10,6 @@
 #define LARCOREALG_GEOMETRY_GEOMETRYCORE_H
 
 // LArSoft libraries
-#include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
 #include "larcorealg/Geometry/BoxBoundedGeo.h"
@@ -19,31 +18,27 @@
 #include "larcorealg/Geometry/GeometryBuilder.h"
 #include "larcorealg/Geometry/Iterable.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
-#include "larcorealg/Geometry/PlaneGeo.h"
 #include "larcorealg/Geometry/TPCGeo.h"
-#include "larcorealg/Geometry/WireGeo.h"
 #include "larcorealg/Geometry/details/GeometryIterationPolicy.h"
+#include "larcorealg/Geometry/details/ToGeometryElement.h"
+#include "larcorealg/Geometry/details/ZeroIDs.h"
 #include "larcorealg/Geometry/fwd.h"
 #include "larcorealg/Geometry/geo_vectors_utils.h"       // geo::vect namespace
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
-#include "larcoreobj/SimpleTypesAndConstants/readout_types.h"
 
 // Framework and infrastructure libraries
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
 // External libraries
 #include "range/v3/view.hpp"
 
 // C/C++ standard libraries
-#include <cstddef>  // size_t
-#include <iterator> // std::forward_iterator_tag
-#include <memory>   // std::shared_ptr<>
-#include <optional>
+#include <cstddef> // size_t
+#include <memory>  // std::shared_ptr<>
 #include <set>
 #include <string>
-#include <type_traits> // std::is_base_of<>
 #include <utility>
 #include <vector>
 
@@ -106,44 +101,15 @@ namespace geo {
    *   DefaultWiggle())
    *
    */
-  class ToGeometryElement {
-  public:
-    explicit ToGeometryElement(GeometryCore const* geom) : fGeom{geom} {}
-    template <typename T, typename Iterator>
-    auto transform(Iterator const& iterator) const
-    {
-      return details::geometry_element_iterator<T, Iterator>{fGeom, iterator};
-    }
 
-  private:
-    GeometryCore const* fGeom;
-  };
-
-  class GeometryCore : Iterable<details::GeometryIterationPolicy, ToGeometryElement> {
-    using Iteration = Iterable<details::GeometryIterationPolicy, ToGeometryElement>;
+  class GeometryCore : Iterable<details::GeometryIterationPolicy, details::ToGeometryElement> {
+    using Iteration = Iterable<details::GeometryIterationPolicy, details::ToGeometryElement>;
 
   public:
-    /// Simple class with two points (a pair with aliases).
-    template <typename Point>
-    struct Segment : public std::pair<Point, Point> {
-
-      // use the base class constructors
-      using std::pair<Point, Point>::pair;
-
-      Point const& start() const { return this->first; }
-      Point& start() { return this->first; }
-
-      Point const& end() const { return this->second; }
-      Point& end() { return this->second; }
-
-    }; // struct Segment_t
-
-    using Segment_t = Segment<Point_t>;
-
     /// Type of list of cryostats
-    using CryostatList_t = std::vector<geo::CryostatGeo>;
+    using CryostatList_t = std::vector<CryostatGeo>;
     /// Type of list of auxiliary detectors
-    using AuxDetList_t = std::vector<geo::AuxDetGeo>;
+    using AuxDetList_t = std::vector<AuxDetGeo>;
 
     /**
      * @brief Initialize geometry from a given configuration
@@ -152,7 +118,9 @@ namespace geo {
      * This constructor does not load any geometry description.  The next step is to do
      * exactly that, by GeometryCore::LoadGeometryFile().
      */
-    GeometryCore(fhicl::ParameterSet const& pset, std::unique_ptr<GeoObjectSorter const> sorter);
+    GeometryCore(fhicl::ParameterSet const& pset,
+                 std::unique_ptr<GeometryBuilder> builder,
+                 std::unique_ptr<GeoObjectSorter> sorter);
     GeometryCore(GeometryCore const&) = delete;
     GeometryCore(GeometryCore&&) = delete;
     GeometryCore& operator=(GeometryCore const&) = delete;
@@ -358,7 +326,7 @@ namespace geo {
      *
      * @todo Change return type to size_t
      */
-    unsigned int Ncryostats() const { return Cryostats().size(); }
+    unsigned int Ncryostats() const { return fCryostats.size(); }
     unsigned int NElements() const { return Ncryostats(); }
     unsigned int NSiblingElements(CryostatID const&) const { return Ncryostats(); }
     //@}
@@ -389,8 +357,7 @@ namespace geo {
      *
      * @todo Make the cryostat number mandatory (as CryostatID)
      */
-    static constexpr CryostatID cryostat_zero{0};
-    CryostatGeo const& Cryostat(CryostatID const& cryoid = cryostat_zero) const;
+    CryostatGeo const& Cryostat(CryostatID const& cryoid = details::cryostat_zero) const;
     CryostatGeo const& GetElement(CryostatID const& cryoid) const { return Cryostat(cryoid); }
     //@}
 
@@ -404,7 +371,7 @@ namespace geo {
      */
     CryostatGeo const* CryostatPtr(CryostatID const& cryoid) const
     {
-      return HasCryostat(cryoid) ? &(Cryostats()[cryoid.Cryostat]) : nullptr;
+      return HasCryostat(cryoid) ? &fCryostats[cryoid.Cryostat] : nullptr;
     }
     CryostatGeo const* GetElementPtr(CryostatID const& cryoid) const { return CryostatPtr(cryoid); }
     //@}
@@ -473,7 +440,7 @@ namespace geo {
      *
      * @todo Change return type to size_t
      */
-    unsigned int NTPC(CryostatID const& cryoid = cryostat_zero) const
+    unsigned int NTPC(CryostatID const& cryoid = details::cryostat_zero) const
     {
       CryostatGeo const* pCryo = GetElementPtr(cryoid);
       return pCryo ? pCryo->NElements() : 0;
@@ -507,8 +474,10 @@ namespace geo {
      *
      * The GetElement() method is overloaded and its return depends on the type of ID.
      */
-    static constexpr TPCID tpc_zero{cryostat_zero, 0};
-    TPCGeo const& TPC(TPCID const& tpcid = tpc_zero) const { return Cryostat(tpcid).TPC(tpcid); }
+    TPCGeo const& TPC(TPCID const& tpcid = details::tpc_zero) const
+    {
+      return Cryostat(tpcid).TPC(tpcid);
+    }
     TPCGeo const& GetElement(TPCID const& tpcid) const { return TPC(tpcid); }
     //@}
 
@@ -565,489 +534,6 @@ namespace geo {
     //
     // object description
     //
-
-    /// @name Plane access and information
-    /// @{
-
-    //
-    // group features
-    //
-
-    /// Returns the largest number of planes among all TPCs in this detector
-    unsigned int MaxPlanes() const;
-
-    //@{
-    /**
-     * @brief Returns the total number of planes in the specified TPC
-     * @param tpcid TPC ID
-     * @return number of planes in specified TPC, or 0 if no TPC found
-     *
-     * The NElements() and NSiblingElements() methods are overloaded and their return
-     * depends on the type of ID.
-     *
-     * @todo Change return type to size_t
-     */
-    unsigned int Nplanes(TPCID const& tpcid = tpc_zero) const
-    {
-      TPCGeo const* pTPC = GetElementPtr(tpcid);
-      return pTPC ? pTPC->NElements() : 0;
-    }
-    unsigned int NElements(TPCID const& tpcid) const { return Nplanes(tpcid); }
-    unsigned int NSiblingElements(PlaneID const& planeid) const { return Nplanes(planeid); }
-    //@}
-
-    /**
-     * @brief Returns the number of views (different wire orientations)
-     *
-     * Returns the number of different views, or wire orientations, in the detector.
-     *
-     * The function assumes that all TPCs in all cryostats of a detector have the same
-     * number of planes, which should be a safe assumption.
-     *
-     * @todo Change return type to size_t
-     */
-    unsigned int Nviews() const;
-
-    //
-    // access
-    //
-
-    //@{
-    /**
-     * @brief Returns whether we have the specified plane
-     *
-     * The HasElement() method is overloaded and its meaning depends on the type of ID.
-     *
-     */
-    bool HasPlane(PlaneID const& planeid) const
-    {
-      TPCGeo const* pTPC = TPCPtr(planeid);
-      return pTPC ? pTPC->HasPlane(planeid) : false;
-    }
-    bool HasElement(PlaneID const& planeid) const { return HasPlane(planeid); }
-    //@}
-
-    //@{
-    /**
-     * @brief Returns the specified wire
-     * @param planeid ID of the plane
-     * @param p plane number within the TPC
-     * @param tpc TPC number within the cryostat
-     * @param cstat number of cryostat
-     * @return a constant reference to the specified plane
-     * @throw cet::exception (`GeometryCore` category) if cryostat not present
-     * @throw cet::exception (`TPCOutOfRange` category) if no such TPC
-     * @throw cet::exception (`PlaneOutOfRange` category) if no such plane
-     *
-     * The GetElement() method is overloaded and its return depends on the type of ID.
-     */
-    PlaneGeo const& Plane(PlaneID const& planeid) const { return TPC(planeid).Plane(planeid); }
-    PlaneGeo const& GetElement(PlaneID const& planeid) const { return Plane(planeid); }
-    //@}
-
-    //@{
-    /**
-     * @brief Returns the specified plane
-     * @param planeid plane ID
-     * @return a constant pointer to the specified plane, or nullptr if none
-     *
-     * The GetElementPtr() method is overloaded and its return depends on the type of ID.
-     */
-    PlaneGeo const* PlanePtr(PlaneID const& planeid) const
-    {
-      TPCGeo const* pTPC = TPCPtr(planeid);
-      return pTPC ? pTPC->PlanePtr(planeid) : nullptr;
-    }
-    PlaneGeo const* GetElementPtr(PlaneID const& planeid) const { return PlanePtr(planeid); }
-    //@}
-
-    /// @} Plane access and information
-
-    /// @name Wire access and information
-    /// @{
-
-    //
-    // group features
-    //
-
-    //@{
-    /**
-     * @brief Returns the total number of wires in the specified plane
-     * @param planeid plane ID
-     * @return number of wires in specified plane, or 0 if no plane found
-     *
-     * The NElements() and NSiblingElements() methods are overloaded and their return
-     * depends on the type of ID.
-     *
-     * @todo Change return type to size_t
-     */
-    unsigned int Nwires(PlaneID const& planeid) const
-    {
-      PlaneGeo const* pPlane = GetElementPtr(planeid);
-      return pPlane ? pPlane->NElements() : 0;
-    }
-    unsigned int NElements(PlaneID const& planeid) const { return Nwires(planeid); }
-    unsigned int NSiblingElements(WireID const& wireid) const { return Nwires(wireid); }
-
-    /// Returns the largest number of wires among all planes in this detector
-    unsigned int MaxWires() const;
-
-    //@}
-
-    //
-    // access
-    //
-
-    //@{
-    /**
-     * @brief Returns whether we have the specified wire
-     *
-     * The HasElement() method is overloaded and its meaning depends on the type of ID.
-     */
-    bool HasWire(WireID const& wireid) const
-    {
-      PlaneGeo const* pPlane = PlanePtr(wireid);
-      return pPlane ? pPlane->HasWire(wireid) : false;
-    }
-    bool HasElement(WireID const& wireid) const { return HasWire(wireid); }
-    //@}
-
-    //@{
-    /**
-     * @brief Returns the specified wire
-     * @param wireid wire ID
-     * @return a constant pointer to the specified wire, or nullptr if none
-     *
-     * The GetElementPtr() method is overloaded and its return depends on the type of ID.
-     */
-    WireGeo const* WirePtr(WireID const& wireid) const
-    {
-      PlaneGeo const* pPlane = PlanePtr(wireid);
-      return pPlane ? pPlane->WirePtr(wireid) : nullptr;
-    } // WirePtr()
-    WireGeo const* GetElementPtr(WireID const& wireid) const { return WirePtr(wireid); }
-    //@}
-
-    //@{
-    /**
-     * @brief Returns the specified wire
-     * @param wireid ID of the wire
-     * @return a constant reference to the specified wire
-     * @throw cet::exception if not found
-     *
-     * The GetElement() method is overloaded and its return depends on the type of ID.
-     */
-    WireGeo const& Wire(WireID const& wireid) const { return Plane(wireid).Wire(wireid); }
-    WireGeo const& GetElement(WireID const& wireid) const { return Wire(wireid); }
-    //@}
-
-    //
-    // single object features
-    //
-
-    //@{
-    /**
-     * @brief Returns the angle of the wires in the specified view from vertical
-     * @param view the view
-     * @param TPC the index of the TPC in the specified cryostat
-     * @param Cryo the cryostat
-     * @param tpcid ID of the TPC
-     * @return the angle [radians]
-     * @throw cet::exception ("GeometryCore" category) if no such view
-     *
-     * The angle is defined as in WireGeo::ThetaZ().
-     *
-     * This method assumes all wires in the view have the same angle (it queries for the
-     * first).
-     *
-     * @deprecated This does not feel APA-ready
-     */
-    double WireAngleToVertical(View_t view, TPCID const& tpcid) const;
-    //@}
-
-    /// @} Wire access and information
-
-    /**
-     * @name Wire geometry queries
-     *
-     * Please note the differences between functions:
-     * ChannelsIntersect(), WireIDsIntersect() and IntersectionPoint()
-     * all calculate wires intersection using the same equation.
-     * ChannelsIntersect() and WireIdsIntersect() will return true
-     * if the two wires cross, return false if they don't.
-     * IntersectionPoint() does not check if the two wires cross.
-     */
-    /// @{
-
-    //
-    // simple geometry queries
-    //
-
-    /**
-     * @brief Fills two arrays with the coordinates of the wire end points
-     * @param wireid ID of the wire
-     * @param xyzStart (output) an array with the start coordinate
-     * @param xyzEnd (output) an array with the end coordinate
-     * @throws cet::exception wire not present
-     *
-     * The starting point is the wire end with lower z coordinate.
-     *
-     * @deprecated use the wire ID interface instead (but note that it does not
-     *             sort the ends)
-     */
-    void WireEndPoints(WireID const& wireid, double* xyzStart, double* xyzEnd) const;
-
-    //@{
-    /**
-     * @brief Returns a segment whose ends are the wire end points
-     * @param wireid ID of the wire
-     * @return a segment whose ends are the wire end points
-     * @throws cet::exception wire not present
-     *
-     * The start and end are assigned as returned from the geo::WireGeo object.
-     * The rules for this assignment are documented in that class.
-     *
-     * @deprecated use the wire ID interface instead (but note that it does not
-     *             sort the ends)
-     */
-    Segment<Point_t> WireEndPoints(WireID const& wireID) const;
-
-    //@}
-
-    //
-    // wire intersections
-    //
-
-    //@{
-    /**
-     * @brief Computes the intersection between two wires.
-     * @param wid1 ID of the first wire
-     * @param wid2 ID of the other wire
-     * @param[out] intersection the intersection point (global coordinates)
-     * @return whether an intersection was found inside the TPC the wires belong
-     * @see `geo::WiresIntersection()`, `geo::LineClosestPoint()`
-     *
-     * The wires identified by `wid1` and `wid2` are intersected, and the 3D intersection
-     * point is written into the `intersection` parameter.  The "intersection" point is
-     * actually the point belonging to the first wire (`wid2`) which is the closest (in
-     * Euclidean 3D metric) to the second wire.
-     *
-     * The intersection is computed only if the wires belong to different planes of the
-     * same TPC. If that is not the case (i.e. they belong to different TPC or cryostat,
-     * or if they belong to the same plane), `false` is returned and `intersection` is set
-     * with all components to infinity (`std::numeric_limits<>::infinity()`).
-     *
-     * When the intersection is computed, it is always stored in the `intersection` output
-     * parameter. Return value is `true` if this intersection lies within the physical
-     * boundaries first wire, while it is instead `false` if it lies on the extrapolation
-     * of the wire direction, but not within the wire physical extension.
-     *
-     * To test that the result is not infinity (nor NaN), use
-     * `geo::vect::isfinite(intersection)` etc.
-     *
-     * @note If `geo::WireGeo` objects are already available, using instead the free
-     *       function `geo::WiresIntersection()` or the method
-     *       `geo::WireGeo::IntersectionWith()` is faster (and _recommended_).  For purely
-     *       geometric intersection, `geo::LineClosestPoint()` is also available.
-     */
-    bool WireIDsIntersect(WireID const& wid1, WireID const& wid2, Point_t& intersection) const;
-    //@}
-
-    //@{
-    /**
-     * @brief Computes the intersection between two wires.
-     * @param wid1 ID of the first wire
-     * @param wid2 ID of the other wire
-     * @param widIntersect (output) the coordinate of the intersection point
-     * @return whether an intersection was found within the TPC
-     *
-     * The "intersection" refers to the projection of the wires into the same
-     * @f$ x = 0 @f$ plane.
-     * Wires are assumed to have at most one intersection.
-     * If wires are parallel, `widIntersect` will have the two components set to
-     * infinity (`std::numeric_limits<>::infinity()`) and the TPC number set to
-     * invalid (`geo::TPCID::InvalidID`). Also, `false` is returned.
-     * If the intersection is outside the TPC, `false` is also returned, but the
-     * `widIntersect` will contain the coordinates of that intersection. The TPC
-     * number is still set to invalid, although the intersection _might_ belong
-     * to a valid TPC somewhere else.
-     *
-     *
-     * @deprecated This method uses arbitrary assumptions and should not be
-     *             used. Use the interface returning a full vector instead.
-     */
-    std::optional<WireIDIntersection> WireIDsIntersect(WireID const& wid1,
-                                                       WireID const& wid2) const;
-    //@}
-
-    /**
-     * @brief Returns the plane that is not in the specified arguments
-     * @param pid1 a plane
-     * @param pid2 another plane
-     * @return the ID to the third plane
-     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
-     * @throws cet::exception (category: "GeometryCore") if pid1 and pid2 match
-     *
-     * This function requires a geometry with exactly three planes.  If the two input
-     * planes are not on the same TPC, the result is undefined.
-     */
-    PlaneID ThirdPlane(PlaneID const& pid1, PlaneID const& pid2) const;
-
-    /**
-     * @brief Returns the slope on the third plane, given it in the other two
-     * @param pid1 ID of the plane of the first slope
-     * @param slope1 slope as seen on the first plane
-     * @param pid2 ID of the plane of the second slope
-     * @param slope2 slope as seen on the second plane
-     * @param output_plane ID of the plane on which to calculate the slope
-     * @return the slope on the third plane, or -999. if slope would be infinity
-     * @throws cet::exception (category: "GeometryCore") if different TPC
-     * @throws cet::exception (category: "GeometryCore") if input planes match
-     *
-     * Given a slope as projected in two planes, returns the slope as projected in the
-     * specified output plane.  The slopes are defined in uniform units; they should be
-     * computed as distance ratios (or tangent of a geometrical angle; the formula is
-     * still valid using dt/dw directly in case of equal wire pitch in all planes and
-     * uniform drift velocity.
-     */
-    double ThirdPlaneSlope(PlaneID const& pid1,
-                           double slope1,
-                           PlaneID const& pid2,
-                           double slope2,
-                           PlaneID const& output_plane) const;
-
-    /**
-     * @brief Returns the slope on the third plane, given it in the other two
-     * @param pid1 ID of the plane of the first slope
-     * @param slope1 slope as seen on the first plane
-     * @param pid2 ID of the plane of the second slope
-     * @param slope2 slope as seen on the second plane
-     * @return the slope on the third plane, or -999. if slope would be infinity
-     * @throws cet::exception (category: "GeometryCore") if different TPC
-     * @throws cet::exception (category: "GeometryCore") if same plane
-     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
-     *
-     * Given a slope as projected in two planes, returns the slope as projected in the
-     * third plane.  This function is a shortcut assuming exactly three wire planes in the
-     * TPC, in which case the output plane is chosen as the one that is neither of the
-     * input planes.
-     */
-    double ThirdPlaneSlope(PlaneID const& pid1,
-                           double slope1,
-                           PlaneID const& pid2,
-                           double slope2) const;
-
-    //@{
-    /**
-     * @brief Returns the slope on the third plane, given it in the other two
-     * @param plane1 index of the plane of the first slope
-     * @param slope1 slope as seen on the first plane
-     * @param plane2 index of the plane of the second slope
-     * @param slope2 slope as seen on the second plane
-     * @param tpcid TPC where the two planes belong
-     * @return the slope on the third plane, or -999. if slope would be infinity
-     * @throws cet::exception (category: "GeometryCore") if different TPC
-     * @throws cet::exception (category: "GeometryCore") if same plane
-     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
-     *
-     * Given a slope as projected in two planes, returns the slope as projected in the
-     * third plane.
-     */
-    double ThirdPlaneSlope(PlaneID::PlaneID_t plane1,
-                           double slope1,
-                           PlaneID::PlaneID_t plane2,
-                           double slope2,
-                           TPCID const& tpcid) const
-    {
-      return ThirdPlaneSlope(PlaneID(tpcid, plane1), slope1, PlaneID(tpcid, plane2), slope2);
-    }
-    //@}
-
-    /**
-     * @brief Returns dT/dW on the third plane, given it in the other two
-     * @param pid1 ID of the plane of the first dT/dW
-     * @param dTdW1 dT/dW as seen on the first plane
-     * @param pid2 ID of the plane of the second dT/dW
-     * @param dTdW2 dT/dW  as seen on the second plane
-     * @param output_plane ID of the plane on which to calculate the slope
-     * @return dT/dW on the third plane, or -999. if dT/dW would be infinity
-     * @throws cet::exception (category: "GeometryCore") if different TPC
-     * @throws cet::exception (category: "GeometryCore") if same plane
-     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
-     *
-     * Given a dT/dW as projected in two planes, returns the dT/dW as projected in the
-     * third plane.  The dT/dW are defined in time ticks/wide number units.
-     */
-    double ThirdPlane_dTdW(PlaneID const& pid1,
-                           double slope1,
-                           PlaneID const& pid2,
-                           double slope2,
-                           PlaneID const& output_plane) const;
-
-    /**
-     * @brief Returns dT/dW on the third plane, given it in the other two
-     * @param pid1 ID of the plane of the first dT/dW
-     * @param dTdW1 dT/dW as seen on the first plane
-     * @param pid2 ID of the plane of the second dT/dW
-     * @param dTdW2 dT/dW  as seen on the second plane
-     * @return dT/dW on the third plane, or -999. if dT/dW would be infinity
-     * @throws cet::exception (category: "GeometryCore") if different TPC
-     * @throws cet::exception (category: "GeometryCore") if same plane
-     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
-     *
-     * Given a dT/dW as projected in two planes, returns the dT/dW as projected in the
-     * third plane.  This function is a shortcut assuming exactly three wire planes in the
-     * TPC, in which case the output plane is chosen as the one that is neither of the
-     * input planes.
-     */
-    double ThirdPlane_dTdW(PlaneID const& pid1,
-                           double slope1,
-                           PlaneID const& pid2,
-                           double slope2) const;
-
-    /**
-     * @brief Returns the slope on the third plane, given it in the other two
-     * @param angle1 angle or the wires on the first plane
-     * @param slope1 slope as observed on the first plane
-     * @param angle2 angle or the wires on the second plane
-     * @param slope2 slope as observed on the second plane
-     * @param angle_target angle or the wires on the target plane
-     * @return the slope as measure on the third plane, or 999 if infinity
-     *
-     * This function will return a small slope if both input slopes are small.
-     */
-    static double ComputeThirdPlaneSlope(double angle1,
-                                         double slope1,
-                                         double angle2,
-                                         double slope2,
-                                         double angle_target);
-
-    /**
-     * @brief Returns the slope on the third plane, given it in the other two
-     * @param angle1 angle or the wires on the first plane
-     * @param pitch1 wire pitch on the first plane
-     * @param dTdW1 slope in dt/dw units as observed on the first plane
-     * @param angle2 angle or the wires on the second plane
-     * @param pitch2 wire pitch on the second plane
-     * @param dTdW2 slope in dt/dw units as observed on the second plane
-     * @param angle_target angle or the wires on the target plane
-     * @param pitch_target wire pitch on the target plane
-     * @return dt/dw slope as measured on the third plane, or 999 if infinity
-     *
-     * The input slope must be specified in dt/dw non-homogeneous coordinates.
-     *
-     * This function will return a small slope if both input slopes are small.
-     */
-    static double ComputeThirdPlane_dTdW(double angle1,
-                                         double pitch1,
-                                         double dTdW1,
-                                         double angle2,
-                                         double pitch2,
-                                         double dTdW2,
-                                         double angle_target,
-                                         double pitch_target);
-
-    /// @} Wire geometry queries
 
     /**
      * @name Optical detector geometry access and information
@@ -1111,7 +597,7 @@ namespace geo {
      *
      * @todo Change to use CryostatID
      */
-    std::string OpDetGeoName(CryostatID const& cid = cryostat_zero) const;
+    std::string OpDetGeoName(CryostatID const& cid = details::cryostat_zero) const;
 
     /// @} Optical detector access and information
 
@@ -1158,26 +644,6 @@ namespace geo {
 
     /// @} Auxiliary detectors access and information
 
-    /// @name TPC readout channels and views
-    /// @{
-
-    //
-    // group features
-    //
-
-    //
-    /**
-     * @brief Returns a list of possible views in the detector.
-     * @return the set of views
-     */
-    std::set<View_t> const& Views() const { return allViews; }
-
-    //
-    // geometry queries
-    //
-
-    /// @} TPC readout channels
-
     /**
      * @name Optical readout channels
      * @anchor GeometryCoreOpDetChannel
@@ -1206,8 +672,6 @@ namespace geo {
      * @brief Loads the geometry information from the specified files
      * @param gdmlfile path to file to be used for Geant4 simulation
      * @param rootfile path to file for internal geometry representation
-     * @param builder algorithm to be used for the interpretation of geometry
-     * @param bForceReload reload even if there is already a valid geometry
      *
      * Both paths must directly resolve to an available file, as no search is performed
      * for them.
@@ -1223,47 +687,30 @@ namespace geo {
      * considered complete, but the geometry service provider is not fully initialized
      * yet, since it's still necessary to provide or update the channel mapping.
      */
-    void LoadGeometryFile(std::string gdmlfile,
-                          std::string rootfile,
-                          GeometryBuilder& builder,
-                          bool bForceReload = false);
+    void LoadGeometryFile(std::string gdmlfile, std::string rootfile);
 
-    /**
-     * @brief Loads the geometry information from the specified files
-     * @param gdmlfile path to file to be used for Geant4 simulation
-     * @param rootfile path to file for internal geometry representation
-     * @param bForceReload reload even if there is already a valid geometry
-     *
-     * This legacy version of `LoadGeometryFile()` uses a standard `geo::GeometryBuilder`
-     * implementation.  Do not rely on it if you can avoid it.
-     */
-    void LoadGeometryFile(std::string gdmlfile, std::string rootfile, bool bForceReload = false);
-
-    CryostatList_t const& Cryostats() const noexcept { return fCryostats; }
     AuxDetList_t const& AuxDets() const noexcept { return fAuxDets; }
 
   private:
     void SortGeometry();
 
-    std::unique_ptr<GeoObjectSorter const> fSorter;
+    std::unique_ptr<GeoObjectSorter> fSorter;
+    Compare<AuxDetGeo> fCompareAuxDets;
+    Compare<CryostatGeo> fCompareCryostats;
+    Compare<TPCGeo> fCompareTPCs;
+    Compare<OpDetGeo> fCompareOpDets;
 
     CryostatList_t fCryostats{};
     AuxDetList_t fAuxDets{};
 
+    TGeoManager* fManager{nullptr};
     double fSurfaceY;          ///< The point where air meets earth for this detector.
     std::string fDetectorName; ///< Name of the detector.
     std::string fGDMLfile;     ///< path to geometry file used for Geant4 simulation
     std::string fROOTfile;     ///< path to geometry file for geometry in GeometryCore
-    double fMinWireZDist;      ///< Minimum distance in Z from a point in which
-                               ///< to look for the closest wire
     double fPositionWiggle;    ///< accounting for rounding errors when testing positions
 
-    /// Configuration for the geometry builder
-    /// (needed since builder is created after construction).
-    fhicl::ParameterSet fBuilderParameters;
-
-    // cached values
-    std::set<View_t> allViews; ///< All views in the detector.
+    std::unique_ptr<GeometryBuilder> fBuilder;
 
     std::vector<TGeoNode const*> FindDetectorEnclosure(
       std::string const& name = "volDetEnclosure") const;
@@ -1271,13 +718,7 @@ namespace geo {
     bool FindFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
 
     /// Parses ROOT geometry nodes and builds LArSoft geometry representation.
-    void BuildGeometry(GeometryBuilder& builder);
-
-    /// Wire ID check for WireIDsIntersect methods
-    bool WireIDIntersectionCheck(const WireID& wid1, const WireID& wid2) const;
-
-    /// Deletes the detector geometry structures
-    void ClearGeometry();
+    void BuildGeometry();
 
   }; // class GeometryCore
 
@@ -1285,21 +726,6 @@ namespace geo {
   // END Geometry group --------------------------------------------------------
 
 } // namespace geo
-
-//******************************************************************************
-//***  template implementation
-//***
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-// template member function specializations
-namespace geo {} // namespace geo
-
-inline geo::GeometryCore::Segment<geo::Point_t> geo::GeometryCore::WireEndPoints(
-  WireID const& wireid) const
-{
-  WireGeo const& wire = Wire(wireid);
-  return {wire.GetStart(), wire.GetEnd()};
-}
 
 //------------------------------------------------------------------------------
 template <typename Stream>
@@ -1319,32 +745,13 @@ void geo::GeometryCore::Print(Stream&& out, std::string indent /* = "  " */) con
     out << "\n" << indent;
     cryostat.PrintCryostatInfo(std::forward<Stream>(out), indent + "  ", cryostat.MaxVerbosity);
 
-    const unsigned int nTPCs = cryostat.NTPC();
+    unsigned const int nTPCs = cryostat.NTPC();
     for (unsigned int t = 0; t < nTPCs; ++t) {
-      const TPCGeo& tpc = cryostat.TPC(t);
+      TPCGeo const& tpc = cryostat.TPC(t);
 
       out << "\n" << indent << "  ";
       tpc.PrintTPCInfo(std::forward<Stream>(out), indent + "    ", tpc.MaxVerbosity);
-
-      const unsigned int nPlanes = tpc.Nplanes();
-      for (unsigned int p = 0; p < nPlanes; ++p) {
-        const PlaneGeo& plane = tpc.Plane(p);
-        const unsigned int nWires = plane.Nwires();
-
-        out << "\n" << indent << "    ";
-        plane.PrintPlaneInfo(std::forward<Stream>(out), indent + "      ", plane.MaxVerbosity);
-
-        for (unsigned int w = 0; w < nWires; ++w) {
-          const WireGeo& wire = plane.Wire(w);
-          WireID wireID(plane.ID(), w);
-
-          // the wire should be aligned on z axis, half on each side of 0,
-          // in its local frame
-          out << "\n" << indent << "      " << wireID << " ";
-          wire.PrintWireInfo(std::forward<Stream>(out), indent + "      ", wire.MaxVerbosity);
-        } // for wire
-      }   // for plane
-    }     // for TPC
+    } // for TPC
 
     unsigned int nOpDets = cryostat.NOpDet();
     for (unsigned int iOpDet = 0; iOpDet < nOpDets; ++iOpDet) {

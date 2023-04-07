@@ -108,13 +108,11 @@ cet_make_library(LIBRARY_NAME geoVectorUtils INTERFACE
 )
 
 cet_make_library(SOURCE
-  AuxDetChannelMapAlg.cxx
   AuxDetGeo.cxx
   AuxDetGeometryCore.cxx
   AuxDetSensitiveGeo.cxx
+  AuxDetWireReadoutGeom.cxx
   BoxBoundedGeo.cxx
-  ChannelMapAlg.cxx
-  ChannelMapStandardAlg.cxx
   CryostatGeo.cxx
   Decomposer.h
   GeometryBuilder.h
@@ -132,6 +130,10 @@ cet_make_library(SOURCE
   StandaloneGeometrySetup.cxx
   TPCGeo.cxx
   WireGeo.cxx
+  WireReadoutGeom.cxx
+  WireReadoutGeomBuilderStandard.cxx
+  WireReadoutSorterStandard.cxx
+  WireReadoutStandardGeom.cxx
   details/extractMaxGeometryElements.h
   details/GeometryIterationPolicy.cxx
   details/ReadoutIterationPolicy.cxx

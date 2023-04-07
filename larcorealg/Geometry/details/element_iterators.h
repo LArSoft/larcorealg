@@ -3,6 +3,7 @@
 
 // LArSoft libraries
 #include "larcorealg/Geometry/details/GeometryIterationPolicy.h"
+#include "larcorealg/Geometry/details/ReadoutIterationPolicy.h"
 #include "larcorealg/Geometry/details/id_iterators.h"
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
@@ -31,7 +32,7 @@ namespace geo::details {
    *
    * It can also be initialized and compare with the corresponding ID iterator.
    */
-  template <typename Element, typename GEOIDITER>
+  template <typename Owner, typename Element, typename GEOIDITER>
   class geometry_element_iterator {
   public:
     using id_iterator_t = GEOIDITER;
@@ -39,7 +40,7 @@ namespace geo::details {
     static_assert(has_geometry_id_iterator_tag<id_iterator_t>::value,
                   "template class for geometry_element_iterator must be a geometry iterator");
 
-    using iterator = geometry_element_iterator<Element, id_iterator_t>; ///< this type
+    using iterator = geometry_element_iterator<Owner, Element, id_iterator_t>; ///< this type
 
     /// @{
     /// @name Types mirrored from the ID iterator
@@ -61,8 +62,8 @@ namespace geo::details {
     geometry_element_iterator() = default;
 
     /// Constructor: points to the same element as the specified ID iterator.
-    geometry_element_iterator(GeometryCore const* geo, id_iterator_t const& iter)
-      : geom{geo}, id_iter(iter)
+    geometry_element_iterator(Owner const* owner, id_iterator_t const& iter)
+      : geom{owner}, id_iter(iter)
     {}
 
     /**
@@ -109,57 +110,57 @@ namespace geo::details {
     auto id_iterator() const { return id_iter; }
 
   private:
-    geo::GeometryCore const* geom;
+    Owner const* geom;
     id_iterator_t id_iter;
   }; // class geometry_element_iterator<>
 
   // Element here supports types like CryostatGeo, etc.
-  template <typename Element, typename IterationPolicy>
+  template <typename Owner, typename Element, typename IterationPolicy>
   using element_iterator_for =
-    geometry_element_iterator<Element, id_iterator<typename Element::ID_t, IterationPolicy>>;
+    geometry_element_iterator<Owner, Element, id_iterator<typename Element::ID_t, IterationPolicy>>;
 
   template <typename Element>
   using element_sentinel_for = id_sentinel<typename Element::ID_t>;
 
   // Element iterator/sentinel comparisons
-  template <typename Element, typename GEOIDITER>
-  bool operator==(geometry_element_iterator<Element, GEOIDITER> const& a,
-                  geometry_element_iterator<Element, GEOIDITER> const& b)
+  template <typename Owner, typename Element, typename GEOIDITER>
+  bool operator==(geometry_element_iterator<Owner, Element, GEOIDITER> const& a,
+                  geometry_element_iterator<Owner, Element, GEOIDITER> const& b)
   {
     return a.id_iterator() == b.id_iterator();
   }
 
-  template <typename Element, typename GEOIDITER>
-  bool operator!=(geometry_element_iterator<Element, GEOIDITER> const& a,
-                  geometry_element_iterator<Element, GEOIDITER> const& b)
+  template <typename Owner, typename Element, typename GEOIDITER>
+  bool operator!=(geometry_element_iterator<Owner, Element, GEOIDITER> const& a,
+                  geometry_element_iterator<Owner, Element, GEOIDITER> const& b)
   {
     return !(a == b);
   }
 
-  template <typename Element, typename GEOIDITER>
-  bool operator==(geometry_element_iterator<Element, GEOIDITER> const& a,
+  template <typename Owner, typename Element, typename GEOIDITER>
+  bool operator==(geometry_element_iterator<Owner, Element, GEOIDITER> const& a,
                   id_sentinel<typename Element::ID_t> const& b)
   {
     return a.id_iterator() == b;
   }
 
-  template <typename Element, typename GEOIDITER>
-  bool operator!=(geometry_element_iterator<Element, GEOIDITER> const& a,
+  template <typename Owner, typename Element, typename GEOIDITER>
+  bool operator!=(geometry_element_iterator<Owner, Element, GEOIDITER> const& a,
                   id_sentinel<typename Element::ID_t> const& b)
   {
     return !(a == b);
   }
 
-  template <typename Element, typename GEOIDITER>
+  template <typename Owner, typename Element, typename GEOIDITER>
   bool operator==(id_sentinel<typename Element::ID_t> const& a,
-                  geometry_element_iterator<Element, GEOIDITER> const& b)
+                  geometry_element_iterator<Owner, Element, GEOIDITER> const& b)
   {
     return a == b.id_iterator();
   }
 
-  template <typename Element, typename GEOIDITER>
+  template <typename Owner, typename Element, typename GEOIDITER>
   bool operator!=(id_sentinel<typename Element::ID_t> const& a,
-                  geometry_element_iterator<Element, GEOIDITER> const& b)
+                  geometry_element_iterator<Owner, Element, GEOIDITER> const& b)
   {
     return !(a == b);
   }

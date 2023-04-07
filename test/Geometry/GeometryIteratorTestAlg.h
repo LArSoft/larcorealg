@@ -14,8 +14,9 @@ namespace geo {
 
   class GeometryIteratorTestAlg {
   public:
-    explicit GeometryIteratorTestAlg(GeometryCore const* new_geo, ChannelMapAlg const* channelMap)
-      : geom{new_geo}, channelMapAlg{channelMap}
+    explicit GeometryIteratorTestAlg(GeometryCore const* new_geo,
+                                     WireReadoutGeom const* wireReadoutGeom)
+      : geom{new_geo}, wireReadoutGeom{wireReadoutGeom}
     {}
 
     /// Executes the test
@@ -41,7 +42,7 @@ namespace geo {
 
   private:
     GeometryCore const* geom;
-    ChannelMapAlg const* channelMapAlg;
+    WireReadoutGeom const* wireReadoutGeom;
   };
 
 } // namespace geo

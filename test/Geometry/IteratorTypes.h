@@ -31,8 +31,8 @@ namespace geo {
    */
   using cryostat_id_iterator = details::id_iterator<CryostatID, details::GeometryIterationPolicy>;
   using TPC_id_iterator = details::id_iterator<TPCID, details::GeometryIterationPolicy>;
-  using plane_id_iterator = details::id_iterator<PlaneID, details::GeometryIterationPolicy>;
-  using wire_id_iterator = details::id_iterator<WireID, details::GeometryIterationPolicy>;
+  using plane_id_iterator = details::id_iterator<PlaneID, details::ReadoutIterationPolicy>;
+  using wire_id_iterator = details::id_iterator<WireID, details::ReadoutIterationPolicy>;
 
   using TPCset_id_iterator =
     details::id_iterator<readout::TPCsetID, details::ReadoutIterationPolicy>;
@@ -54,10 +54,13 @@ namespace geo {
    * the elements directly, or throws on failure.
    */
   using cryostat_iterator =
-    details::element_iterator_for<CryostatGeo, details::GeometryIterationPolicy>;
-  using TPC_iterator = details::element_iterator_for<TPCGeo, details::GeometryIterationPolicy>;
-  using plane_iterator = details::element_iterator_for<PlaneGeo, details::GeometryIterationPolicy>;
-  using wire_iterator = details::element_iterator_for<WireGeo, details::GeometryIterationPolicy>;
+    details::element_iterator_for<GeometryCore, CryostatGeo, details::GeometryIterationPolicy>;
+  using TPC_iterator =
+    details::element_iterator_for<GeometryCore, TPCGeo, details::GeometryIterationPolicy>;
+  using plane_iterator =
+    details::element_iterator_for<WireReadoutGeom, PlaneGeo, details::ReadoutIterationPolicy>;
+  using wire_iterator =
+    details::element_iterator_for<WireReadoutGeom, WireGeo, details::ReadoutIterationPolicy>;
 
   using cryostat_sentinel = details::element_sentinel_for<CryostatGeo>;
   using TPC_sentinel = details::element_sentinel_for<TPCGeo>;

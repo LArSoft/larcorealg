@@ -1,12 +1,3 @@
-/**
- * @file   larcorealg/Geometry/GeometryBuilderStandard.h
- * @brief  Standard implementation of geometry extractor.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 29, 2019
- * @see    `larcorealg/Geometry/GeometryBuilder.h`,
- *         `larcorealg/Geometry/GeometryBuilderStandard.cxx`
- */
-
 #ifndef LARCOREALG_GEOMETRY_GEOMETRYBUILDERSTANDARD_H
 #define LARCOREALG_GEOMETRY_GEOMETRYBUILDERSTANDARD_H
 
@@ -15,16 +6,14 @@
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/GeometryBuilder.h"
+#include "larcorealg/Geometry/GeometryExtractor.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
-#include "larcorealg/Geometry/PlaneGeo.h"
 #include "larcorealg/Geometry/TPCGeo.h"
-#include "larcorealg/Geometry/WireGeo.h"
 
 // support libraries
 #include "fhiclcpp/types/Atom.h"
-
-// ROOT libraries
-class TGeoNode;
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 // C++ standard library
 #include <functional>
@@ -106,12 +95,7 @@ namespace geo {
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
 
-      fhicl::Atom<Path_t::Depth_t> maxDepth{
-        Name("maxDepth"),
-        Comment("maximum number of level of the geometry structure to descend"),
-        std::numeric_limits<Path_t::Depth_t>::max() // default
-      };
-
+      fhicl::TableFragment<GeometryExtractor::Config> extractor;
       fhicl::Atom<std::string> opDetGeoName{
         Name("opDetGeoName"),
         Comment("the start of the name of optical detector GDML nodes"),
@@ -120,14 +104,14 @@ namespace geo {
 
     }; // struct Config
 
-    GeometryBuilderStandard(Config const& config);
+    explicit GeometryBuilderStandard(fhicl::Table<Config> const& config);
 
-  private:
-    /// Maximum level to descend into in the path.
-    Path_t::Depth_t fMaxDepth = std::numeric_limits<Path_t::Depth_t>::max();
+    using AuxDetSensitive_t = GeoColl_t<AuxDetSensitiveGeo>;
+    using OpDets_t = GeoColl_t<OpDetGeo>;
+    using TPCs_t = GeoColl_t<TPCGeo>;
 
-    /// Name of the optical detector nodes.
-    std::string fOpDetGeoName = "volOpDetSensitive";
+    GeometryExtractor fExtractObjects;
+    std::string fOpDetGeoName; /// Name of the optical detector nodes.
 
     // --- BEGIN Auxiliary detector information --------------------------------
     /// @name Auxiliary detector information
@@ -150,8 +134,6 @@ namespace geo {
     /// @name Auxiliary detector sensitive volume information
     /// @{
 
-    using AuxDetSensitive_t = GeoColl_t<AuxDetSensitiveGeo>;
-
     /**
      * @brief Looks for all auxiliary detectors under the specified path.
      * @param path path pointing to the starting node
@@ -164,9 +146,6 @@ namespace geo {
      * @note Multithreading note: `path` is allowed to change during processing.
      */
     AuxDetSensitive_t extractAuxDetSensitive(Path_t& path) const;
-
-    /// Constructs a `geo::AuxDetSensitiveGeo` from the current node of the `path`.
-    AuxDetSensitiveGeo makeAuxDetSensitive(Path_t& path) const;
 
     /// @}
     // --- END Auxiliary detector sensitive volume information -----------------
@@ -192,8 +171,6 @@ namespace geo {
     /// @name Optical detector information
     /// @{
 
-    using OpDets_t = GeoColl_t<OpDetGeo>;
-
     /**
      * @brief Looks for all optical detectors under the specified path.
      * @param path path pointing to the starting node
@@ -201,17 +178,12 @@ namespace geo {
      */
     OpDets_t extractOpDets(Path_t& path) const;
 
-    /// Constructs a `geo::OpDetGeo` from the current node of the `path`.
-    OpDetGeo makeOpDet(Path_t& path) const;
-
     /// @}
     // --- END Optical detector information ------------------------------------
 
     // --- BEGIN TPC information -----------------------------------------------
     /// @name TPC information
     /// @{
-
-    using TPCs_t = GeoColl_t<TPCGeo>;
 
     /**
      * @brief Looks for all TPCs under the specified path.
@@ -227,69 +199,6 @@ namespace geo {
 
     /// @}
     // --- END TPC information -------------------------------------------------
-
-    // --- BEGIN Plane information ---------------------------------------------
-    /// @name Wire plane information
-    /// @{
-
-    using Planes_t = GeoColl_t<PlaneGeo>;
-
-    /**
-     * @brief Looks for all wire planes under the specified path.
-     * @param path path pointing to the starting node
-     * @return a list of fully constructed wire plane objects
-     *
-     * Each plane has its own wires already in.
-     */
-    Planes_t extractPlanes(Path_t& path) const;
-
-    /// Constructs a `geo::PlaneGeo` from the current node of the `path`.
-    PlaneGeo makePlane(Path_t& path) const;
-
-    /// @}
-    // --- END Plane information -----------------------------------------------
-
-    // --- BEGIN Wire information ----------------------------------------------
-    /// @name Wire information
-    /// @{
-
-    using Wires_t = GeoColl_t<WireGeo>;
-
-    /**
-     * @brief Looks for all wires under the specified path.
-     * @param path path pointing to the starting node
-     * @return a list of fully constructed wires
-     *
-     */
-    Wires_t extractWires(Path_t& path) const;
-
-    /// Constructs a `geo::WireGeo` from the current node of the `path`.
-    WireGeo makeWire(Path_t& path) const;
-
-    /// @}
-    // --- END Wire information ------------------------------------------------
-
-  private:
-    /**
-     * @brief Boilerplate implementation of `doExtractXxxx()` methods.
-     * @tparam ObjGeo the geometry object being extracted (e.g. `geo::WireGeo`)
-     * @param path the path to the node describing the object
-     * @param IsObj function to identify if a node is of the right type
-     * @param MakeObj class method creating the target object from a path
-     * @return a fully constructed object of type `ObjGeo`
-     *
-     * This implementation first evaluates if the current node in the specified path is
-     * suitable to create a `ObjGeo`; if not, then it descends into the node daughters and
-     * recursively to their descendents.  For each candidate node, a `ObjGeo` is
-     * created. All descendents of the candidates are ignored.
-     *
-     * @note Multithreading note: `path` is allowed to change during processing.
-     */
-    template <typename ObjGeo>
-    GeoColl_t<ObjGeo> doExtractGeometryObjects(Path_t& path,
-                                               std::function<bool(TGeoNode const&)> IsObj,
-                                               ObjGeo (GeometryBuilderStandard::*MakeObj)(Path_t&)
-                                                 const) const;
 
   }; // class GeometryBuilderStandard
 

@@ -57,15 +57,15 @@ lartpcdetector_geometry: {
 } # lartpcdetector_geometry
 
 
-lartpcdetector_geometry_helper: {
-  service_provider : StandardGeometryHelper
+lartpcdetector_readout: {
+  service_provider : StandardWireReadout
 }
 
 
 lartpcdetector_geometry_services: {
   GeometryConfigurationWriter: {}
   Geometry:                    @local::lartpcdetector_geometry
-  ExptGeoInterfaceHelper:      @local::lartpcdetector_geometry_helper
+  WireReadout:                 @local::lartpcdetector_readout
 }
 
 

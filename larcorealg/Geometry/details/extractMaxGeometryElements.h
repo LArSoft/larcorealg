@@ -14,6 +14,7 @@
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/PlaneGeo.h"
 #include "larcorealg/Geometry/TPCGeo.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
 
 // C/C++ standard libraries
 #include <array>
@@ -41,7 +42,8 @@ namespace geo::details {
    */
   template <std::size_t Levels = 4U>
   static std::array<unsigned int, Levels> extractMaxGeometryElements(
-    std::vector<geo::CryostatGeo> const& Cryostats);
+    std::vector<CryostatGeo> const& Cryostats,
+    WireReadoutGeom const& wireReadoutGeom);
 
 } // namespace geo::details
 
@@ -50,7 +52,8 @@ namespace geo::details {
 // -----------------------------------------------------------------------------
 template <std::size_t Levels /* = 4U */>
 std::array<unsigned int, Levels> geo::details::extractMaxGeometryElements(
-  std::vector<geo::CryostatGeo> const& Cryostats)
+  std::vector<CryostatGeo> const& Cryostats,
+  WireReadoutGeom const& wireReadoutGeom)
 {
   static_assert(Levels > 0U);
   static_assert(Levels <= 4U);
@@ -64,13 +67,13 @@ std::array<unsigned int, Levels> geo::details::extractMaxGeometryElements(
 
   setMax(0U, Cryostats.size());
   if constexpr (Levels > 1U) {
-    for (geo::CryostatGeo const& cryo : Cryostats) {
+    for (CryostatGeo const& cryo : Cryostats) {
       setMax(1U, cryo.NTPC());
       if constexpr (Levels > 2U) {
-        for (geo::TPCGeo const& TPC : cryo.IterateTPCs()) {
-          setMax(2U, TPC.Nplanes());
+        for (TPCGeo const& TPC : cryo.IterateTPCs()) {
+          setMax(2U, wireReadoutGeom.Nplanes(TPC.ID()));
           if constexpr (Levels > 3U) {
-            for (geo::PlaneGeo const& plane : TPC.IteratePlanes()) {
+            for (PlaneGeo const& plane : wireReadoutGeom.Iterate<PlaneGeo>(TPC.ID())) {
               setMax(3U, plane.Nwires());
             } // for planes
           }   // if do wires

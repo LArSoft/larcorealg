@@ -14,15 +14,15 @@ namespace geo {
 
   class GeometryIteratorLoopTestAlg {
   public:
-    GeometryIteratorLoopTestAlg(GeometryCore const* new_geo, ChannelMapAlg const* channelMap)
-      : geom{new_geo}, channelMapAlg{channelMap}
+    GeometryIteratorLoopTestAlg(GeometryCore const* new_geo, WireReadoutGeom const* wireReadoutGeom)
+      : geom{new_geo}, wireReadoutGeom{wireReadoutGeom}
     {}
 
     unsigned int Run();
 
   private:
     GeometryCore const* geom;
-    ChannelMapAlg const* channelMapAlg;
+    WireReadoutGeom const* wireReadoutGeom;
   };
 
 } // namespace geo

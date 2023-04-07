@@ -13,10 +13,10 @@
  * For an example of usage, see larcore/test/Geometry/geometry_iterator_test.cxx
  *
  * The standard TesterEnvironment<> class can't handle geo::GeometryCore.  The reason is
- * twofold: for once, ExptGeoHelperInterface service is not factorized, so we need to
- * choose explicitly the ChannelMapAlg implementation (here this is obtained by a template
- * argument). Another is that GeometryCore both is required and requires ChannelMapAlg to
- * have a complete initialisation. There are ways to overcome the issue at the cost of
+ * twofold: for once, WireReadout service is not factorized, so we need to choose
+ * explicitly the WireReadoutGeom implementation (here this is obtained by a template
+ * argument). Another is that GeometryCore both is required and requires WireReadoutGeom
+ * to have a complete initialisation. There are ways to overcome the issue at the cost of
  * added complication.
  *
  * Currently provides:
@@ -29,7 +29,7 @@
 #define TEST_GEOMETRY_UNIT_TEST_BASE_H
 
 // LArSoft libraries
-#include "larcorealg/Geometry/ChannelMapAlg.h"
+#include "larcorealg/Geometry/GeometryBuilderStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/unit_test_base.h"
 
@@ -45,6 +45,7 @@
 #include <map>
 #include <memory> // std::unique_ptr<>
 #include <string>
+#include <type_traits>
 
 namespace testing {
 
@@ -236,6 +237,17 @@ namespace testing {
 
   }; // class GeometryTesterEnvironment<>
 
+  template <typename ObjectSorter>
+  auto createSorter(fhicl::ParameterSet const& pset [[maybe_unused]])
+  {
+    if constexpr (std::is_constructible_v<ObjectSorter>) {
+      return std::make_unique<ObjectSorter>();
+    }
+    else if constexpr (std::is_constructible_v<ObjectSorter, fhicl::ParameterSet>) {
+      return std::make_unique<ObjectSorter>(pset);
+    }
+  }
+
   //****************************************************************************
   template <typename ConfigurationClass, typename ObjectSorter>
   GeometryTesterEnvironment<ConfigurationClass, ObjectSorter>::~GeometryTesterEnvironment()
@@ -264,10 +276,12 @@ namespace testing {
     //
     fhicl::ParameterSet ProviderConfig =
       this->Parameters().template get<fhicl::ParameterSet>(ProviderParameterSetPath);
+
     auto new_geom = std::make_unique<geo::GeometryCore>(
       ProviderConfig,
-      std::make_unique<ObjectSorter const>(
-        ProviderConfig.get<fhicl::ParameterSet>("SortingParameters", {})));
+      std::make_unique<geo::GeometryBuilderStandard>(
+        ProviderConfig.get<fhicl::ParameterSet>("Builder", {})),
+      createSorter<ObjectSorter>(ProviderConfig.get<fhicl::ParameterSet>("SortingParameters", {})));
 
     std::string RelativePath = ProviderConfig.get<std::string>("RelativePath", "");
 

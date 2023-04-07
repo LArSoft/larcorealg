@@ -283,7 +283,7 @@ struct makeTransformedSpanDocumentation1TestClass {
   void analyse_scale()
   {
     constexpr std::size_t N = 10;
-    const float factor = 3.0F;
+    float const factor = 3.0F;
 
     std::vector<std::unique_ptr<float>> data;
     for (auto i : util::counter(N))

@@ -8,23 +8,20 @@
 
 // LArSoft libraries
 #include "larcorealg/Geometry/GeometryBuilderStandard.h"
+#include "larcorealg/Geometry/PlaneGeo.h"
+#include "larcorealg/Geometry/WireGeo.h"
 
 // ROOT libraries
 #include "TGeoNode.h"
 
 // C++ standard library
-#include <algorithm> // std::move(...)
+#include <algorithm>
+#include <iostream>
 #include <string_view>
 
 using namespace std::literals;
 
 namespace {
-  template <typename Dest, typename Src>
-  void extendCollection(Dest& dest, Src&& src)
-  {
-    std::move(src.begin(), src.end(), std::back_inserter(dest));
-  }
-
   /// Returns whether the start of `s` matches the full `key`.
   /// @note Remove this when C++20 is adopted (`s.starts_with(key)`).
   bool starts_with(std::string_view const s, std::string_view const key)
@@ -45,19 +42,63 @@ namespace {
   }
   bool isTPCNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPC"sv); }
   bool isPlaneNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCPlane"sv); }
-  bool isWireNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCWire"sv); }
+
+  geo::DriftSign PosOrNeg(bool const condition)
+  {
+    return condition ? geo::DriftSign::Positive : geo::DriftSign::Negative;
+  }
+
+  //......................................................................
+  geo::DriftAxis DriftAxisWithSign(geo::Point_t const& TPCcenter,
+                                   std::vector<geo::PlaneGeo> const& planes)
+  {
+    auto const PlaneCenter = planes[0].GetBoxCenter(); // any will do
+
+    auto const driftVector = PlaneCenter - TPCcenter; // approximation!
+
+    if ((std::abs(driftVector.X()) > std::abs(driftVector.Y())) &&
+        (std::abs(driftVector.X()) > std::abs(driftVector.Z()))) {
+      return {geo::Coordinate::X, PosOrNeg(driftVector.X() > 0)};
+    }
+    if (std::abs(driftVector.Y()) > std::abs(driftVector.Z())) {
+      return {geo::Coordinate::Y, PosOrNeg(driftVector.Y() > 0)};
+    }
+    return {geo::Coordinate::Z, PosOrNeg(driftVector.Z() > 0)};
+  }
+
+  //------------------------------------------------------------------------------
+  geo::AuxDetSensitiveGeo makeAuxDetSensitive(geo::GeoNodePath const& path)
+  {
+    return {path.current(), path.currentTransformation<geo::TransformationMatrix>()};
+  }
+
+  geo::OpDetGeo makeOpDet(geo::GeoNodePath const& path)
+  {
+    return {path.current(), path.currentTransformation<geo::TransformationMatrix>()};
+  }
+
+  geo::PlaneGeo makePlane(geo::GeoNodePath const& path)
+  {
+    // Planes are constructed only to provide information for the TPC constructor.  We
+    // therefore can supply an empty wires collection with them.
+    return {path.current(),
+            path.currentTransformation<geo::TransformationMatrix>(),
+            std::vector<geo::WireGeo>{}};
+  }
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::GeometryBuilderStandard(Config const& config)
-  : fMaxDepth(config.maxDepth()), fOpDetGeoName(config.opDetGeoName())
+geo::GeometryBuilderStandard::GeometryBuilderStandard(fhicl::Table<Config> const& config)
+  : fExtractObjects(config().extractor()), fOpDetGeoName(config().opDetGeoName())
 {}
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::AuxDets_t geo::GeometryBuilderStandard::doExtractAuxiliaryDetectors(
-  Path_t& path) const
+auto geo::GeometryBuilderStandard::doExtractAuxiliaryDetectors(Path_t& path) const -> AuxDets_t
 {
-  return doExtractGeometryObjects(path, isAuxDetNode, &GeometryBuilderStandard::makeAuxDet);
+  std::vector<AuxDetGeo> result;
+  fExtractObjects(
+    path, isAuxDetNode, [&result, this](Path_t& path) { result.push_back(makeAuxDet(path)); });
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -69,24 +110,22 @@ geo::AuxDetGeo geo::GeometryBuilderStandard::makeAuxDet(Path_t& path) const
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::AuxDetSensitive_t
-geo::GeometryBuilderStandard::extractAuxDetSensitive(Path_t& path) const
+auto geo::GeometryBuilderStandard::extractAuxDetSensitive(Path_t& path) const -> AuxDetSensitive_t
 {
-  return doExtractGeometryObjects(
-    path, isAuxDetSensitiveNode, &GeometryBuilderStandard::makeAuxDetSensitive);
+  std::vector<AuxDetSensitiveGeo> result;
+  fExtractObjects(path, isAuxDetSensitiveNode, [&result, this](Path_t const& path) {
+    result.push_back(makeAuxDetSensitive(path));
+  });
+  return result;
 }
 
 //------------------------------------------------------------------------------
-geo::AuxDetSensitiveGeo geo::GeometryBuilderStandard::makeAuxDetSensitive(Path_t& path) const
+auto geo::GeometryBuilderStandard::doExtractCryostats(Path_t& path) const -> Cryostats_t
 {
-  return {path.current(), path.currentTransformation<TransformationMatrix>()};
-}
-
-//------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::Cryostats_t geo::GeometryBuilderStandard::doExtractCryostats(
-  Path_t& path) const
-{
-  return doExtractGeometryObjects(path, isCryostatNode, &GeometryBuilderStandard::makeCryostat);
+  std::vector<CryostatGeo> result;
+  fExtractObjects(
+    path, isCryostatNode, [&result, this](Path_t& path) { result.push_back(makeCryostat(path)); });
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -99,89 +138,50 @@ geo::CryostatGeo geo::GeometryBuilderStandard::makeCryostat(Path_t& path) const
 }
 
 //------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::OpDets_t geo::GeometryBuilderStandard::extractOpDets(
-  Path_t& path) const
+auto geo::GeometryBuilderStandard::extractOpDets(Path_t& path) const -> OpDets_t
 {
-  return doExtractGeometryObjects(
-    path,
-    [this](auto const& node) { return isOpDetNode(node, fOpDetGeoName); },
-    &GeometryBuilderStandard::makeOpDet);
+  std::vector<OpDetGeo> result;
+  fExtractObjects(path,
+                  [this](auto const& node) { return isOpDetNode(node, fOpDetGeoName); },
+                  [&result, this](Path_t const& path) { result.push_back(makeOpDet(path)); });
+  return result;
 }
 
 //------------------------------------------------------------------------------
-geo::OpDetGeo geo::GeometryBuilderStandard::makeOpDet(Path_t& path) const
+auto geo::GeometryBuilderStandard::extractTPCs(Path_t& path) const -> TPCs_t
 {
-  return {path.current(), path.currentTransformation<TransformationMatrix>()};
-}
-
-//------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::TPCs_t geo::GeometryBuilderStandard::extractTPCs(Path_t& path) const
-{
-  return doExtractGeometryObjects(path, isTPCNode, &GeometryBuilderStandard::makeTPC);
+  std::vector<TPCGeo> result;
+  fExtractObjects(
+    path, isTPCNode, [&result, this](Path_t& path) { result.push_back(makeTPC(path)); });
+  return result;
 }
 
 //------------------------------------------------------------------------------
 geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
 {
-  return {path.current(), path.currentTransformation<TransformationMatrix>(), extractPlanes(path)};
-}
+  auto const* tpc = path.current();
+  auto tpc_matrix = path.currentTransformation<TransformationMatrix>();
 
-//------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::Planes_t geo::GeometryBuilderStandard::extractPlanes(
-  Path_t& path) const
-{
-  return doExtractGeometryObjects(path, isPlaneNode, &GeometryBuilderStandard::makePlane);
-}
+  std::vector<PlaneGeo> planes;
+  fExtractObjects(
+    path, isPlaneNode, [&planes, this](Path_t& path) { planes.push_back(makePlane(path)); });
 
-//------------------------------------------------------------------------------
-geo::PlaneGeo geo::GeometryBuilderStandard::makePlane(Path_t& path) const
-{
-  return {path.current(), path.currentTransformation<TransformationMatrix>(), extractWires(path)};
-}
+  // we don't keep the active volume information... just store its center:
+  auto const* active_volume = TPCGeo::NodeForActiveVolume(tpc);
+  assert(active_volume);
+  auto const daughter_matrix = tpc_matrix * makeTransformationMatrix(*active_volume->GetMatrix());
+  auto const active_volume_center =
+    vect::toPoint(daughter_matrix(ROOT::Math::Transform3D::Point{}));
 
-//------------------------------------------------------------------------------
-geo::GeometryBuilderStandard::Wires_t geo::GeometryBuilderStandard::extractWires(Path_t& path) const
-{
-  return doExtractGeometryObjects(path, isWireNode, &GeometryBuilderStandard::makeWire);
-}
-
-//------------------------------------------------------------------------------
-geo::WireGeo geo::GeometryBuilderStandard::makeWire(Path_t& path) const
-{
-  return {path.current(), path.currentTransformation<TransformationMatrix>()};
-}
-
-//------------------------------------------------------------------------------
-template <typename ObjGeo>
-geo::GeometryBuilder::GeoColl_t<ObjGeo> geo::GeometryBuilderStandard::doExtractGeometryObjects(
-  Path_t& path,
-  std::function<bool(TGeoNode const&)> const IsObj,
-  ObjGeo (GeometryBuilderStandard::*MakeObj)(Path_t&) const) const
-{
-  GeoColl_t<ObjGeo> objs;
-
-  //
-  // if this is a wire, we are set
-  //
-  if (IsObj(*path.current())) {
-    objs.push_back((this->*MakeObj)(path));
-    return objs;
+  auto const driftAxisWithSign = DriftAxisWithSign(active_volume_center, planes);
+  std::cerr << "Volume center: " << active_volume_center << '\n';
+  auto const driftAxis = vect::normalize(planes[0].GetBoxCenter() - active_volume_center);
+  double driftDistance{std::numeric_limits<double>::max()};
+  for (auto const& plane : planes) {
+    double const distance = vect::dot(plane.GetBoxCenter() - active_volume_center, driftAxis);
+    driftDistance = std::min(distance, driftDistance);
   }
 
-  //
-  // descend into the next layer down, concatenate the results and return them
-  //
-  if (path.depth() >= fMaxDepth) return objs; // yep, this is empty
-
-  TGeoVolume const* volume = path.current()->GetVolume();
-  int const n = volume->GetNdaughters();
-  for (int i = 0; i < n; ++i) {
-    path.append(volume->GetNode(i));
-    extendCollection(objs, doExtractGeometryObjects(path, IsObj, MakeObj));
-    path.pop();
-  } // for
-
-  return objs;
+  // [FIXME] This definition of driftDistance is incorrect.
+  return {tpc, std::move(tpc_matrix), driftAxisWithSign, driftDistance};
 }
-
-//------------------------------------------------------------------------------

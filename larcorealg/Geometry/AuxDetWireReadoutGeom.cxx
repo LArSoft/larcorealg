@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  ChannelMapAlg.cxx
+/// \file  WireReadoutGeom.cxx
 /// \brief Interface to algorithm class for a specific detector channel mapping
 ///
 /// \author  brebel@fnal.gov
@@ -7,16 +7,16 @@
 
 #include "cetlib_except/exception.h"
 
-#include "larcorealg/Geometry/AuxDetChannelMapAlg.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
+#include "larcorealg/Geometry/AuxDetWireReadoutGeom.h"
 
 namespace geo {
 
   //----------------------------------------------------------------------------
-  size_t AuxDetChannelMapAlg::NearestAuxDet(Point_t const& point,
-                                            std::vector<AuxDetGeo> const& auxDets,
-                                            double tolerance) const
+  size_t AuxDetWireReadoutGeom::NearestAuxDet(Point_t const& point,
+                                              std::vector<AuxDetGeo> const& auxDets,
+                                              double tolerance) const
   {
     for (size_t a = 0; a < auxDets.size(); ++a) {
       auto const localPoint = auxDets[a].toLocalCoords(point);
@@ -40,15 +40,15 @@ namespace geo {
     } // for loop over AudDet a
 
     // throw an exception because we couldn't find the sensitive volume
-    throw cet::exception("AuxDetChannelMapAlg") << "Can't find AuxDet for position (" << point.X()
-                                                << "," << point.Y() << "," << point.Z() << ")\n";
+    throw cet::exception("AuxDetWireReadoutGeom") << "Can't find AuxDet for position (" << point.X()
+                                                  << "," << point.Y() << "," << point.Z() << ")\n";
   }
 
   //----------------------------------------------------------------------------
-  size_t AuxDetChannelMapAlg::NearestSensitiveAuxDet(Point_t const& point,
-                                                     std::vector<AuxDetGeo> const& auxDets,
-                                                     size_t& ad,
-                                                     double tolerance) const
+  size_t AuxDetWireReadoutGeom::NearestSensitiveAuxDet(Point_t const& point,
+                                                       std::vector<AuxDetGeo> const& auxDets,
+                                                       size_t& ad,
+                                                       double tolerance) const
   {
     ad = NearestAuxDet(point, auxDets, tolerance);
 
@@ -82,9 +82,9 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  size_t AuxDetChannelMapAlg::ChannelToAuxDet(std::vector<AuxDetGeo> const& /* auxDets */,
-                                              std::string const& detName,
-                                              uint32_t /*channel*/) const
+  size_t AuxDetWireReadoutGeom::ChannelToAuxDet(std::vector<AuxDetGeo> const& /* auxDets */,
+                                                std::string const& detName,
+                                                uint32_t /*channel*/) const
   {
     // loop over the map of AuxDet names to Geo object numbers to determine which auxdet
     // we have.  If no name in the map matches the provided string, throw an exception;
@@ -99,7 +99,7 @@ namespace geo {
   //----------------------------------------------------------------------------
   // the first member of the pair is the index in the auxDets vector for the AuxDetGeo,
   // the second member is the index in the vector of AuxDetSensitiveGeos for that AuxDetGeo
-  std::pair<size_t, size_t> AuxDetChannelMapAlg::ChannelToSensitiveAuxDet(
+  std::pair<size_t, size_t> AuxDetWireReadoutGeom::ChannelToSensitiveAuxDet(
     std::vector<AuxDetGeo> const& auxDets,
     std::string const& detName,
     uint32_t channel) const

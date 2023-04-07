@@ -82,7 +82,7 @@ public:
    * first the daughter itself then its own daughters, recursively.
    */
   template <typename Op>
-  bool apply(geo::GeoNodePath& path, Op&& op) const;
+  bool apply(GeoNodePath& path, Op&& op) const;
 
   /**
    * @brief Applies the specified operation to all nodes under `node`.
@@ -116,7 +116,7 @@ public:
 //--- template implementation
 //------------------------------------------------------------------------------
 template <typename Op>
-bool geo::ROOTGeometryNavigator::apply(geo::GeoNodePath& path, Op&& op) const
+bool geo::ROOTGeometryNavigator::apply(GeoNodePath& path, Op&& op) const
 {
   if (!op(path)) return false;
 
@@ -141,7 +141,7 @@ bool geo::ROOTGeometryNavigator::apply(geo::GeoNodePath& path, Op&& op) const
 template <typename Op>
 bool geo::ROOTGeometryNavigator::apply(TGeoNode const* node, Op&& op) const
 {
-  geo::GeoNodePath path{node};
+  GeoNodePath path{node};
   return apply(path, std::forward<Op>(op));
 }
 

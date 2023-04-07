@@ -48,45 +48,45 @@ namespace geoalgo {
     //
 
     /// Intersection between a HalfLine and an AABox
-    std::vector<Point_t> Intersection(const AABox_t& box,
-                                      const HalfLine_t& line,
+    std::vector<Point_t> Intersection(AABox_t const& box,
+                                      HalfLine_t const& line,
                                       bool back = false) const;
     /// Intersection between a HalfLine and an AABox
-    std::vector<Point_t> Intersection(const HalfLine_t& line,
-                                      const AABox_t& box,
+    std::vector<Point_t> Intersection(HalfLine_t const& line,
+                                      AABox_t const& box,
                                       bool back = false) const
     {
       return Intersection(box, line, back);
     }
 
     /// Intersection between LineSegment and an AABox
-    std::vector<Point_t> Intersection(const AABox_t& box, const LineSegment_t& l) const;
+    std::vector<Point_t> Intersection(AABox_t const& box, LineSegment_t const& l) const;
     /// Intersection between LineSegment and an AABox
-    std::vector<Point_t> Intersection(const LineSegment_t& l, const AABox_t& box) const
+    std::vector<Point_t> Intersection(LineSegment_t const& l, AABox_t const& box) const
     {
       return Intersection(box, l);
     }
 
     /// Intersection between Trajectory and an AABox
-    std::vector<Point_t> Intersection(const AABox_t& box, const Trajectory_t& trj) const;
+    std::vector<Point_t> Intersection(AABox_t const& box, Trajectory_t const& trj) const;
     /// Intersection between Trajectory and an AABox
-    std::vector<Point_t> Intersection(const Trajectory_t& trj, const AABox_t& box) const
+    std::vector<Point_t> Intersection(Trajectory_t const& trj, AABox_t const& box) const
     {
       return Intersection(box, trj);
     }
 
     /// LineSegment sub-segment of HalfLine inside an AABox
-    LineSegment_t BoxOverlap(const AABox_t& box, const HalfLine_t& line) const;
+    LineSegment_t BoxOverlap(AABox_t const& box, HalfLine_t const& line) const;
     /// LineSegment sub-segment of HalfLine inside an AABox
-    LineSegment_t BoxOverlap(const HalfLine_t& line, const AABox_t& box) const
+    LineSegment_t BoxOverlap(HalfLine_t const& line, AABox_t const& box) const
     {
       return BoxOverlap(box, line);
     }
 
     /// Get Trajectory inside box given some input trajectory -> now assumes trajectory cannot exit and re-enter box
-    Trajectory_t BoxOverlap(const AABox_t& box, const Trajectory_t& trj) const;
+    Trajectory_t BoxOverlap(AABox_t const& box, Trajectory_t const& trj) const;
     /// Get Trajectory inside box given some input trajectory -> now assumes trajectory cannot exit and re-enter box
-    Trajectory_t BoxOverlap(const Trajectory_t& trj, const AABox_t& box) const
+    Trajectory_t BoxOverlap(Trajectory_t const& trj, AABox_t const& box) const
     {
       return BoxOverlap(box, trj);
     }
@@ -95,33 +95,33 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND INFINITE LINE
     //************************************************
     // min distance between point and infinite line
-    double SqDist(const Line_t& line, const Point_t& pt) const
+    double SqDist(Line_t const& line, Point_t const& pt) const
     {
       pt.compat(line.Pt1());
       return _SqDist_(line, pt);
     }
     // min distance between point and infinite line
-    double SqDist(const Point_t& pt, const Line_t& line) const { return SqDist(line, pt); }
+    double SqDist(Point_t const& pt, Line_t const& line) const { return SqDist(line, pt); }
     // closest point (on infinite line) from point
-    Point_t ClosestPt(const Line_t& line, const Point_t& pt) const
+    Point_t ClosestPt(Line_t const& line, Point_t const& pt) const
     {
       pt.compat(line.Pt1());
       return _ClosestPt_(pt, line);
     }
     // closest point (on infinite line) from point
-    Point_t ClosestPt(const Point_t& pt, const Line_t& line) const { return _ClosestPt_(pt, line); }
+    Point_t ClosestPt(Point_t const& pt, Line_t const& line) const { return _ClosestPt_(pt, line); }
 
     //*******************************************
     //CLOSEST APPROACH BETWEEN TWO INFINITE LINES
     //*******************************************
     // Closest approach between two infinite line segments - keep track of closest approach points
-    double SqDist(const Line_t& l1, const Line_t& l2, Point_t& L1, Point_t& L2) const
+    double SqDist(Line_t const& l1, Line_t const& l2, Point_t& L1, Point_t& L2) const
     {
       l1.Pt1().compat(l2.Pt1());
       return _SqDist_(l1, l2, L1, L2);
     }
     // Closest approach between two infinite line segments - don't keep track of closest approach points
-    double SqDist(const Line_t& l1, const Line_t& l2) const
+    double SqDist(Line_t const& l1, Line_t const& l2) const
     {
       Point_t L1;
       Point_t L2;
@@ -132,13 +132,13 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN TWO HALF-INFINITE LINES
     //************************************************
     // Closest approach between two infinite line segments - keep track of closest approach points
-    double SqDist(const HalfLine_t& l1, const HalfLine_t& l2, Point_t& L1, Point_t& L2) const
+    double SqDist(HalfLine_t const& l1, HalfLine_t const& l2, Point_t& L1, Point_t& L2) const
     {
       l1.Start().compat(l2.Start());
       return _SqDist_(l1, l2, L1, L2);
     }
     // Closest approach between two infinite line segments - don't keep track of closest approach points
-    double SqDist(const HalfLine_t& l1, const HalfLine_t& l2) const
+    double SqDist(HalfLine_t const& l1, HalfLine_t const& l2) const
     {
       Point_t L1;
       Point_t L2;
@@ -149,8 +149,8 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN TWO LINE SEGMENTS
     //******************************************
     /// LineSegment_t & LineSegment_t distance - keep track of points
-    double SqDist(const LineSegment_t& seg1,
-                  const LineSegment_t& seg2,
+    double SqDist(LineSegment_t const& seg1,
+                  LineSegment_t const& seg2,
                   Point_t& c1,
                   Point_t& c2) const
     {
@@ -158,7 +158,7 @@ namespace geoalgo {
       return _SqDist_(seg1, seg2, c1, c2);
     }
     /// LineSegment & LineSegment, don't keep track of points
-    double SqDist(const LineSegment_t& seg1, const LineSegment_t& seg2) const
+    double SqDist(LineSegment_t const& seg1, LineSegment_t const& seg2) const
     {
       Point_t c1;
       Point_t c2;
@@ -169,24 +169,24 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN SEGMENT AND TRACK
     //******************************************
     /// LineSegment & Trajectory, keep track of points
-    double SqDist(const LineSegment_t& seg,
-                  const Trajectory_t& trj,
+    double SqDist(LineSegment_t const& seg,
+                  Trajectory_t const& trj,
                   Point_t& c1,
                   Point_t& c2) const;
     /// LineSegment & Trajectory, keep track of points
-    double SqDist(const Trajectory_t& trj, const LineSegment_t& seg, Point_t& c1, Point_t& c2) const
+    double SqDist(Trajectory_t const& trj, LineSegment_t const& seg, Point_t& c1, Point_t& c2) const
     {
       return SqDist(seg, trj, c1, c2);
     }
     /// LineSegment & Trajectory, don't keep track of points
-    double SqDist(const Trajectory_t& trj, const LineSegment_t& seg) const
+    double SqDist(Trajectory_t const& trj, LineSegment_t const& seg) const
     {
       Point_t c1;
       Point_t c2;
       return SqDist(seg, trj, c1, c2);
     }
     /// LineSegment & Trajectory, don't keep track of points
-    double SqDist(const LineSegment_t& seg, const Trajectory_t& trj) const
+    double SqDist(LineSegment_t const& seg, Trajectory_t const& trj) const
     {
       Point_t c1;
       Point_t c2;
@@ -197,12 +197,12 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN TRACK AND TRACK
     //****************************************
     /// Trajectory & Trajectory, keep track of points
-    double SqDist(const Trajectory_t& trj1,
-                  const Trajectory_t& trj2,
+    double SqDist(Trajectory_t const& trj1,
+                  Trajectory_t const& trj2,
                   Point_t& c1,
                   Point_t& c2) const;
     /// Trajectory & Trajectory, don't keep track of points
-    double SqDist(const Trajectory_t& trj1, const Trajectory_t& trj2) const
+    double SqDist(Trajectory_t const& trj1, Trajectory_t const& trj2) const
     {
       Point_t c1;
       Point_t c2;
@@ -213,14 +213,14 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN SEGMENT AND VECTOR OF TRACKS
     //*****************************************************
     /// LineSegment & vector of Trajectories, keep track of points
-    double SqDist(const LineSegment_t& seg,
+    double SqDist(LineSegment_t const& seg,
                   const std::vector<geoalgo::Trajectory_t>& trj,
                   Point_t& c1,
                   Point_t& c2,
                   int& trackIdx) const;
     /// LineSegment & vector of Trajectories, keep track of points
     double SqDist(const std::vector<geoalgo::Trajectory_t>& trj,
-                  const LineSegment_t& seg,
+                  LineSegment_t const& seg,
                   Point_t& c1,
                   Point_t& c2,
                   int& trackIdx) const
@@ -228,7 +228,7 @@ namespace geoalgo {
       return SqDist(seg, trj, c2, c1, trackIdx);
     }
     /// LineSegment & vector of Trajectories, don't keep track of points
-    double SqDist(const std::vector<geoalgo::Trajectory_t>& trj, const LineSegment_t& seg) const
+    double SqDist(const std::vector<geoalgo::Trajectory_t>& trj, LineSegment_t const& seg) const
     {
       Point_t c1;
       Point_t c2;
@@ -236,7 +236,7 @@ namespace geoalgo {
       return SqDist(seg, trj, c1, c2, trackIdx);
     }
     /// LineSegment & vector of Trajectories, don't keep track of points
-    double SqDist(const LineSegment_t& seg, const std::vector<geoalgo::Trajectory_t>& trj) const
+    double SqDist(LineSegment_t const& seg, const std::vector<geoalgo::Trajectory_t>& trj) const
     {
       Point_t c1;
       Point_t c2;
@@ -248,21 +248,21 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN HALFLINE AND TRACK
     //*******************************************
     /// HalfLine & Trajectory, keep track of points
-    double SqDist(const HalfLine_t& hline, const Trajectory_t& trj, Point_t& c1, Point_t& c2) const;
+    double SqDist(HalfLine_t const& hline, Trajectory_t const& trj, Point_t& c1, Point_t& c2) const;
     /// HalfLine & Trajectory, keep track of points
-    double SqDist(const Trajectory_t& trj, const HalfLine_t& hline, Point_t& c1, Point_t& c2) const
+    double SqDist(Trajectory_t const& trj, HalfLine_t const& hline, Point_t& c1, Point_t& c2) const
     {
       return SqDist(hline, trj, c2, c1);
     }
     /// HalfLine & Trajectory, don't keep track of points
-    double SqDist(const Trajectory_t& trj, const HalfLine_t& hline) const
+    double SqDist(Trajectory_t const& trj, HalfLine_t const& hline) const
     {
       Point_t c1;
       Point_t c2;
       return SqDist(hline, trj, c1, c2);
     }
     /// HalfLine & Trajectory, don't keep track of points
-    double SqDist(const HalfLine_t& hline, const Trajectory_t& trj) const
+    double SqDist(HalfLine_t const& hline, Trajectory_t const& trj) const
     {
       Point_t c1;
       Point_t c2;
@@ -273,25 +273,25 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND TRACK
     //****************************************
     /// Point_t & Trajectory_t distance
-    double SqDist(const Point_t& pt, const Trajectory_t& trj) const;
+    double SqDist(Point_t const& pt, Trajectory_t const& trj) const;
     /// Point_t & Trajectory_t distance
-    double SqDist(const Trajectory_t& trj, const Point_t& pt) const { return SqDist(pt, trj); }
+    double SqDist(Trajectory_t const& trj, Point_t const& pt) const { return SqDist(pt, trj); }
     /// Point_t & Trajectory_t closest point
-    Point_t ClosestPt(const Point_t& pt, const Trajectory_t& trj) const
+    Point_t ClosestPt(Point_t const& pt, Trajectory_t const& trj) const
     {
       int idx = 0;
       return ClosestPt(pt, trj, idx);
     }
     /// Point_t & Trajectory_t closest point
-    Point_t ClosestPt(const Trajectory_t& trj, const Point_t& pt) const
+    Point_t ClosestPt(Trajectory_t const& trj, Point_t const& pt) const
     {
       int idx = 0;
       return ClosestPt(pt, trj, idx);
     }
     /// Point_t & Trajectory_t closest point. Keep track of index of segment
-    Point_t ClosestPt(const Point_t& pt, const Trajectory_t& trj, int& idx) const;
+    Point_t ClosestPt(Point_t const& pt, Trajectory_t const& trj, int& idx) const;
     /// Point_t & Trajectory_t closest point. Keep track of index of segment
-    Point_t ClosestPt(const Trajectory_t& trj, const Point_t& pt, int& idx) const
+    Point_t ClosestPt(Trajectory_t const& trj, Point_t const& pt, int& idx) const
     {
       return ClosestPt(pt, trj, idx);
     }
@@ -300,47 +300,47 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND VECTOR OF TRACKS
     //***************************************************
     /// Point_t & Trajectory_t distance - keep track of which track
-    double SqDist(const Point_t& pt,
+    double SqDist(Point_t const& pt,
                   const std::vector<geoalgo::Trajectory_t>& trj,
                   int& trackIdx) const;
     /// Point_t & Trajectory_t distance - keep track of which track
     double SqDist(const std::vector<geoalgo::Trajectory_t>& trj,
-                  const Point_t& pt,
+                  Point_t const& pt,
                   int& trackIdx) const
     {
       return SqDist(pt, trj, trackIdx);
     }
     /// Point_t & Trajectory_t distance - don't keep track
-    double SqDist(const Point_t& pt, const std::vector<geoalgo::Trajectory_t>& trj) const
+    double SqDist(Point_t const& pt, const std::vector<geoalgo::Trajectory_t>& trj) const
     {
       int trackIdx;
       return SqDist(pt, trj, trackIdx);
     }
     /// Point_t & Trajectory_t distance - don't keep track
-    double SqDist(const std::vector<geoalgo::Trajectory_t>& trj, const Point_t& pt) const
+    double SqDist(const std::vector<geoalgo::Trajectory_t>& trj, Point_t const& pt) const
     {
       int trackIdx;
       return SqDist(pt, trj, trackIdx);
     }
     /// Point_t & Trajectory_t closest point - keep track of which track is closest
-    Point_t ClosestPt(const Point_t& pt,
+    Point_t ClosestPt(Point_t const& pt,
                       const std::vector<geoalgo::Trajectory_t>& trj,
                       int& trackIdx) const;
     /// Point_t & Trajectory_t closest point - keep track of which track is closest
     Point_t ClosestPt(const std::vector<geoalgo::Trajectory_t>& trj,
-                      const Point_t& pt,
+                      Point_t const& pt,
                       int& trackIdx) const
     {
       return ClosestPt(pt, trj, trackIdx);
     }
     /// Point_t & Trajectory_t closest point - don't keep track of which track is closest
-    Point_t ClosestPt(const Point_t& pt, const std::vector<geoalgo::Trajectory_t>& trj) const
+    Point_t ClosestPt(Point_t const& pt, const std::vector<geoalgo::Trajectory_t>& trj) const
     {
       int trackIdx;
       return ClosestPt(pt, trj, trackIdx);
     }
     /// Point_t & Trajectory_t closest point - don't keep track of which track is closest
-    Point_t ClosestPt(const std::vector<geoalgo::Trajectory_t>& trj, const Point_t& pt) const
+    Point_t ClosestPt(const std::vector<geoalgo::Trajectory_t>& trj, Point_t const& pt) const
     {
       int trackIdx;
       return ClosestPt(pt, trj, trackIdx);
@@ -350,21 +350,21 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND LINE SEGMENT
     //***********************************************
     /// Point & LineSegment_t distance
-    double SqDist(const Point_t& pt, const LineSegment_t& line) const
+    double SqDist(Point_t const& pt, LineSegment_t const& line) const
     {
       pt.compat(line.Start());
       return _SqDist_(pt, line);
     }
     /// Point & LineSegment distance
-    double SqDist(const LineSegment_t& line, const Point_t& pt) const { return SqDist(pt, line); }
+    double SqDist(LineSegment_t const& line, Point_t const& pt) const { return SqDist(pt, line); }
     /// Point & LineSegment closest point
-    Point_t ClosestPt(const Point_t& pt, const LineSegment_t& line) const
+    Point_t ClosestPt(Point_t const& pt, LineSegment_t const& line) const
     {
       pt.compat(line.Start());
       return _ClosestPt_(pt, line);
     }
     /// Point & LineSegment closest point
-    Point_t ClosestPt(const LineSegment_t& line, const Point_t& pt) const
+    Point_t ClosestPt(LineSegment_t const& line, Point_t const& pt) const
     {
       return ClosestPt(pt, line);
     }
@@ -373,21 +373,21 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND HALF LINE
     //********************************************
     /// Point & HalfLine distance
-    double SqDist(const Point_t& pt, const HalfLine_t& line) const
+    double SqDist(Point_t const& pt, HalfLine_t const& line) const
     {
       pt.compat(line.Start());
       return _SqDist_(pt, line);
     }
     /// Point & HalfLine distance
-    double SqDist(const HalfLine_t& line, const Point_t& pt) const { return SqDist(pt, line); }
+    double SqDist(HalfLine_t const& line, Point_t const& pt) const { return SqDist(pt, line); }
     /// Point & HalfLine closest point
-    Point_t ClosestPt(const Point_t& pt, const HalfLine_t& line) const
+    Point_t ClosestPt(Point_t const& pt, HalfLine_t const& line) const
     {
       pt.compat(line.Start());
       return _ClosestPt_(pt, line);
     }
     /// Point & HalfLine closest point
-    Point_t ClosestPt(const HalfLine_t& line, const Point_t& pt) const
+    Point_t ClosestPt(HalfLine_t const& line, Point_t const& pt) const
     {
       return ClosestPt(pt, line);
     }
@@ -396,25 +396,25 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN HALF LINE AND LINE SEGMENT
     //***************************************************
     // half-line and line-segment. keep track of closest approach points
-    double SqDist(const HalfLine_t& hline, const LineSegment_t& seg, Point_t& L1, Point_t& L2) const
+    double SqDist(HalfLine_t const& hline, LineSegment_t const& seg, Point_t& L1, Point_t& L2) const
     {
       hline.Start().compat(seg.Start());
       return _SqDist_(hline, seg, L1, L2);
     }
     // half-line and line-segment. keep track of closest approach points
-    double SqDist(const LineSegment_t& seg, const HalfLine_t& hline, Point_t& L1, Point_t& L2) const
+    double SqDist(LineSegment_t const& seg, HalfLine_t const& hline, Point_t& L1, Point_t& L2) const
     {
       return SqDist(hline, seg, L2, L1);
     }
     // half-line and line-segment. Do not keep track of closest approach points
-    double SqDist(const HalfLine_t& hline, const LineSegment_t& seg) const
+    double SqDist(HalfLine_t const& hline, LineSegment_t const& seg) const
     {
       Point_t L1;
       Point_t L2;
       return SqDist(hline, seg, L1, L2);
     }
     // half-line and line-segment. Do not keep track of closest approach points
-    double SqDist(const LineSegment_t& seg, const HalfLine_t& hline) const
+    double SqDist(LineSegment_t const& seg, HalfLine_t const& hline) const
     {
       return SqDist(hline, seg);
     }
@@ -423,48 +423,48 @@ namespace geoalgo {
     //CLOSEST APPROACH BETWEEN POINT AND AXIS ALIGNED BOX
     //***************************************************
     /// Point & AABox distance
-    double SqDist(const Point_t& pt, const AABox_t& box) const
+    double SqDist(Point_t const& pt, AABox_t const& box) const
     {
       pt.compat(box.Min());
       return _SqDist_(pt, box);
     }
     /// Point & AABox distance
-    double SqDist(const AABox_t& box, const Point_t& pt) { return SqDist(pt, box); }
+    double SqDist(AABox_t const& box, Point_t const& pt) { return SqDist(pt, box); }
     /// Point & AABox closest point
-    Point_t ClosestPt(const Point_t& pt, const AABox_t& box) const
+    Point_t ClosestPt(Point_t const& pt, AABox_t const& box) const
     {
       pt.compat(box.Min());
       return _ClosestPt_(pt, box);
     }
     /// Point & AABox closest point
-    Point_t ClosestPt(const AABox_t& box, const Point_t& pt) const { return ClosestPt(pt, box); }
+    Point_t ClosestPt(AABox_t const& box, Point_t const& pt) const { return ClosestPt(pt, box); }
 
     //***************************************************************************
     //COMMON ORIGIN ALGORITHMS: DETERMINE IF TWO GEO-OBJECTS HAVE A COMMON ORIGIN
     //***************************************************************************
     /// Common origin: Line Segment & Line Segment. Do not keep track of origin
-    double commonOrigin(const Line_t& lin1, const Line_t& lin2) const
+    double commonOrigin(Line_t const& lin1, Line_t const& lin2) const
     {
       Point_t origin(lin1.Pt1().size());
       return commonOrigin(lin1, lin2, origin);
     }
     /// Common origin: Line Segment & Line Segment. Keep track of origin
-    double commonOrigin(const Line_t& lin1, const Line_t& lin2, Point_t& origin) const
+    double commonOrigin(Line_t const& lin1, Line_t const& lin2, Point_t& origin) const
     {
       lin1.Pt1().compat(lin2.Pt1());
       return _commonOrigin_(lin1, lin2, origin);
     }
     /// Common origin: Line Segment & Line Segment. Do not keep track of origin
-    double commonOrigin(const LineSegment_t& seg1,
-                        const LineSegment_t& seg2,
+    double commonOrigin(LineSegment_t const& seg1,
+                        LineSegment_t const& seg2,
                         bool backwards = false) const
     {
       Point_t origin(seg1.Start().size());
       return commonOrigin(seg1, seg2, origin, backwards);
     }
     /// Common origin: Line Segment & Line Segment. Keep track of origin
-    double commonOrigin(const LineSegment_t& seg1,
-                        const LineSegment_t& seg2,
+    double commonOrigin(LineSegment_t const& seg1,
+                        LineSegment_t const& seg2,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -472,16 +472,16 @@ namespace geoalgo {
       return _commonOrigin_(seg1, seg2, origin, backwards);
     }
     /// Common origin: Line Segment & Half Line. Do not keep track of origin
-    double commonOrigin(const HalfLine_t& lin,
-                        const LineSegment_t& seg,
+    double commonOrigin(HalfLine_t const& lin,
+                        LineSegment_t const& seg,
                         bool backwards = false) const
     {
       Point_t origin(lin.Start().size());
       return commonOrigin(lin, seg, origin, backwards);
     }
     /// Common origin: Line Segment & Line Segment. Keep track of origin
-    double commonOrigin(const HalfLine_t& lin,
-                        const LineSegment_t& seg,
+    double commonOrigin(HalfLine_t const& lin,
+                        LineSegment_t const& seg,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -489,16 +489,16 @@ namespace geoalgo {
       return _commonOrigin_(lin, seg, origin, backwards);
     }
     /// Common origin: Line Segment & Half Line. Do not keep track of origin
-    double commonOrigin(const LineSegment_t& seg,
-                        const HalfLine_t& lin,
+    double commonOrigin(LineSegment_t const& seg,
+                        HalfLine_t const& lin,
                         bool backwards = false) const
     {
       Point_t origin(lin.Start().size());
       return commonOrigin(lin, seg, origin, backwards);
     }
     /// Common origin: Line Segment & Line Segment. Keep track of origin
-    double commonOrigin(const LineSegment_t& seg,
-                        const HalfLine_t& lin,
+    double commonOrigin(LineSegment_t const& seg,
+                        HalfLine_t const& lin,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -506,16 +506,16 @@ namespace geoalgo {
       return _commonOrigin_(lin, seg, origin, backwards);
     }
     /// Common origin: Half Line & Half Line. Do not keep track of origin
-    double commonOrigin(const HalfLine_t& lin1,
-                        const HalfLine_t& lin2,
+    double commonOrigin(HalfLine_t const& lin1,
+                        HalfLine_t const& lin2,
                         bool backwards = false) const
     {
       Point_t origin(lin1.Start().size());
       return commonOrigin(lin1, lin2, origin, backwards);
     }
     /// Common origin: Half Line & Half Line. Keep track of origin
-    double commonOrigin(const HalfLine_t& lin1,
-                        const HalfLine_t& lin2,
+    double commonOrigin(HalfLine_t const& lin1,
+                        HalfLine_t const& lin2,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -523,16 +523,16 @@ namespace geoalgo {
       return _commonOrigin_(lin1, lin2, origin, backwards);
     }
     /// Common origin: Trajectory & Trajectory. Do not keep track of origin
-    double commonOrigin(const Trajectory_t& trj1,
-                        const Trajectory_t& trj2,
+    double commonOrigin(Trajectory_t const& trj1,
+                        Trajectory_t const& trj2,
                         bool backwards = false) const
     {
       Point_t origin(trj1.front().size());
       return commonOrigin(trj1, trj2, origin, backwards);
     }
     /// Common origin: Trajectory & Trajectory. Keep track of origin
-    double commonOrigin(const Trajectory_t& trj1,
-                        const Trajectory_t& trj2,
+    double commonOrigin(Trajectory_t const& trj1,
+                        Trajectory_t const& trj2,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -540,16 +540,16 @@ namespace geoalgo {
       return _commonOrigin_(trj1, trj2, origin, backwards);
     }
     /// Common origin: Trajectory & Half Line. Do not keep track of origin
-    double commonOrigin(const Trajectory_t& trj,
-                        const HalfLine_t& lin,
+    double commonOrigin(Trajectory_t const& trj,
+                        HalfLine_t const& lin,
                         bool backwards = false) const
     {
       Point_t origin(trj.front().size());
       return commonOrigin(trj, lin, origin, backwards);
     }
     /// Common origin: Trajectory & Half Line. Keep track of origin
-    double commonOrigin(const Trajectory_t& trj,
-                        const HalfLine_t& lin,
+    double commonOrigin(Trajectory_t const& trj,
+                        HalfLine_t const& lin,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -557,16 +557,16 @@ namespace geoalgo {
       return _commonOrigin_(trj, lin, origin, backwards);
     }
     /// Common origin: Trajectory & Half Line. Do not keep track of origin
-    double commonOrigin(const HalfLine_t& lin,
-                        const Trajectory_t& trj,
+    double commonOrigin(HalfLine_t const& lin,
+                        Trajectory_t const& trj,
                         bool backwards = false) const
     {
       Point_t origin(trj.front().size());
       return commonOrigin(trj, lin, origin, backwards);
     }
     /// Common origin: Trajectory & Half Line. Keep track of origin
-    double commonOrigin(const HalfLine_t& lin,
-                        const Trajectory_t& trj,
+    double commonOrigin(HalfLine_t const& lin,
+                        Trajectory_t const& trj,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -574,16 +574,16 @@ namespace geoalgo {
       return _commonOrigin_(trj, lin, origin, backwards);
     }
     /// Common origin: Trajectory & Line Segment. Do not keep track of origin
-    double commonOrigin(const Trajectory_t& trj,
-                        const LineSegment_t& seg,
+    double commonOrigin(Trajectory_t const& trj,
+                        LineSegment_t const& seg,
                         bool backwards = false) const
     {
       Point_t origin(trj.front().size());
       return commonOrigin(trj, seg, origin, backwards);
     }
     /// Common origin: Trajectory & Line Segment. Keep track of origin
-    double commonOrigin(const Trajectory_t& trj,
-                        const LineSegment_t& seg,
+    double commonOrigin(Trajectory_t const& trj,
+                        LineSegment_t const& seg,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -591,16 +591,16 @@ namespace geoalgo {
       return _commonOrigin_(trj, seg, origin, backwards);
     }
     /// Common origin: Trajectory & Line Segment. Do not keep track of origin
-    double commonOrigin(const LineSegment_t& seg,
-                        const Trajectory_t& trj,
+    double commonOrigin(LineSegment_t const& seg,
+                        Trajectory_t const& trj,
                         bool backwards = false) const
     {
       Point_t origin(trj.front().size());
       return commonOrigin(trj, seg, origin, backwards);
     }
     /// Common origin: Trajectory & Line Segment. Keep track of origin
-    double commonOrigin(const LineSegment_t& seg,
-                        const Trajectory_t& trj,
+    double commonOrigin(LineSegment_t const& seg,
+                        Trajectory_t const& trj,
                         Point_t& origin,
                         bool backwards = false) const
     {
@@ -622,125 +622,125 @@ namespace geoalgo {
 
   protected:
     /// Line & Line distance w/o dimensionality check
-    double _SqDist_(const Line_t& l1, const Line_t& l2, Point_t& L1, Point_t& L2) const;
+    double _SqDist_(Line_t const& l1, Line_t const& l2, Point_t& L1, Point_t& L2) const;
 
     /// HalfLine & HalfLine distance w/o dimensionality check
-    double _SqDist_(const HalfLine_t& l1, const HalfLine_t& l2, Point_t& L1, Point_t& L2) const;
+    double _SqDist_(HalfLine_t const& l1, HalfLine_t const& l2, Point_t& L1, Point_t& L2) const;
 
     /// Point & LineSegment distance w/o dimensionality check
-    double _SqDist_(const Point_t& pt, const LineSegment_t& line) const
+    double _SqDist_(Point_t const& pt, LineSegment_t const& line) const
     {
       return _SqDist_(pt, line.Start(), line.End());
     }
 
     /// Point & LineSegment distance w/o dimensionality check
-    double _SqDist_(const Point_t& pt, const Point_t& line_s, const Point_t& line_e) const;
+    double _SqDist_(Point_t const& pt, Point_t const& line_s, Point_t const& line_e) const;
 
     /// Point & LineSegment distance w/o dimensionality check
-    double _SqDist_(const LineSegment_t& line, const Point_t& pt) const
+    double _SqDist_(LineSegment_t const& line, Point_t const& pt) const
     {
       return _SqDist_(pt, line);
     }
 
     /// HalfLine & LineSegment distance w/o dimensionality check
-    double _SqDist_(const HalfLine_t& hline,
-                    const LineSegment_t& seg,
+    double _SqDist_(HalfLine_t const& hline,
+                    LineSegment_t const& seg,
                     Point_t& L1,
                     Point_t& L2) const;
 
     /// LineSegment & LineSegment distance w/o dimensionality check
-    double _SqDist_(const LineSegment_t& seg1,
-                    const LineSegment_t& seg2,
+    double _SqDist_(LineSegment_t const& seg1,
+                    LineSegment_t const& seg2,
                     Point_t& c1,
                     Point_t& c2) const;
 
     // Point & LineSegment closest point w/o dimensionality check
-    Point_t _ClosestPt_(const Point_t& pt, const LineSegment_t& line) const;
+    Point_t _ClosestPt_(Point_t const& pt, LineSegment_t const& line) const;
     // Point & LineSegment closest point w/o dimensionality check
-    Point_t _ClosestPt_(const LineSegment_t& line, const Point_t& pt) const
+    Point_t _ClosestPt_(LineSegment_t const& line, Point_t const& pt) const
     {
       return _ClosestPt_(pt, line);
     }
 
     /// Point & HalfLine distance w/o dimensionality check
-    double _SqDist_(const Point_t& pt, const HalfLine_t& line) const;
+    double _SqDist_(Point_t const& pt, HalfLine_t const& line) const;
     /// Point & HalfLine distance w/o dimensionality check
-    double _SqDist_(const HalfLine_t& line, const Point_t& pt) const { return _SqDist_(pt, line); }
+    double _SqDist_(HalfLine_t const& line, Point_t const& pt) const { return _SqDist_(pt, line); }
     // Point & HalfLine closest point w/o dimensionality check
-    Point_t _ClosestPt_(const Point_t& pt, const HalfLine_t& line) const;
+    Point_t _ClosestPt_(Point_t const& pt, HalfLine_t const& line) const;
     // Point & HalfLine closest point w/o dimensionality check
-    Point_t _ClosestPt_(const HalfLine_t& line, const Point_t& pt) const
+    Point_t _ClosestPt_(HalfLine_t const& line, Point_t const& pt) const
     {
       return _ClosestPt_(pt, line);
     }
 
     // Point & InfLine closest point w/o dimensionality check
-    Point_t _ClosestPt_(const Line_t& line, const Point_t& pt) const;
+    Point_t _ClosestPt_(Line_t const& line, Point_t const& pt) const;
     // Point & InfLine closest point w/o dimensionality check
-    Point_t _ClosestPt_(const Point_t& pt, const Line_t& line) const
+    Point_t _ClosestPt_(Point_t const& pt, Line_t const& line) const
     {
       return _ClosestPt_(line, pt);
     }
     // Point & InfLine  distance w/o dimensionality check
-    double _SqDist_(const Line_t& line, const Point_t& pt) const;
+    double _SqDist_(Line_t const& line, Point_t const& pt) const;
     // Point & InfLine  distance w/o dimensionality check
-    double _SqDist_(const Point_t& pt, const Line_t& line) const { return _SqDist_(line, pt); }
+    double _SqDist_(Point_t const& pt, Line_t const& line) const { return _SqDist_(line, pt); }
 
     /// Point & AABox distance w/o dimensionality check
-    double _SqDist_(const Point_t& pt, const AABox_t& box) const;
+    double _SqDist_(Point_t const& pt, AABox_t const& box) const;
     /// Point & AABox distance w/o dimensionality check
-    double _SqDist_(const AABox_t& box, const Point_t& pt) const { return _SqDist_(pt, box); }
+    double _SqDist_(AABox_t const& box, Point_t const& pt) const { return _SqDist_(pt, box); }
 
     /// Point & AABox closest point w/o dimensionality check
-    Point_t _ClosestPt_(const Point_t& pt, const AABox_t& box) const;
+    Point_t _ClosestPt_(Point_t const& pt, AABox_t const& box) const;
     /// Point & AABox closest point w/o dimensionality check
-    Point_t _ClosestPt_(const AABox_t& box, const Point_t& pt) const
+    Point_t _ClosestPt_(AABox_t const& box, Point_t const& pt) const
     {
       return _ClosestPt_(pt, box);
     }
 
     /// Common origin: Line & Line. Keep track of origin
-    double _commonOrigin_(const Line_t& lin1, const Line_t& lin2, Point_t& origin) const;
+    double _commonOrigin_(Line_t const& lin1, Line_t const& lin2, Point_t& origin) const;
     /// Common origin: Half Line & Half Line. Keep track of origin
-    double _commonOrigin_(const HalfLine_t& lin1,
-                          const HalfLine_t& lin2,
+    double _commonOrigin_(HalfLine_t const& lin1,
+                          HalfLine_t const& lin2,
                           Point_t& origin,
                           bool backwards) const;
     /// Common origin: Line Segment & Half Line. Keep track of origin
-    double _commonOrigin_(const HalfLine_t& lin,
-                          const LineSegment_t& seg,
+    double _commonOrigin_(HalfLine_t const& lin,
+                          LineSegment_t const& seg,
                           Point_t& origin,
                           bool backwards) const;
     /// Common origin: Line Segment & Line Segment. Keep track of origin
-    double _commonOrigin_(const LineSegment_t& seg1,
-                          const LineSegment_t& seg2,
+    double _commonOrigin_(LineSegment_t const& seg1,
+                          LineSegment_t const& seg2,
                           Point_t& origin,
                           bool backwards) const;
     /// Common origin: Trajectory & Trajectory. Keep track of origin
-    double _commonOrigin_(const Trajectory_t& trj1,
-                          const Trajectory_t& trj2,
+    double _commonOrigin_(Trajectory_t const& trj1,
+                          Trajectory_t const& trj2,
                           Point_t& origin,
                           bool backwards) const;
     /// Common origin: Trajectory & Line Segment. Keep track of origin
-    double _commonOrigin_(const Trajectory_t& trj,
-                          const LineSegment_t& seg,
+    double _commonOrigin_(Trajectory_t const& trj,
+                          LineSegment_t const& seg,
                           Point_t& origin,
                           bool backwards) const;
     /// Common origin: Trajectory & Half Line. Keep track of origin
-    double _commonOrigin_(const Trajectory_t& trj,
-                          const HalfLine_t& lin,
+    double _commonOrigin_(Trajectory_t const& trj,
+                          HalfLine_t const& lin,
                           Point_t& origin,
                           bool backwards) const;
 
     // Bounding Sphere given a vector of points
     Sphere_t _boundingSphere_(const std::vector<Point_t>& pts) const;
-    Sphere_t _RemainingPoints_(std::vector<Point_t>& remaining, const Sphere_t& thisSphere) const;
+    Sphere_t _RemainingPoints_(std::vector<Point_t>& remaining, Sphere_t const& thisSphere) const;
     Sphere_t _WelzlSphere_(const std::vector<Point_t>& pts,
                            int numPts,
                            std::vector<Point_t> sosPts) const;
 
     /// Clamp function: checks if value out of bounds
-    double _Clamp_(const double n, const double min, const double max) const;
+    double _Clamp_(double const n, double const min, double const max) const;
 
     /// Swap two points if min & max are inverted
     inline void _Swap_(double& tmin, double& tmax) const

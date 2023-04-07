@@ -884,7 +884,8 @@ namespace testing {
     template <typename Interface, typename Prov>
     Prov* AcquireProviderFor(std::unique_ptr<Prov>&& prov)
     {
-      auto prov_ptr = providers.acquire(prov);
+      auto prov_ptr = prov.get();
+      providers.acquire(std::move(prov));
       providers.set_alias<Prov, Interface>();
       return prov_ptr;
     }

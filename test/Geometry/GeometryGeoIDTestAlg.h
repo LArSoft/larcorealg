@@ -14,7 +14,9 @@ namespace geo {
 
   class GeometryGeoIDTestAlg {
   public:
-    explicit GeometryGeoIDTestAlg(geo::GeometryCore const* new_geo) : geom{new_geo} {}
+    explicit GeometryGeoIDTestAlg(GeometryCore const* new_geom, WireReadoutGeom const* channel_map)
+      : geom{new_geom}, wireReadoutGeom{channel_map}
+    {}
 
     /// Executes the test
     unsigned int Run() const;
@@ -28,8 +30,8 @@ namespace geo {
     /// @}
 
   private:
-    GeometryCore const* geom = nullptr; ///< pointer to the geometry description
-
+    GeometryCore const* geom = nullptr;
+    WireReadoutGeom const* wireReadoutGeom = nullptr;
   }; // class GeometryGeoIDTestAlg
 
 } // namespace geo

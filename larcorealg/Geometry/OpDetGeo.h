@@ -57,19 +57,19 @@ namespace geo {
      */
 
     /// Type of points in the local GDML TPC frame.
-    using LocalPoint_t = geo::OpticalPoint_t;
+    using LocalPoint_t = OpticalPoint_t;
 
     /// Type of displacement vectors in the local GDML TPC frame.
-    using LocalVector_t = geo::OpticalVector_t;
+    using LocalVector_t = OpticalVector_t;
 
     ///@}
 
-    OpDetGeo(TGeoNode const* node, geo::TransformationMatrix&& trans);
+    OpDetGeo(TGeoNode const* node, TransformationMatrix&& trans);
 
     /// Returns the geometry ID of this optical detector.
-    geo::OpDetID const& ID() const { return fID; }
+    OpDetID const& ID() const { return fID; }
 
-    geo::Point_t const& GetCenter() const { return fCenter; }
+    Point_t const& GetCenter() const { return fCenter; }
     double RMin() const;
     double RMax() const;
     double HalfL() const;
@@ -86,11 +86,11 @@ namespace geo {
                                        ///< in the Y-Z plane
     //@{
     /// Get cos(angle) to normal of this detector - used for solid angle calcs
-    double CosThetaFromNormal(geo::Point_t const& point) const;
+    double CosThetaFromNormal(Point_t const& point) const;
     //@}
     //@{
     /// Returns the distance of the specified point from detector center [cm]
-    double DistanceToPoint(geo::Point_t const& point) const;
+    double DistanceToPoint(Point_t const& point) const;
     //@}
 
     /// @{
@@ -103,28 +103,16 @@ namespace geo {
      */
 
     /// Transform point from local optical detector frame to world frame.
-    geo::Point_t toWorldCoords(LocalPoint_t const& local) const
-    {
-      return fTrans.toWorldCoords(local);
-    }
+    Point_t toWorldCoords(LocalPoint_t const& local) const { return fTrans.toWorldCoords(local); }
 
     /// Transform direction vector from local to world.
-    geo::Vector_t toWorldCoords(LocalVector_t const& local) const
-    {
-      return fTrans.toWorldCoords(local);
-    }
+    Vector_t toWorldCoords(LocalVector_t const& local) const { return fTrans.toWorldCoords(local); }
 
     /// Transform point from world frame to local optical detector frame.
-    LocalPoint_t toLocalCoords(geo::Point_t const& world) const
-    {
-      return fTrans.toLocalCoords(world);
-    }
+    LocalPoint_t toLocalCoords(Point_t const& world) const { return fTrans.toLocalCoords(world); }
 
     /// Transform direction vector from world to local.
-    LocalVector_t toLocalCoords(geo::Vector_t const& world) const
-    {
-      return fTrans.toLocalCoords(world);
-    }
+    LocalVector_t toLocalCoords(Vector_t const& world) const { return fTrans.toLocalCoords(world); }
 
     /// @}
 
@@ -186,7 +174,7 @@ namespace geo {
     // --- END -- detector shape -----------------------------------------------
 
     /// Performs all updates after cryostat has sorted the optical detectors.
-    void UpdateAfterSorting(geo::OpDetID opdetid);
+    void UpdateAfterSorting(OpDetID opdetid);
 
     /**
      * @brief Prints information about this optical detector.
@@ -223,13 +211,13 @@ namespace geo {
 
   private:
     using LocalTransformation_t =
-      geo::LocalTransformationGeo<ROOT::Math::Transform3D, LocalPoint_t, LocalVector_t>;
+      LocalTransformationGeo<ROOT::Math::Transform3D, LocalPoint_t, LocalVector_t>;
 
     LocalTransformation_t fTrans; ///< Optical-detector-to-world transformation.
     const TGeoNode* fOpDetNode;   ///< Pointer to theopdet node
-    geo::Point_t fCenter;         ///< Stored geometric center of the optical detector.
+    Point_t fCenter;              ///< Stored geometric center of the optical detector.
 
-    geo::OpDetID fID; ///< Identifier of this optical detector.
+    OpDetID fID; ///< Identifier of this optical detector.
 
     /// Returns the geometry object as `TGeoTube`, `nullptr` if not a tube.
     TGeoTube const* asTube() const { return dynamic_cast<TGeoTube const*>(Shape()); }
@@ -256,8 +244,7 @@ bool geo::OpDetGeo::isShape() const
   // C++ understanding of the business instead of ROOT's (no strong reason)
   TGeoShape const* shape = Shape(); // needed to convince Clang 7 I really mean it
   return typeid(*shape) == typeid(std::decay_t<ShapeObj>);
-
-} // geo::OpDetGeo::isShape()
+}
 
 //------------------------------------------------------------------------------
 template <typename ShapeObj>
@@ -267,8 +254,7 @@ bool geo::OpDetGeo::isShapeLike() const
 
   // C++ understanding of the business instead of ROOT's (no strong reason)
   return dynamic_cast<std::decay_t<ShapeObj> const*>(Shape()) != nullptr;
-
-} // geo::OpDetGeo::isShapeLike()
+}
 
 //------------------------------------------------------------------------------
 template <typename Stream>

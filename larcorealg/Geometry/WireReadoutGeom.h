@@ -1,17 +1,23 @@
-#ifndef GEO_CHANNELMAPALG_H
-#define GEO_CHANNELMAPALG_H
+#ifndef GEO_WIREREADOUTGEOM_H
+#define GEO_WIREREADOUTGEOM_H
 // vim: sw=2 expandtab :
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/ChannelMapAlg.h
-/// \brief Interface to algorithm class for a specific detector channel mapping
+/// \file  larcorealg/Geometry/WireReadoutGeom.h
+/// \brief Interface to geometry for wire readouts
 /// \ingroup Geometry
 ///
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-// LArSoft  libraries
+// LArSoft libraries
 #include "larcorealg/Geometry/Iterable.h"
+#include "larcorealg/Geometry/PlaneGeo.h"
+#include "larcorealg/Geometry/WireGeo.h"
+#include "larcorealg/Geometry/WireReadoutGeometryBuilder.h"
+#include "larcorealg/Geometry/WireReadoutSorter.h"
 #include "larcorealg/Geometry/details/ReadoutIterationPolicy.h"
+#include "larcorealg/Geometry/details/ToGeometryElement.h"
+#include "larcorealg/Geometry/details/ZeroIDs.h"
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
@@ -44,18 +50,501 @@ namespace geo {
    * behaviour should be assumed; nevertheless, the documentation of some of the
    * methods still reminds of this.
    */
-  class ChannelMapAlg : Iterable<details::ReadoutIterationPolicy> {
-    using Iteration = Iterable<details::ReadoutIterationPolicy>;
+  class WireReadoutGeom
+    : Iterable<details::ReadoutIterationPolicy, details::ToReadoutGeometryElement> {
+    using Iteration = Iterable<details::ReadoutIterationPolicy, details::ToReadoutGeometryElement>;
 
   public:
-    explicit ChannelMapAlg(GeometryCore const* geom);
-    virtual ~ChannelMapAlg();
+    explicit WireReadoutGeom(GeometryCore const* geom,
+                             std::unique_ptr<WireReadoutGeometryBuilder> builder,
+                             std::unique_ptr<WireReadoutSorter> sorter);
+    virtual ~WireReadoutGeom();
+
+    using Segment = std::pair<Point_t, Point_t>;
+    static auto const& start(Segment const& s) { return s.first; }
+    static auto const& finish(Segment const& s) { return s.second; }
 
     //--------------------------------------------------------------------------
     // Iteration facilities
     using Iteration::begin;
     using Iteration::end;
     using Iteration::Iterate;
+
+    //@{
+    /**
+     * @brief Returns whether we have the specified plane
+     *
+     * The HasElement() method is overloaded and its meaning depends on the type of ID.
+     *
+     */
+    bool HasPlane(PlaneID const& planeid) const;
+    bool HasElement(PlaneID const& planeid) const { return HasPlane(planeid); }
+    //@}
+
+    /// @} Plane access and information
+
+    //
+    // group features
+    //
+
+    /// Returns the largest number of planes among all TPCs in this detector
+    unsigned int MaxPlanes() const;
+
+    //@{
+    /**
+     * @brief Returns the total number of planes in the specified TPC
+     * @param tpcid TPC ID
+     * @return number of planes in specified TPC, or 0 if no TPC found
+     *
+     * The NElements() and NSiblingElements() methods are overloaded and their return
+     * depends on the type of ID.
+     *
+     * @todo Change return type to size_t
+     */
+    unsigned int Nplanes(TPCID const& tpcid = details::tpc_zero) const;
+    unsigned int NElements(TPCID const& tpcid) const { return Nplanes(tpcid); }
+    unsigned int NSiblingElements(PlaneID const& planeid) const { return Nplanes(planeid); }
+    //@}
+
+    /**
+     * @brief Returns the number of views (different wire orientations)
+     *
+     * Returns the number of different views, or wire orientations, in the detector.
+     *
+     * The function assumes that all TPCs in all cryostats of a detector have the same
+     * number of planes, which should be a safe assumption.
+     *
+     * @todo Change return type to size_t
+     */
+    unsigned int Nviews() const;
+
+    /**
+     * @brief Returns a list of possible views in the detector.
+     * @return the set of views
+     */
+    std::set<View_t> const& Views() const { return allViews; }
+
+    std::set<View_t> Views(TPCID const& tpcid) const;
+
+    //@{
+    /**
+     * @brief Returns the specified wire
+     * @param planeid ID of the plane
+     * @param p plane number within the TPC
+     * @param tpc TPC number within the cryostat
+     * @param cstat number of cryostat
+     * @return a constant reference to the specified plane
+     * @throw cet::exception (`GeometryCore` category) if cryostat not present
+     * @throw cet::exception (`TPCOutOfRange` category) if no such TPC
+     * @throw cet::exception (`PlaneOutOfRange` category) if no such plane
+     *
+     * The GetElement() method is overloaded and its return depends on the type of ID.
+     */
+    PlaneGeo const& Plane(TPCID const& tpcid, View_t view) const;
+    PlaneGeo const& Plane(PlaneID const& planeid) const;
+    PlaneGeo const& GetElement(PlaneID const& planeid) const { return Plane(planeid); }
+    //@}
+
+    //@{
+    /**
+     * @brief Returns the specified plane
+     * @param planeid plane ID
+     * @return a constant pointer to the specified plane, or nullptr if none
+     *
+     * The GetElementPtr() method is overloaded and its return depends on the type of ID.
+     */
+    PlaneGeo const* PlanePtr(PlaneID const& planeid) const;
+    PlaneGeo const* GetElementPtr(PlaneID const& planeid) const { return PlanePtr(planeid); }
+    //@}
+
+    //--------------------------------------------------------------------------
+    /// @{
+    /// @name Wire details
+
+    unsigned int MaxWires() const;
+
+    //@{
+    /**
+     * @brief Returns the total number of wires in the specified plane
+     * @param planeid plane ID
+     * @return number of wires in specified plane, or 0 if no plane found
+     *
+     * The NElements() and NSiblingElements() methods are overloaded and their return
+     * depends on the type of ID.
+     *
+     * @todo Change return type to size_t
+     */
+    unsigned int Nwires(PlaneID const& planeid) const;
+    unsigned int NElements(PlaneID const& planeid) const;
+    unsigned int NSiblingElements(WireID const& wireid) const { return Nwires(wireid); }
+
+    //@}
+
+    //
+    // access
+    //
+
+    //@{
+    /**
+     * @brief Returns whether we have the specified wire
+     *
+     * The HasElement() method is overloaded and its meaning depends on the type of ID.
+     */
+    bool HasWire(WireID const& wireid) const;
+    bool HasElement(WireID const& wireid) const { return HasWire(wireid); }
+    //@}
+
+    //@{
+    /**
+     * @brief Returns the specified wire
+     * @param wireid wire ID
+     * @return a constant pointer to the specified wire, or nullptr if none
+     *
+     * The GetElementPtr() method is overloaded and its return depends on the type of ID.
+     */
+    WireGeo const* WirePtr(WireID const& wireid) const;
+    WireGeo const* GetElementPtr(WireID const& wireid) const { return WirePtr(wireid); }
+    //@}
+
+    //@{
+    /**
+     * @brief Returns the specified wire
+     * @param wireid ID of the wire
+     * @return a constant reference to the specified wire
+     * @throw cet::exception if not found
+     *
+     * The GetElement() method is overloaded and its return depends on the type of ID.
+     */
+    WireGeo const& Wire(WireID const& wireid) const;
+    WireGeo const& GetElement(WireID const& wireid) const { return Wire(wireid); }
+    //@}
+
+    //
+    // simple geometry queries
+    //
+
+    /**
+     * @brief Fills two arrays with the coordinates of the wire end points
+     * @param wireid ID of the wire
+     * @param xyzStart (output) an array with the start coordinate
+     * @param xyzEnd (output) an array with the end coordinate
+     * @throws cet::exception wire not present
+     *
+     * The starting point is the wire end with lower z coordinate.
+     *
+     * @deprecated use the wire ID interface instead (but note that it does not
+     *             sort the ends)
+     */
+    void WireEndPoints(WireID const& wireid, double* xyzStart, double* xyzEnd) const;
+
+    //@{
+    /**
+     * @brief Returns a segment whose ends are the wire end points
+     * @param wireid ID of the wire
+     * @return a segment whose ends are the wire end points
+     * @throws cet::exception wire not present
+     *
+     * The start and end are assigned as returned from the geo::WireGeo object.
+     * The rules for this assignment are documented in that class.
+     *
+     * @deprecated use the wire ID interface instead (but note that it does not
+     *             sort the ends)
+     */
+    Segment WireEndPoints(WireID const& wireid) const
+    {
+      WireGeo const& wire = Wire(wireid);
+      return {wire.GetStart(), wire.GetEnd()};
+    }
+    //@}
+
+    /// @name Wire access and information
+    /// @{
+
+    //
+    // single object features
+    //
+
+    //@{
+    /**
+     * @brief Returns the angle of the wires in the specified view from vertical
+     * @param view the view
+     * @param TPC the index of the TPC in the specified cryostat
+     * @param Cryo the cryostat
+     * @param tpcid ID of the TPC
+     * @return the angle [radians]
+     * @throw cet::exception ("GeometryCore" category) if no such view
+     *
+     * The angle is defined as in WireGeo::ThetaZ().
+     *
+     * This method assumes all wires in the view have the same angle (it queries for the
+     * first).
+     *
+     * @deprecated This does not feel APA-ready
+     */
+    double WireAngleToVertical(View_t view, TPCID const& tpcid) const;
+    //@}
+
+    /// @} Wire access and information
+
+    //
+    // wire intersections
+    //
+
+    //@{
+    /**
+     * @brief Computes the intersection between two wires.
+     * @param wid1 ID of the first wire
+     * @param wid2 ID of the other wire
+     * @param[out] intersection the intersection point (global coordinates)
+     * @return whether an intersection was found inside the TPC the wires belong
+     * @see `geo::WiresIntersection()`, `geo::LineClosestPoint()`
+     *
+     * The wires identified by `wid1` and `wid2` are intersected, and the 3D intersection
+     * point is written into the `intersection` parameter.  The "intersection" point is
+     * actually the point belonging to the first wire (`wid2`) which is the closest (in
+     * Euclidean 3D metric) to the second wire.
+     *
+     * The intersection is computed only if the wires belong to different planes of the
+     * same TPC. If that is not the case (i.e. they belong to different TPC or cryostat,
+     * or if they belong to the same plane), `false` is returned and `intersection` is set
+     * with all components to infinity (`std::numeric_limits<>::infinity()`).
+     *
+     * When the intersection is computed, it is always stored in the `intersection` output
+     * parameter. Return value is `true` if this intersection lies within the physical
+     * boundaries first wire, while it is instead `false` if it lies on the extrapolation
+     * of the wire direction, but not within the wire physical extension.
+     *
+     * To test that the result is not infinity (nor NaN), use
+     * `geo::vect::isfinite(intersection)` etc.
+     *
+     * @note If `geo::WireGeo` objects are already available, using instead the free
+     *       function `geo::WiresIntersection()` or the method
+     *       `geo::WireGeo::IntersectionWith()` is faster (and _recommended_).  For purely
+     *       geometric intersection, `geo::LineClosestPoint()` is also available.
+     */
+    bool WireIDsIntersect(WireID const& wid1, WireID const& wid2, Point_t& intersection) const;
+    //@}
+
+    //@{
+    /**
+     * @brief Computes the intersection between two wires.
+     * @param wid1 ID of the first wire
+     * @param wid2 ID of the other wire
+     * @param widIntersect (output) the coordinate of the intersection point
+     * @return whether an intersection was found within the TPC
+     *
+     * The "intersection" refers to the projection of the wires into the same
+     * @f$ x = 0 @f$ plane.
+     * Wires are assumed to have at most one intersection.
+     * If wires are parallel, `widIntersect` will have the two components set to
+     * infinity (`std::numeric_limits<>::infinity()`) and the TPC number set to
+     * invalid (`geo::TPCID::InvalidID`). Also, `false` is returned.
+     * If the intersection is outside the TPC, `false` is also returned, but the
+     * `widIntersect` will contain the coordinates of that intersection. The TPC
+     * number is still set to invalid, although the intersection _might_ belong
+     * to a valid TPC somewhere else.
+     *
+     *
+     * @deprecated This method uses arbitrary assumptions and should not be
+     *             used. Use the interface returning a full vector instead.
+     */
+    std::optional<WireIDIntersection> WireIDsIntersect(WireID const& wid1,
+                                                       WireID const& wid2) const;
+    //@}
+
+    /// @}
+
+    /// @name Plane access and information
+    /// @{
+
+    //
+    // access
+    //
+
+    /**
+     * @name Wire geometry queries
+     *
+     * Please note the differences between functions:
+     * ChannelsIntersect(), WireIDsIntersect() and IntersectionPoint()
+     * all calculate wires intersection using the same equation.
+     * ChannelsIntersect() and WireIdsIntersect() will return true
+     * if the two wires cross, return false if they don't.
+     * IntersectionPoint() does not check if the two wires cross.
+     */
+    /// @{
+
+    /**
+     * @brief Returns the plane that is not in the specified arguments
+     * @param pid1 a plane
+     * @param pid2 another plane
+     * @return the ID to the third plane
+     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
+     * @throws cet::exception (category: "GeometryCore") if pid1 and pid2 match
+     *
+     * This function requires a geometry with exactly three planes.  If the two input
+     * planes are not on the same TPC, the result is undefined.
+     */
+    PlaneID ThirdPlane(PlaneID const& pid1, PlaneID const& pid2) const;
+
+    /**
+     * @brief Returns the slope on the third plane, given it in the other two
+     * @param pid1 ID of the plane of the first slope
+     * @param slope1 slope as seen on the first plane
+     * @param pid2 ID of the plane of the second slope
+     * @param slope2 slope as seen on the second plane
+     * @param output_plane ID of the plane on which to calculate the slope
+     * @return the slope on the third plane, or -999. if slope would be infinity
+     * @throws cet::exception (category: "GeometryCore") if different TPC
+     * @throws cet::exception (category: "GeometryCore") if input planes match
+     *
+     * Given a slope as projected in two planes, returns the slope as projected in the
+     * specified output plane.  The slopes are defined in uniform units; they should be
+     * computed as distance ratios (or tangent of a geometrical angle; the formula is
+     * still valid using dt/dw directly in case of equal wire pitch in all planes and
+     * uniform drift velocity.
+     */
+    double ThirdPlaneSlope(PlaneID const& pid1,
+                           double slope1,
+                           PlaneID const& pid2,
+                           double slope2,
+                           PlaneID const& output_plane) const;
+
+    /**
+     * @brief Returns the slope on the third plane, given it in the other two
+     * @param pid1 ID of the plane of the first slope
+     * @param slope1 slope as seen on the first plane
+     * @param pid2 ID of the plane of the second slope
+     * @param slope2 slope as seen on the second plane
+     * @return the slope on the third plane, or -999. if slope would be infinity
+     * @throws cet::exception (category: "GeometryCore") if different TPC
+     * @throws cet::exception (category: "GeometryCore") if same plane
+     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
+     *
+     * Given a slope as projected in two planes, returns the slope as projected in the
+     * third plane.  This function is a shortcut assuming exactly three wire planes in the
+     * TPC, in which case the output plane is chosen as the one that is neither of the
+     * input planes.
+     */
+    double ThirdPlaneSlope(PlaneID const& pid1,
+                           double slope1,
+                           PlaneID const& pid2,
+                           double slope2) const;
+
+    //@{
+    /**
+     * @brief Returns the slope on the third plane, given it in the other two
+     * @param plane1 index of the plane of the first slope
+     * @param slope1 slope as seen on the first plane
+     * @param plane2 index of the plane of the second slope
+     * @param slope2 slope as seen on the second plane
+     * @param tpcid TPC where the two planes belong
+     * @return the slope on the third plane, or -999. if slope would be infinity
+     * @throws cet::exception (category: "GeometryCore") if different TPC
+     * @throws cet::exception (category: "GeometryCore") if same plane
+     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
+     *
+     * Given a slope as projected in two planes, returns the slope as projected in the
+     * third plane.
+     */
+    double ThirdPlaneSlope(PlaneID::PlaneID_t plane1,
+                           double slope1,
+                           PlaneID::PlaneID_t plane2,
+                           double slope2,
+                           TPCID const& tpcid) const
+    {
+      return ThirdPlaneSlope(PlaneID(tpcid, plane1), slope1, PlaneID(tpcid, plane2), slope2);
+    }
+    //@}
+
+    /**
+     * @brief Returns dT/dW on the third plane, given it in the other two
+     * @param pid1 ID of the plane of the first dT/dW
+     * @param dTdW1 dT/dW as seen on the first plane
+     * @param pid2 ID of the plane of the second dT/dW
+     * @param dTdW2 dT/dW  as seen on the second plane
+     * @param output_plane ID of the plane on which to calculate the slope
+     * @return dT/dW on the third plane, or -999. if dT/dW would be infinity
+     * @throws cet::exception (category: "GeometryCore") if different TPC
+     * @throws cet::exception (category: "GeometryCore") if same plane
+     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
+     *
+     * Given a dT/dW as projected in two planes, returns the dT/dW as projected in the
+     * third plane.  The dT/dW are defined in time ticks/wide number units.
+     */
+    double ThirdPlane_dTdW(PlaneID const& pid1,
+                           double slope1,
+                           PlaneID const& pid2,
+                           double slope2,
+                           PlaneID const& output_plane) const;
+
+    /**
+     * @brief Returns dT/dW on the third plane, given it in the other two
+     * @param pid1 ID of the plane of the first dT/dW
+     * @param dTdW1 dT/dW as seen on the first plane
+     * @param pid2 ID of the plane of the second dT/dW
+     * @param dTdW2 dT/dW  as seen on the second plane
+     * @return dT/dW on the third plane, or -999. if dT/dW would be infinity
+     * @throws cet::exception (category: "GeometryCore") if different TPC
+     * @throws cet::exception (category: "GeometryCore") if same plane
+     * @throws cet::exception (category: "GeometryCore") if other than 3 planes
+     *
+     * Given a dT/dW as projected in two planes, returns the dT/dW as projected in the
+     * third plane.  This function is a shortcut assuming exactly three wire planes in the
+     * TPC, in which case the output plane is chosen as the one that is neither of the
+     * input planes.
+     */
+    double ThirdPlane_dTdW(PlaneID const& pid1,
+                           double slope1,
+                           PlaneID const& pid2,
+                           double slope2) const;
+
+    /**
+     * @brief Returns the slope on the third plane, given it in the other two
+     * @param angle1 angle or the wires on the first plane
+     * @param slope1 slope as observed on the first plane
+     * @param angle2 angle or the wires on the second plane
+     * @param slope2 slope as observed on the second plane
+     * @param angle_target angle or the wires on the target plane
+     * @return the slope as measure on the third plane, or 999 if infinity
+     *
+     * This function will return a small slope if both input slopes are small.
+     */
+    static double ComputeThirdPlaneSlope(double angle1,
+                                         double slope1,
+                                         double angle2,
+                                         double slope2,
+                                         double angle_target);
+
+    /**
+     * @brief Returns the slope on the third plane, given it in the other two
+     * @param angle1 angle or the wires on the first plane
+     * @param pitch1 wire pitch on the first plane
+     * @param dTdW1 slope in dt/dw units as observed on the first plane
+     * @param angle2 angle or the wires on the second plane
+     * @param pitch2 wire pitch on the second plane
+     * @param dTdW2 slope in dt/dw units as observed on the second plane
+     * @param angle_target angle or the wires on the target plane
+     * @param pitch_target wire pitch on the target plane
+     * @return dt/dw slope as measured on the third plane, or 999 if infinity
+     *
+     * The input slope must be specified in dt/dw non-homogeneous coordinates.
+     *
+     * This function will return a small slope if both input slopes are small.
+     */
+    static double ComputeThirdPlane_dTdW(double angle1,
+                                         double pitch1,
+                                         double dTdW1,
+                                         double angle2,
+                                         double pitch2,
+                                         double dTdW2,
+                                         double angle_target,
+                                         double pitch_target);
+
+    /// @} Wire geometry queries
+
+    //......................................................................
+    double Plane0Pitch(TPCID const& tpcid, unsigned int p1) const;
+    double PlanePitch(TPCID const& tpcid, unsigned int p1 = 0, unsigned int p2 = 1) const;
 
     //--------------------------------------------------------------------------
     /// @{
@@ -707,8 +1196,26 @@ namespace geo {
       fADChannelToSensitiveGeo; ///< map the AuxDetGeo index to a vector of
                                 ///< indices corresponding to the AuxDetSensitiveGeo index
   private:
+    /// Wire ID check for WireIDsIntersect methods
+    bool WireIDIntersectionCheck(WireID const& wid1, WireID const& wid2) const;
+
+    /// Recomputes the drift direction; needs planes to have been initialised.
+    void ResetDriftDirection(TPCID const& tpcid);
+
+    void UpdateAfterSorting(TPCGeo const& tpc, std::vector<PlaneGeo>& planes);
+
+    /// Sorts (in place) the specified `PlaneGeo` objects by drift distance.
+    void SortPlanes(TPCID const& tpcid, std::vector<PlaneGeo>& planes) const;
+    void SortSubVolumes(std::vector<PlaneGeo>& planes, Compare<WireGeo> compareWires) const;
+
+    std::map<TPCID, std::vector<PlaneGeo>> fPlanes;
+    std::map<TPCID, std::vector<double>> fPlane0Pitch; ///< Pitch between planes.
+
+    // cached values
+    std::set<View_t> allViews; ///< All views in the detector.
+
     GeometryCore const* fGeom;
   };
 
 }
-#endif // GEO_CHANNELMAPALG_H
+#endif // GEO_WIREREADOUTGEOM_H

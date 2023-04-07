@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  ChannelMapStandardAlg.h
+/// \file  WireReadoutStandardGeom.h
 /// \brief Interface to algorithm class for a specific detector channel mapping
 ///
 /// \author  brebel@fnal.gov
@@ -7,7 +7,8 @@
 #ifndef LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
 #define LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
 
-#include "larcorealg/Geometry/ChannelMapAlg.h"
+#include "larcorealg/Geometry/WireReadoutGeom.h"
+#include "larcorealg/Geometry/WireReadoutSorter.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 #include "larcoreobj/SimpleTypesAndConstants/readout_types.h" // readout::TPCsetID, ...
 
@@ -18,9 +19,11 @@
 
 namespace geo {
 
-  class ChannelMapStandardAlg : public ChannelMapAlg {
+  class WireReadoutStandardGeom : public WireReadoutGeom {
   public:
-    explicit ChannelMapStandardAlg(GeometryCore const* geom);
+    WireReadoutStandardGeom(fhicl::ParameterSet const& pset,
+                            GeometryCore const* geom,
+                            std::unique_ptr<WireReadoutSorter> sorter);
 
     std::vector<WireID> ChannelToWire(raw::ChannelID_t channel) const override;
     unsigned int Nchannels() const override;

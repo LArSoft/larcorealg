@@ -249,7 +249,7 @@ gdmldir	product_dir
 ####################################
 product		version		qual	flags		<table_format=2>
 larcoreobj	v09_09_01	-
-range           v3_0_11_0
+range           v3_0_12_0
 cetmodules	v3_20_00	-	only_for_build
 end_product_list
 ####################################

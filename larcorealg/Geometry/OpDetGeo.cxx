@@ -23,10 +23,8 @@
 namespace geo {
 
   //-----------------------------------------
-  OpDetGeo::OpDetGeo(TGeoNode const* node, geo::TransformationMatrix&& trans)
-    : fTrans(std::move(trans))
-    , fOpDetNode{node}
-    , fCenter{toWorldCoords(geo::origin<LocalPoint_t>())}
+  OpDetGeo::OpDetGeo(TGeoNode const* node, TransformationMatrix&& trans)
+    : fTrans(std::move(trans)), fOpDetNode{node}, fCenter{toWorldCoords(origin<LocalPoint_t>())}
   {}
 
   //......................................................................
@@ -94,10 +92,7 @@ namespace geo {
   }
 
   //......................................................................
-  double OpDetGeo::DistanceToPoint(geo::Point_t const& point) const
-  {
-    return (point - GetCenter()).R();
-  }
+  double OpDetGeo::DistanceToPoint(Point_t const& point) const { return (point - GetCenter()).R(); }
 
   //......................................................................
   std::string OpDetGeo::OpDetInfo(std::string indent /* = "" */,
@@ -109,14 +104,14 @@ namespace geo {
   }
 
   //......................................................................
-  double OpDetGeo::CosThetaFromNormal(geo::Point_t const& point) const
+  double OpDetGeo::CosThetaFromNormal(Point_t const& point) const
   {
     auto const& local = toLocalCoords(point);
     return local.Z() / local.R();
   }
 
   //......................................................................
-  void OpDetGeo::UpdateAfterSorting(geo::OpDetID opdetid) { fID = opdetid; }
+  void OpDetGeo::UpdateAfterSorting(OpDetID opdetid) { fID = opdetid; }
 
 }
 ////////////////////////////////////////////////////////////////////////

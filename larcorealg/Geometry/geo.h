@@ -10,8 +10,8 @@
 
 /// Detector geometry definition and interface
 namespace geo {
-  void ProjectToBoxEdge(const double xyz[],
-                        const double dxyz[],
+  void ProjectToBoxEdge(double const xyz[],
+                        double const dxyz[],
                         double xlo,
                         double xhi,
                         double ylo,
@@ -19,9 +19,9 @@ namespace geo {
                         double zlo,
                         double zhi,
                         double xyzout[]);
-  double ClosestApproach(const double point[],
-                         const double intercept[],
-                         const double slopes[],
+  double ClosestApproach(double const point[],
+                         double const intercept[],
+                         double const slopes[],
                          double closest[]);
   bool CrossesBoundary(double x0[],
                        double gradient[],
@@ -51,8 +51,8 @@ namespace geo {
 /// Note: It should be safe to use the same array for input and
 /// output.
 ///
-inline void geo::ProjectToBoxEdge(const double xyz[],
-                                  const double dxyz[],
+inline void geo::ProjectToBoxEdge(double const xyz[],
+                                  double const dxyz[],
                                   double xlo,
                                   double xhi,
                                   double ylo,
@@ -109,9 +109,9 @@ inline void geo::ProjectToBoxEdge(const double xyz[],
 ///
 /// \returns distance from point to line
 ///
-inline double geo::ClosestApproach(const double point[],
-                                   const double intercept[],
-                                   const double slopes[],
+inline double geo::ClosestApproach(double const point[],
+                                   double const intercept[],
+                                   double const slopes[],
                                    double closest[])
 {
   double s = (slopes[0] * (point[0] - intercept[0]) + slopes[1] * (point[1] - intercept[1]) +

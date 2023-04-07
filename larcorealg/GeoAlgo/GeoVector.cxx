@@ -7,27 +7,27 @@
 
 namespace geoalgo {
 
-  Vector::Vector(const double x, const double y) : Vector(2)
+  Vector::Vector(double const x, double const y) : Vector(2)
   {
     (*this)[0] = x;
     (*this)[1] = y;
   }
 
-  Vector::Vector(const double x, const double y, const double z) : Vector(3)
+  Vector::Vector(double const x, double const y, double const z) : Vector(3)
   {
     (*this)[0] = x;
     (*this)[1] = y;
     (*this)[2] = z;
   }
 
-  Vector::Vector(const TVector3& pt) : Vector(3)
+  Vector::Vector(TVector3 const& pt) : Vector(3)
   {
     (*this)[0] = pt[0];
     (*this)[1] = pt[1];
     (*this)[2] = pt[2];
   }
 
-  Vector::Vector(const TLorentzVector& pt) : Vector(3)
+  Vector::Vector(TLorentzVector const& pt) : Vector(3)
   {
     (*this)[0] = pt[0];
     (*this)[1] = pt[1];
@@ -56,21 +56,21 @@ namespace geoalgo {
 
   double Vector::Length() const { return sqrt(SqLength()); }
 
-  double Vector::SqDist(const Vector& obj) const
+  double Vector::SqDist(Vector const& obj) const
   {
     compat(obj);
     return _SqDist_(obj);
   }
 
-  double Vector::Dist(const Vector& obj) const { return sqrt(SqDist(obj)); }
+  double Vector::Dist(Vector const& obj) const { return sqrt(SqDist(obj)); }
 
-  double Vector::Dot(const Vector& obj) const
+  double Vector::Dot(Vector const& obj) const
   {
     compat(obj);
     return _Dot_(obj);
   }
 
-  Vector Vector::Cross(const Vector& obj) const
+  Vector Vector::Cross(Vector const& obj) const
   {
 
     if (size() != 3 || obj.size() != 3)
@@ -92,7 +92,7 @@ namespace geoalgo {
     return (*this).Length() == 0.0 ? 0.0 : acos((*this)[2] / (*this).Length());
   }
 
-  double Vector::Angle(const Vector& obj) const
+  double Vector::Angle(Vector const& obj) const
   {
     compat(obj);
     if (size() != 2 && size() != 3)
@@ -116,7 +116,7 @@ namespace geoalgo {
     return res;
   }
 
-  void Vector::compat(const Vector& obj) const
+  void Vector::compat(Vector const& obj) const
   {
     if (size() != obj.size()) {
       std::ostringstream msg;
@@ -126,7 +126,7 @@ namespace geoalgo {
     }
   }
 
-  double Vector::_SqDist_(const Vector& obj) const
+  double Vector::_SqDist_(Vector const& obj) const
   {
     double dist = 0;
     for (size_t i = 0; i < size(); ++i)
@@ -134,11 +134,11 @@ namespace geoalgo {
     return dist;
   }
 
-  double Vector::_Dist_(const Vector& obj) const { return sqrt(_SqDist_(obj)); }
+  double Vector::_Dist_(Vector const& obj) const { return sqrt(_SqDist_(obj)); }
 
-  double Vector::_Dot_(const Vector& obj) const { return (*this) * obj; }
+  double Vector::_Dot_(Vector const& obj) const { return (*this) * obj; }
 
-  Vector Vector::_Cross_(const Vector& obj) const
+  Vector Vector::_Cross_(Vector const& obj) const
   {
     Vector res(3);
     res[0] = (*this)[1] * obj[2] - obj[1] * (*this)[2];
@@ -147,12 +147,12 @@ namespace geoalgo {
     return res;
   }
 
-  double Vector::_Angle_(const Vector& obj) const
+  double Vector::_Angle_(Vector const& obj) const
   {
     return acos(_Dot_(obj) / Length() / obj.Length());
   }
 
-  void Vector::RotateX(const double& theta)
+  void Vector::RotateX(double const& theta)
   {
 
     double c = cos(theta);
@@ -167,7 +167,7 @@ namespace geoalgo {
     return;
   }
 
-  void Vector::RotateY(const double& theta)
+  void Vector::RotateY(double const& theta)
   {
 
     double c = cos(theta);
@@ -182,7 +182,7 @@ namespace geoalgo {
     return;
   }
 
-  void Vector::RotateZ(const double& theta)
+  void Vector::RotateZ(double const& theta)
   {
 
     double c = cos(theta);

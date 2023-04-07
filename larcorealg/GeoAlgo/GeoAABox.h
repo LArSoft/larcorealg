@@ -41,24 +41,24 @@ namespace geoalgo {
     virtual ~AABox(){};
 
     /// Alternative ctor (0)
-    AABox(const double x_min,
-          const double y_min,
-          const double z_min,
-          const double x_max,
-          const double y_max,
-          const double z_max);
+    AABox(double const x_min,
+          double const y_min,
+          double const z_min,
+          double const x_max,
+          double const y_max,
+          double const z_max);
 
     /// Altenartive ctor (1)
-    AABox(const Point_t& min, const Vector_t& max);
+    AABox(Point_t const& min, Vector_t const& max);
 
     //
     // Attribute accessor
     //
-    const Point_t& Min() const;                               ///< Minimum point getter
-    const Point_t& Max() const;                               ///< Maximum point getter
-    void Min(const double x, const double y, const double z); ///< Minimum point setter
-    void Max(const double x, const double y, const double z); ///< Maximum point setter
-    bool Contain(const Point_t& pt) const; ///< Test if a point is contained within the box
+    Point_t const& Min() const;                               ///< Minimum point getter
+    Point_t const& Max() const;                               ///< Maximum point getter
+    void Min(double const x, double const y, double const z); ///< Minimum point setter
+    void Max(double const x, double const y, double const z); ///< Maximum point setter
+    bool Contain(Point_t const& pt) const; ///< Test if a point is contained within the box
 
   protected:
     Point_t _min; ///< Minimum point
@@ -70,7 +70,7 @@ namespace geoalgo {
     //
     /// Alternative ctor using template (3)
     template <class T, class U>
-    AABox(const T& min, const U& max) : AABox(Point_t(min), Point_t(max))
+    AABox(T const& min, U const& max) : AABox(Point_t(min), Point_t(max))
     {}
   };
 
