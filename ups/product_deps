@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent	larcorealg	v08_01_00_03
+parent	larcorealg	v08_01_00_04
 defaultqual	e17
 
 # These optional lines define the installed directories where
