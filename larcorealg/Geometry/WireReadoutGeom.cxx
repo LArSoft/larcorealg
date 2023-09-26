@@ -83,7 +83,7 @@ namespace geo {
     // Update views
     std::set<View_t> updatedViews;
     for (auto const& tpc : fGeom->Iterate<TPCGeo>()) {
-      auto& planes = fPlanes[tpc.ID()] = planesPerTPC.at(tpc.TotalVolume());
+      auto& planes = fPlanes[tpc.ID()] = planesPerTPC.at(tpc.Hash());
       SortPlanes(tpc.ID(), planes);
       SortSubVolumes(planes, compareWires);
       UpdateAfterSorting(tpc, planes);
@@ -195,6 +195,14 @@ namespace geo {
     auto it = fPlanes.find(tpcid);
     if (it == fPlanes.cend()) { return 0; }
     return it->second.size();
+  }
+
+  //......................................................................
+  PlaneGeo const& WireReadoutGeom::FirstPlane(TPCID const& tpcid) const
+  {
+    if (auto const* plane_ptr = PlanePtr({tpcid, 0})) { return *plane_ptr; }
+    throw cet::exception("WireReadoutGeom")
+      << "TPC with ID " << tpcid << " does not have a first plane.";
   }
 
   //......................................................................
@@ -432,114 +440,6 @@ namespace geo {
     return hChan < NOpHardwareChannels(opdet);
   }
 
-  //----------------------------------------------------------------------------
-  size_t WireReadoutGeom::NearestAuxDet(Point_t const& point,
-                                        std::vector<AuxDetGeo> const& auxDets,
-                                        double tolerance) const
-  {
-    for (size_t a = 0; a < auxDets.size(); ++a) {
-      auto const localPoint = auxDets[a].toLocalCoords(point);
-
-      double const HalfCenterWidth = 0.5 * (auxDets[a].HalfWidth1() + auxDets[a].HalfWidth2());
-
-      if (localPoint.Z() >= -(auxDets[a].Length() / 2 + tolerance) &&
-          localPoint.Z() <= (auxDets[a].Length() / 2 + tolerance) &&
-          localPoint.Y() >= -auxDets[a].HalfHeight() - tolerance &&
-          localPoint.Y() <= auxDets[a].HalfHeight() + tolerance &&
-          // if AuxDet a is a box, then HalfSmallWidth = HalfWidth
-          localPoint.X() >= -HalfCenterWidth +
-                              localPoint.Z() * (HalfCenterWidth - auxDets[a].HalfWidth2()) /
-                                (0.5 * auxDets[a].Length()) -
-                              tolerance &&
-          localPoint.X() <= HalfCenterWidth -
-                              localPoint.Z() * (HalfCenterWidth - auxDets[a].HalfWidth2()) /
-                                (0.5 * auxDets[a].Length()) +
-                              tolerance)
-        return a;
-
-    } // for loop over AuxDet a
-
-    // throw an exception because we couldn't find the sensitive volume
-    throw cet::exception("WireReadoutGeom") << "Can't find AuxDet for position (" << point.X()
-                                            << "," << point.Y() << "," << point.Z() << ")\n";
-  }
-
-  //----------------------------------------------------------------------------
-  size_t WireReadoutGeom::NearestSensitiveAuxDet(Point_t const& point,
-                                                 std::vector<AuxDetGeo> const& auxDets,
-                                                 double tolerance) const
-  {
-    size_t auxDetIdx = NearestAuxDet(point, auxDets, tolerance);
-    AuxDetGeo const& adg = auxDets[auxDetIdx];
-
-    for (size_t a = 0; a < adg.NSensitiveVolume(); ++a) {
-      AuxDetSensitiveGeo const& adsg = adg.SensitiveVolume(a);
-      auto const localPoint = adsg.toLocalCoords(point);
-
-      double const HalfCenterWidth = 0.5 * (adsg.HalfWidth1() + adsg.HalfWidth2());
-
-      if (localPoint.Z() >= -(adsg.Length() / 2 + tolerance) &&
-          localPoint.Z() <= (adsg.Length() / 2 + tolerance) &&
-          localPoint.Y() >= -adsg.HalfHeight() - tolerance &&
-          localPoint.Y() <= adsg.HalfHeight() + tolerance &&
-          // if AuxDet a is a box, then HalfSmallWidth = HalfWidth
-          localPoint.X() >=
-            -HalfCenterWidth +
-              localPoint.Z() * (HalfCenterWidth - adsg.HalfWidth2()) / (0.5 * adsg.Length()) -
-              tolerance &&
-          localPoint.X() <=
-            HalfCenterWidth -
-              localPoint.Z() * (HalfCenterWidth - adsg.HalfWidth2()) / (0.5 * adsg.Length()) +
-              tolerance)
-        return a;
-    } // for loop over AuxDetSensitive a
-
-    // throw an exception because we couldn't find the sensitive volume
-    throw cet::exception("Geometry") << "Can't find AuxDetSensitive for position (" << point.X()
-                                     << "," << point.Y() << "," << point.Z() << ")\n";
-  }
-
-  //----------------------------------------------------------------------------
-  size_t WireReadoutGeom::ChannelToAuxDet(std::vector<AuxDetGeo> const& /* auxDets */,
-                                          std::string const& detName,
-                                          uint32_t const& /*channel*/) const
-  {
-    // loop over the map of AuxDet names to Geo object numbers to determine which auxdet
-    // we have.  If no name in the map matches the provided string, throw an exception
-    for (auto itr : fADNameToGeo)
-      if (itr.first.compare(detName) == 0) return itr.second;
-
-    throw cet::exception("Geometry") << "No AuxDetGeo matching name: " << detName;
-  }
-
-  //----------------------------------------------------------------------------
-  // the first member of the pair is the index in the auxDets vector for the AuxDetGeo,
-  // the second member is the index in the vector of AuxDetSensitiveGeos for that AuxDetGeo
-  std::pair<size_t, size_t> WireReadoutGeom::ChannelToSensitiveAuxDet(
-    std::vector<AuxDetGeo> const& auxDets,
-    std::string const& detName,
-    uint32_t const& channel) const
-  {
-    size_t adGeoIdx = ChannelToAuxDet(auxDets, detName, channel);
-
-    // look for the index of thoe sensitive volume for the given channel
-    if (fADChannelToSensitiveGeo.count(adGeoIdx) > 0) {
-
-      auto itr = fADChannelToSensitiveGeo.find(adGeoIdx);
-
-      // get the vector of channels to AuxDetSensitiveGeo index
-      if (channel < itr->second.size()) return std::make_pair(adGeoIdx, itr->second[channel]);
-
-      throw cet::exception("Geometry")
-        << "Given AuxDetSensitive channel, " << channel
-        << ", cannot be found in vector associated to AuxDetGeo index: " << adGeoIdx
-        << ". Vector has size " << itr->second.size();
-    }
-
-    throw cet::exception("Geometry") << "Given AuxDetGeo with index " << adGeoIdx
-                                     << " does not correspond to any vector of sensitive volumes";
-  }
-
   SigType_t WireReadoutGeom::SignalType(raw::ChannelID_t const channel) const
   {
     return SignalTypeForChannelImpl(channel);
@@ -628,59 +528,6 @@ namespace geo {
     // this comment.
     WireID const wireID = Plane(planeid).NearestWireID(worldPos);
     return wireID ? PlaneWireToChannel(wireID) : raw::InvalidChannelID;
-  }
-
-  //......................................................................
-  unsigned int WireReadoutGeom::FindAuxDetAtPosition(Point_t const& point, double tolerance) const
-  {
-    return NearestAuxDet(point, fGeom->AuxDets(), tolerance);
-  }
-
-  //......................................................................
-  AuxDetGeo const& WireReadoutGeom::PositionToAuxDet(Point_t const& point,
-                                                     unsigned int& ad,
-                                                     double tolerance) const
-  {
-    // FIXME (KJK): Possibly remove this function?  locate the desired Auxiliary Detector
-    ad = FindAuxDetAtPosition(point, tolerance);
-    return fGeom->AuxDet(ad);
-  }
-
-  //......................................................................
-  void WireReadoutGeom::FindAuxDetSensitiveAtPosition(Point_t const& point,
-                                                      std::size_t& adg,
-                                                      std::size_t& sv,
-                                                      double tolerance) const
-  {
-    adg = FindAuxDetAtPosition(point, tolerance);
-    sv = NearestSensitiveAuxDet(point, fGeom->AuxDets(), tolerance);
-  }
-
-  //......................................................................
-  AuxDetSensitiveGeo const& WireReadoutGeom::PositionToAuxDetSensitive(Point_t const& point,
-                                                                       size_t& ad,
-                                                                       size_t& sv,
-                                                                       double tolerance) const
-  {
-    // locate the desired Auxiliary Detector
-    FindAuxDetSensitiveAtPosition(point, ad, sv, tolerance);
-    return fGeom->AuxDet(ad).SensitiveVolume(sv);
-  }
-
-  //......................................................................
-  AuxDetGeo const& WireReadoutGeom::ChannelToAuxDet(std::string const& auxDetName,
-                                                    uint32_t const channel) const
-  {
-    size_t adIdx = ChannelToAuxDet(fGeom->AuxDets(), auxDetName, channel);
-    return fGeom->AuxDet(adIdx);
-  }
-
-  //......................................................................
-  AuxDetSensitiveGeo const& WireReadoutGeom::ChannelToAuxDetSensitive(std::string const& auxDetName,
-                                                                      uint32_t const channel) const
-  {
-    auto idx = ChannelToSensitiveAuxDet(fGeom->AuxDets(), auxDetName, channel);
-    return fGeom->AuxDet(idx.first).SensitiveVolume(idx.second);
   }
 
   //......................................................................

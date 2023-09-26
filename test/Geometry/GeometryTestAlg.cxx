@@ -13,6 +13,7 @@
 #include "larcorealg/CoreUtils/DumpUtils.h" // lar::dump::vector3D(), ...
 #include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/Decomposer.h"
@@ -100,9 +101,11 @@ namespace geo {
   //......................................................................
   GeometryTestAlg::GeometryTestAlg(GeometryCore const* geometry,
                                    WireReadoutGeom const* wireReadoutGeom,
+                                   AuxDetGeometryCore const* auxDetGeometry,
                                    fhicl::ParameterSet const& pset)
     : geom{geometry}
     , wireReadoutGeom{wireReadoutGeom}
+    , auxDetGeom{auxDetGeometry}
     , fDisableValidWireIDcheck(pset.get<bool>("DisableWireBoundaryCheck", false))
     , fExpectedWirePitches(pset.get<std::vector<double>>("ExpectedWirePitches", {}))
     , fExpectedPlanePitches(pset.get<std::vector<double>>("ExpectedPlanePitches", {}))
@@ -152,7 +155,7 @@ namespace geo {
     mf::LogInfo("GeometryTestInfo") << "Running on detector: '" << geom->DetectorName() << "'";
 
     mf::LogVerbatim("GeometryTest") << "  Running on detector: '" << geom->DetectorName() << "'"
-                                    << "\nGeometry file: " << geom->ROOTFile();
+                                    << "\nGeometry file: " << geom->GDMLFile();
 
     try {
       if (shouldRunTests("DetectorIntro")) {
@@ -374,7 +377,7 @@ namespace geo {
         << "\n  TPC in a cryostat: " << geom->MaxTPCs()
         << "\n  planes in a TPC:   " << wireReadoutGeom->MaxPlanes()
         << "\n  wires in a plane:  " << wireReadoutGeom->MaxWires() << "\nTotal number of TPCs "
-        << geom->TotalNTPC() << "\nAuxiliary detectors  " << geom->NAuxDets();
+        << geom->TotalNTPC() << "\nAuxiliary detectors  " << auxDetGeom->NAuxDets();
 
   } // GeometryTestAlg::printDetectorIntro()
 
@@ -501,11 +504,11 @@ namespace geo {
   {
     mf::LogVerbatim log("GeometryTest");
 
-    unsigned int const nAuxDets = geom->NAuxDets();
+    unsigned int const nAuxDets = auxDetGeom->NAuxDets();
     log << "There are " << nAuxDets << " auxiliary detectors:";
     for (unsigned int iDet = 0; iDet < nAuxDets; ++iDet) {
       log << "\n[#" << iDet << "] ";
-      printAuxDetGeo(log, geom->AuxDet(iDet), "  ", "");
+      printAuxDetGeo(log, auxDetGeom->AuxDet(iDet), "  ", "");
     } // for
   }
 
@@ -3002,7 +3005,7 @@ namespace geo {
   {
     unsigned int foundDet = std::numeric_limits<unsigned int>::max();
     try {
-      foundDet = wireReadoutGeom->FindAuxDetAtPosition(pos);
+      foundDet = auxDetGeom->FindAuxDetAtPosition(pos);
     }
     catch (cet::exception const& e) {
       mf::LogProblem("GeometryTestAlg")
@@ -3029,7 +3032,7 @@ namespace geo {
     size_t foundDet = std::numeric_limits<unsigned int>::max();
     size_t foundSensDet = std::numeric_limits<unsigned int>::max();
     try {
-      wireReadoutGeom->FindAuxDetSensitiveAtPosition(pos, foundDet, foundSensDet);
+      auxDetGeom->FindAuxDetSensitiveAtPosition(pos, foundDet, foundSensDet);
     }
     catch (cet::exception const& e) {
       mf::LogProblem("GeometryTestAlg")
@@ -3061,11 +3064,11 @@ namespace geo {
 
     unsigned int nErrors = 0;
 
-    unsigned int const nAuxDets = geom->NAuxDets();
+    unsigned int const nAuxDets = auxDetGeom->NAuxDets();
 
     for (unsigned int iDet = 0; iDet < nAuxDets; ++iDet) {
 
-      AuxDetGeo const& auxDet = geom->AuxDet(iDet);
+      AuxDetGeo const& auxDet = auxDetGeom->AuxDet(iDet);
       unsigned int const nSensitive = auxDet.NSensitiveVolume();
 
       if (nSensitive == 0) {

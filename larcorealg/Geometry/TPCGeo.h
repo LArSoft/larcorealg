@@ -61,7 +61,8 @@ namespace geo {
     ///@}
 
     // Construct a representation of a single plane of the detector
-    TPCGeo(TGeoNode const* node,
+    TPCGeo(TGeoNode const* tpc_node,
+           std::size_t hash_value,
            TransformationMatrix&& trans,
            DriftAxis driftAxis,
            double driftDistance);
@@ -225,12 +226,14 @@ namespace geo {
       return CoordinateContained(c, range[0], range[1], wiggle);
     }
 
-    static TGeoNode* NodeForActiveVolume(TGeoNode const* tpc);
+    std::size_t Hash() const { return fHash; }
+    static TGeoNode const* NodeForActiveVolume(TGeoNode const* tpc);
 
   private:
     using LocalTransformation_t =
       LocalTransformationGeo<ROOT::Math::Transform3D, LocalPoint_t, LocalVector_t>;
 
+    std::size_t fHash;            ///< Uniquely identifies TPC before sorting has been performed.
     LocalTransformation_t fTrans; ///< TPC-to-world transformation.
 
     DriftAxis fDriftAxis;

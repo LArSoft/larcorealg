@@ -70,7 +70,8 @@ namespace geo {
                                      std::function<bool(TGeoNode const&)> const IsObj,
                                      FT captureObject) const
   {
-    if (IsObj(*path.current())) {
+    TGeoNode const* current = path.current();
+    if (IsObj(*current)) {
       captureObject(path);
       return;
     }
@@ -78,11 +79,9 @@ namespace geo {
     // descend into the next layer down, concatenate the results and return them
     if (path.depth() >= fMaxDepth) return; // yep, this is empty
 
-    TGeoVolume const* volume = path.current()->GetVolume();
-    int const n = volume->GetNdaughters();
-
+    int const n = current->GetNdaughters();
     for (int i = 0; i < n; ++i) {
-      path.append(volume->GetNode(i));
+      path.append(current->GetDaughter(i));
       operator()(path, IsObj, captureObject);
       path.pop();
     }

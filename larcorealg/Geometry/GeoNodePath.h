@@ -35,6 +35,9 @@ namespace geo {
    */
   class GeoNodePath {
   public:
+    // FIXME: a better factorization is desirable
+    using Entry = GeoNodePathEntry;
+
     // --- BEGIN Data types ----------------------------------------------------
     /// Type used to represent the depth of the path.
     using Depth_t = std::size_t;
@@ -43,34 +46,33 @@ namespace geo {
 
     // --- BEGIN Constructors and destructor -----------------------------------
     /// Sets all the the specified nodes into the current path.
-    explicit GeoNodePath(TGeoNode const* topNode) : fNodes{topNode} {}
+    explicit GeoNodePath(TGeoNode const* topNode);
     // --- END Constructors and destructor -------------------------------------
 
     // --- BEGIN Query and access ----------------------------------------------
     /// Returns whether there is a current node.
-    bool empty() const { return fNodes.empty(); }
+    bool empty() const;
 
     /// Returns the depth of the path (elements including up to the current).
-    Depth_t depth() const { return fNodes.size(); }
+    Depth_t depth() const;
 
     /// Returns the current node. Undefined if the path is empty.
-    TGeoNode const* current() const { return fNodes.back(); }
+    TGeoNode const* current() const;
 
-    /// Returns the parent of the current node, or null if there is no parent.
-    TGeoNode const* parent() const
-    {
-      if (auto const size = depth(); size > 1ull) { return fNodes[size - 2ull]; }
-      return nullptr;
-    }
+    /// Returns the current node. Undefined if the path is empty.
+    Entry current_entry() const;
+
+    /// Returns the parent entry of the current entry, or null if there is no parent.
+    Entry parent_entry() const;
 
     // --- END Query and access ------------------------------------------------
 
     // --- BEGIN Content management --------------------------------------------
     /// Adds a node to the current path.
-    void append(TGeoNode const* node) { fNodes.push_back(node); }
+    void append(TGeoNode const* node);
 
     /// Removes the current node from the path, moving the current one up.
-    void pop() { fNodes.pop_back(); }
+    void pop();
     // --- END Content management ----------------------------------------------
 
     /// Returns the total transformation to the current node, as a `Matrix`.
@@ -81,7 +83,7 @@ namespace geo {
     operator std::string() const;
 
   private:
-    std::vector<TGeoNode const*> fNodes; ///< Local path of pointers to ROOT geometry nodes.
+    std::vector<Entry> fNodes; ///< Local path of pointers to ROOT geometry nodes.
 
   }; // class GeoNodePath
 

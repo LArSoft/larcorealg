@@ -46,18 +46,20 @@ namespace {
 namespace geo {
 
   //......................................................................
-  TPCGeo::TPCGeo(TGeoNode const* node,
+  TPCGeo::TPCGeo(TGeoNode const* tpc_node,
+                 std::size_t hash_value,
                  TransformationMatrix&& trans,
                  DriftAxis const driftAxis,
                  double const driftDistance)
-    : fTrans(std::move(trans))
+    : fHash{hash_value}
+    , fTrans{std::move(trans)}
     , fDriftAxis{driftAxis}
     , fDriftDir{to_vector(driftAxis)}
     , fDriftDistance{driftDistance}
   {
     // all planes are going to be contained in the volume named volTPC
     // now get the total volume of the TPC
-    TGeoVolume* vc = node->GetVolume();
+    TGeoVolume* vc = tpc_node->GetVolume();
     if (!vc) {
       throw cet::exception("Geometry")
         << "cannot find detector outline volume - bail ungracefully\n";
@@ -65,7 +67,7 @@ namespace geo {
 
     fTotalVolume = vc;
 
-    auto* active_node = NodeForActiveVolume(node);
+    auto* active_node = NodeForActiveVolume(tpc_node);
     // compute the active volume transformation too
     auto ActiveHMatrix(fTrans.Matrix());
     if (active_node) { ActiveHMatrix *= makeTransformationMatrix(*active_node->GetMatrix()); }
@@ -204,7 +206,7 @@ namespace geo {
   void TPCGeo::UpdateAfterSorting(TPCID tpcid) { fID = tpcid; }
 
   //......................................................................
-  TGeoNode* TPCGeo::NodeForActiveVolume(TGeoNode const* tpc)
+  TGeoNode const* TPCGeo::NodeForActiveVolume(TGeoNode const* tpc)
   {
     for (int i = 0, nd = tpc->GetNdaughters(); i < nd; ++i) {
       auto daughter = tpc->GetDaughter(i);

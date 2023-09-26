@@ -94,9 +94,9 @@ inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform
   if (begin == end) return {}; // identity by default construction
   auto iNode = begin;
   ROOT::Math::Transform3D matrix =
-    convertTransformationMatrix<ROOT::Math::Transform3D>(*((*iNode)->GetMatrix()));
+    convertTransformationMatrix<ROOT::Math::Transform3D>(*iNode->node->GetMatrix());
   while (++iNode != end) {
-    matrix *= convertTransformationMatrix<ROOT::Math::Transform3D>(*(*iNode)->GetMatrix());
+    matrix *= convertTransformationMatrix<ROOT::Math::Transform3D>(*iNode->node->GetMatrix());
   }
   return matrix;
 }
@@ -104,7 +104,7 @@ inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform
 //------------------------------------------------------------------------------
 template <>
 inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform3D>(
-  std::vector<TGeoNode const*> const& path,
+  std::vector<GeoNodePathEntry> const& path,
   size_t depth)
 {
   return transformationFromPath<ROOT::Math::Transform3D>(path.begin(), path.begin() + depth + 1);

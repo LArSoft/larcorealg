@@ -43,19 +43,17 @@ namespace geo {
     /**
      * @name Types for geometry-local reference vectors.
      *
-     * These types represents points and displacement vectors in the reference
-     * frame defined in the auxiliary detector geometry box from the GDML
-     * geometry description.
+     * These types represents points and displacement vectors in the reference frame
+     * defined in the auxiliary detector geometry box from the GDML geometry description.
      *
-     * No alias is explicitly defined for the LArSoft global vector types,
-     * `geo::Point_t` and `geo::Vector_t`.
+     * No alias is explicitly defined for the LArSoft global vector types, `geo::Point_t`
+     * and `geo::Vector_t`.
      *
-     * Remember the `LocalPoint_t` and `LocalVector_t` vectors from different
-     * instances of `geo::AuxDetGeo` have the same type but are not compatible.
+     * Remember the `LocalPoint_t` and `LocalVector_t` vectors from different instances of
+     * `geo::AuxDetGeo` have the same type but are not compatible.
      */
 
-    /// Tag for vectors in the "local" GDML coordinate frame of the
-    /// auxiliary detector.
+    /// Tag for vectors in the "local" GDML coordinate frame of the auxiliary detector.
     struct AuxDetGeoCoordinatesTag {};
 
     /// Type of points in the local GDML auxiliary detector frame.
@@ -72,8 +70,8 @@ namespace geo {
 
     /**
      * @brief Returns the geometric center of the sensitive volume.
-     * @param localz (default: `0`) distance from the center along the length
-     *               of the volume (z) [cm]
+     * @param localz (default: `0`) distance from the center along the length of the
+     *               volume (z) [cm]
      * @return the geometric center of the sensitive volume [cm]
      */
     Point_t GetCenter(double localz = 0.0) const;
@@ -128,7 +126,7 @@ namespace geo {
 
     /// @}
 
-    void SortSubVolumes(GeoObjectSorter& sorter);
+    void SortSubVolumes(AuxDetGeoObjectSorter& sorter);
 
     /**
      * @brief Prints information about this auxiliary detector.
@@ -148,8 +146,7 @@ namespace geo {
      * * 3: also number of sensitive detectors
      * * 4: also normal direction
      *
-     * The constant `MaxVerbosity` is set to the highest supported verbosity
-     * level.
+     * The constant `MaxVerbosity` is set to the highest supported verbosity level.
      */
     template <typename Stream>
     void PrintAuxDetInfo(Stream&& out, std::string indent = "", unsigned int verbosity = 1) const;
@@ -158,8 +155,7 @@ namespace geo {
      * @brief Returns a string with auxiliary detector information.
      * @see `PrintAuxDetInfo()`
      *
-     * The arguments and provided information are the same as in
-     * `PrintAuxDetInfo()`.
+     * The arguments and provided information are the same as in `PrintAuxDetInfo()`.
      */
     std::string AuxDetInfo(std::string indent = "", unsigned int verbosity = 1) const;
 
@@ -170,7 +166,7 @@ namespace geo {
     using LocalTransformation_t =
       LocalTransformationGeo<TransformationMatrix, LocalPoint_t, LocalVector_t>;
 
-    const TGeoVolume* fTotalVolume; ///< Total volume of AuxDet, called vol*
+    TGeoVolume const* fTotalVolume; ///< Total volume of AuxDet, called vol*
     LocalTransformation_t fTrans;   ///< Auxiliary detector-to-world transformation.
     double fLength;                 ///< length of volume, along z direction in local
     double fHalfWidth1;             ///< 1st half width of volume, at -z/2 in local coordinates

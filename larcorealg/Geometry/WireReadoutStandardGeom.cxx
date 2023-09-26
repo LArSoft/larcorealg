@@ -66,7 +66,7 @@ namespace geo {
   {
     fNcryostat = geom->Ncryostats();
 
-    mf::LogInfo("WireReadoutStandardGeom") << "Initializing Standard ChannelMap...";
+    mf::LogInfo("WireReadoutStandardGeom") << "Initializing standard wire-readout geometry...";
 
     fNTPC.resize(fNcryostat);
     fWireCounts.resize(fNcryostat);

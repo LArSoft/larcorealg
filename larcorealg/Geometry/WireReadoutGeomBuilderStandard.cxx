@@ -6,7 +6,6 @@
 
 // C++ standard library
 #include <algorithm> // std::move(...)
-#include <iostream>
 #include <string_view>
 
 using namespace std::literals;
@@ -27,7 +26,6 @@ namespace {
 
   bool isPlaneNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCPlane"sv); }
   bool isWireNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCWire"sv); }
-
 }
 
 geo::WireReadoutGeomBuilderStandard::WireReadoutGeomBuilderStandard(
@@ -43,9 +41,9 @@ auto geo::WireReadoutGeomBuilderStandard::doExtractPlanes(Path_t& path) const ->
 {
   Planes_t result;
   fExtractObjects(path, isPlaneNode, [&result, this](Path_t& path) {
-    auto tpc = path.parent();
+    auto const [tpc, tpc_hash] = path.parent_entry();
     assert(tpc);
-    result[tpc->GetVolume()].push_back(makePlane(path));
+    result[tpc_hash].push_back(makePlane(path));
   });
   return result;
 }

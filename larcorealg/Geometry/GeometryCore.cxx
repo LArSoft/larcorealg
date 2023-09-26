@@ -8,14 +8,16 @@
 // class header
 #include "larcorealg/Geometry/GeometryCore.h"
 
-// lar includes
+// LArSoft includes
 #include "larcorealg/CoreUtils/NumericUtils.h"
+#include "larcorealg/CoreUtils/SearchPathPlusRelative.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
 #include "larcorealg/Geometry/AuxDetSensitiveGeo.h"
 #include "larcorealg/Geometry/Decomposer.h" // geo::vect::dot()
 #include "larcorealg/Geometry/GeometryBuilderStandard.h"
 #include "larcorealg/Geometry/Intersections.h"
 #include "larcorealg/Geometry/OpDetGeo.h"
+#include "larcorealg/Geometry/details/maybe_default_detector_name.h"
 #include "larcorealg/Geometry/geo_vectors_utils.h"         // geo::vect
 #include "larcorealg/Geometry/geo_vectors_utils_TVector.h" // geo::vect
 
@@ -25,31 +27,24 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
-#include <TGeoBBox.h>
-#include <TGeoManager.h>
-#include <TGeoNode.h>
-#include <TGeoVolume.h>
+#include "TGeoBBox.h"
+#include "TGeoManager.h"
+#include "TGeoNode.h"
+#include "TGeoVolume.h"
+#include "TROOT.h"
 
 // C/C++ includes
 #include <algorithm> // std::transform()
 #include <cassert>
-#include <cctype>   // ::tolower()
-#include <cmath>    // std::abs() ...
-#include <cstddef>  // size_t
-#include <iterator> // std::back_inserter()
-#include <limits>   // std::numeric_limits<>
-#include <numeric>  // std::accumulate
-#include <sstream>  // std::ostringstream
-#include <utility>  // std::swap()
+#include <cctype>  // std::tolower()
+#include <cmath>   // std::abs() ...
+#include <cstddef> // std::size_t
+#include <limits>  // std::numeric_limits<>
+#include <numeric> // std::accumulate
+#include <sstream> // std::ostringstream
 #include <vector>
 
 namespace geo {
-
-  template <typename T, typename Arg>
-  auto bind(bool (T::*ft)(Arg const&, Arg const&) const, T* t)
-  {
-    return [t, ft](auto const& a, auto const& b) { return (t->*ft)(a, b); };
-  }
 
   //......................................................................
   // Constructor.
@@ -57,58 +52,57 @@ namespace geo {
                              std::unique_ptr<GeometryBuilder> builder,
                              std::unique_ptr<GeoObjectSorter> sorter)
     : Iteration{details::GeometryIterationPolicy{this}, details::ToGeometryElement{this}}
-    , fSorter{std::move(sorter)}
-    , fCompareAuxDets{bind(&GeoObjectSorter::compareAuxDets, fSorter.get())}
-    , fCompareCryostats{bind(&GeoObjectSorter::compareCryostats, fSorter.get())}
-    , fCompareTPCs{bind(&GeoObjectSorter::compareTPCs, fSorter.get())}
-    , fCompareOpDets{bind(&GeoObjectSorter::compareOpDets, fSorter.get())}
-    , fSurfaceY(pset.get<double>("SurfaceY"))
-    , fDetectorName(pset.get<std::string>("Name"))
-    , fPositionWiggle(pset.get<double>("PositionEpsilon", 1.e-4))
     , fBuilder{std::move(builder)}
+    , fSorter{std::move(sorter)}
+    , fGDMLfile{lar::searchPathPlusRelative(pset.get<std::string>("RelativePath", ""),
+                                            pset.get<std::string>("GDML"))}
+    , fDetectorName{details::maybe_default_detector_name(pset, fGDMLfile)}
+    , fSurfaceY(pset.get<double>("SurfaceY"))
+    , fPositionWiggle(pset.get<double>("PositionEpsilon", 1.e-4))
   {
-    std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), ::tolower);
+    std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), [](auto c) {
+      return std::tolower(c);
+    });
+
+    LoadGeometryFile();
   }
 
   //......................................................................
-  void GeometryCore::LoadGeometryFile(std::string gdmlfile, std::string rootfile)
+  void GeometryCore::LoadGeometryFile()
   {
     if (fManager) {
       throw cet::exception("GeometryCore") << "Reloading a geometry is not supported.\n";
     }
 
-    if (gdmlfile.empty()) {
+    if (fGDMLfile.empty()) {
       throw cet::exception("GeometryCore") << "No GDML Geometry file specified!\n";
     }
 
-    if (rootfile.empty()) {
-      throw cet::exception("GeometryCore") << "No ROOT Geometry file specified!\n";
+    (void)gROOT; // <= Can be removed once ROOT 6.26/08 is adopted
+
+    if (!gGeoManager) {
+      // [20210630, petrillo@slac.stanford.edu]
+      // ROOT 6.22.08 allows us to choose the representation of lengths in the geometry
+      // objects parsed from GDML.  In LArSoft we want them to be centimeters (ROOT
+      // standard).  This was tracked as Redmine issue #25990, and I leave this mark
+      // because I feel that we'll be back to it not too far in the future.  Despite the
+      // documentation (ROOT 6.22/08), it seems the units are locked from the beginning,
+      // so we unlock without prejudice.
+      TGeoManager::LockDefaultUnits(false);
+      TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
+      TGeoManager::LockDefaultUnits(true);
+
+      TGeoManager::Import(fGDMLfile.c_str());
+      gGeoManager->LockGeometry();
     }
-
-    // [20210630, petrillo@slac.stanford.edu]
-    // ROOT 6.22.08 allows us to choose the representation of lengths in the geometry
-    // objects parsed from GDML.  In LArSoft we want them to be centimeters (ROOT
-    // standard).  This was tracked as Redmine issue #25990, and I leave this mark
-    // because I feel that we'll be back to it not too far in the future.  Despite the
-    // documentation (ROOT 6.22/08), it seems the units are locked from the beginning,
-    // so we unlock without prejudice.
-    TGeoManager::LockDefaultUnits(false);
-    TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
-    TGeoManager::LockDefaultUnits(true);
-
-    TGeoManager::Import(rootfile.c_str());
-    gGeoManager->LockGeometry();
 
     BuildGeometry();
 
     fManager = gGeoManager;
-    fGDMLfile = std::move(gdmlfile);
-    fROOTfile = std::move(rootfile);
 
     SortGeometry();
 
-    mf::LogInfo("GeometryCore") << "New detector geometry loaded from "
-                                << "\n\t" << fROOTfile << "\n\t" << fGDMLfile << "\n";
+    mf::LogInfo("GeometryCore") << "New detector geometry loaded from\n\t" << fGDMLfile;
   }
 
   //......................................................................
@@ -116,13 +110,14 @@ namespace geo {
   {
     mf::LogInfo("GeometryCore") << "Sorting volumes...";
 
-    std::sort(fAuxDets.begin(), fAuxDets.end(), fCompareAuxDets);
-    std::sort(fCryostats.begin(), fCryostats.end(), fCompareCryostats);
+    if (not fSorter) { return; }
+
+    fSorter->sort(fCryostats);
 
     // Renumber cryostats according to sorted order
     CryostatID::CryostatID_t c = 0;
     for (CryostatGeo& cryo : fCryostats) {
-      cryo.SortSubVolumes(fCompareTPCs, fCompareOpDets);
+      cryo.SortSubVolumes(*fSorter);
       cryo.UpdateAfterSorting(CryostatID{c});
       ++c;
     }
@@ -145,14 +140,6 @@ namespace geo {
   }
 
   //......................................................................
-  unsigned int GeometryCore::NAuxDetSensitive(size_t const& aid) const
-  {
-    if (aid < NAuxDets()) { return AuxDets()[aid].NSensitiveVolume(); }
-    throw cet::exception("Geometry")
-      << "Requested AuxDet index " << aid << " is out of range: " << NAuxDets();
-  }
-
-  //......................................................................
   //
   // Return the geometry description of the ith cryostat in the detector.
   //
@@ -165,22 +152,6 @@ namespace geo {
   {
     if (auto pCryo = CryostatPtr(cryoid)) { return *pCryo; }
     throw cet::exception("GeometryCore") << "Cryostat #" << cryoid.Cryostat << " does not exist\n";
-  }
-
-  //......................................................................
-  //
-  // Return the geometry description of the ith AuxDet.
-  //
-  // \param ad : input AuxDet number, starting from 0
-  // \returns AuxDet geometry for ith AuxDet
-  //
-  // \throws geo::Exception if "ad" is outside allowed range
-  //
-  AuxDetGeo const& GeometryCore::AuxDet(unsigned int const ad) const
-  {
-    if (ad >= NAuxDets())
-      throw cet::exception("GeometryCore") << "AuxDet " << ad << " does not exist\n";
-    return AuxDets()[ad];
   }
 
   //......................................................................
@@ -257,7 +228,7 @@ namespace geo {
         << "DetectorEnclosureBox(): can't find enclosure volume '" << name << "'\n";
     }
 
-    TGeoVolume const* pEncl = path.back()->GetVolume();
+    TGeoVolume const* pEncl = path.back().node->GetVolume();
     auto const* pBox = dynamic_cast<TGeoBBox const*>(pEncl->GetShape());
 
     // check that this is indeed a box
@@ -523,21 +494,21 @@ namespace geo {
   }
 
   //......................................................................
-  std::vector<TGeoNode const*> GeometryCore::FindDetectorEnclosure(
+  std::vector<GeoNodePathEntry> GeometryCore::FindDetectorEnclosure(
     std::string const& name /* = "volDetEnclosure" */) const
   {
-    std::vector<TGeoNode const*> path{ROOTGeoManager()->GetTopNode()};
+    std::vector<GeoNodePathEntry> path{{ROOTGeoManager()->GetTopNode()}};
     if (!FindFirstVolume(name, path)) path.clear();
     return path;
   }
 
   //......................................................................
   bool GeometryCore::FindFirstVolume(std::string const& name,
-                                     std::vector<const TGeoNode*>& path) const
+                                     std::vector<GeoNodePathEntry>& path) const
   {
     assert(!path.empty());
 
-    auto const* pCurrent = path.back();
+    auto const* pCurrent = path.back().node;
 
     // first check the current layer
     if (strncmp(name.c_str(), pCurrent->GetName(), name.length()) == 0) return true;
@@ -546,7 +517,7 @@ namespace geo {
     auto const* pCurrentVolume = pCurrent->GetVolume();
     unsigned int nd = pCurrentVolume->GetNdaughters();
     for (unsigned int i = 0; i < nd; ++i) {
-      path.push_back(pCurrentVolume->GetNode(i));
+      path.push_back({pCurrentVolume->GetNode(i)});
       if (FindFirstVolume(name, path)) return true;
       path.pop_back();
     }
@@ -556,10 +527,8 @@ namespace geo {
   //......................................................................
   void GeometryCore::BuildGeometry()
   {
-    std::cerr << "GeometryCore top node:" << gGeoManager->GetTopNode() << '\n';
     GeoNodePath path{gGeoManager->GetTopNode()};
     fCryostats = fBuilder->extractCryostats(path);
-    fAuxDets = fBuilder->extractAuxiliaryDetectors(path);
   }
 
   //......................................................................

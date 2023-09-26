@@ -17,6 +17,8 @@
 
 // LArSoft libraries
 #include "GeometryTestAlg.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
 #include "larcorealg/Geometry/StandaloneBasicSetup.h"    // SetupMessageFacility()...
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h" // SetupGeometry()
 
@@ -78,16 +80,19 @@ int main(int argc, char const** argv)
 
   // set up geometry
   auto geom = SetupGeometry(pset.get<fhicl::ParameterSet>("services.Geometry"));
-
-  auto wireReadoutGeom =
+  auto const wireReadoutGeom =
     SetupReadout(pset.get<fhicl::ParameterSet>("services.WireGeom", {}), geom.get());
+  auto const auxDetGeom =
+    SetupAuxDetGeometry(pset.get<fhicl::ParameterSet>("services.AuxDetGeometry", {}));
 
   // update the context string for the messages
   mf::SetContextIteration("run");
 
   // 2. prepare the test algorithm
-  geo::GeometryTestAlg Tester(
-    geom.get(), wireReadoutGeom.get(), pset.get<fhicl::ParameterSet>(geoTestConfigPath));
+  geo::GeometryTestAlg Tester(geom.get(),
+                              wireReadoutGeom.get(),
+                              auxDetGeom.get(),
+                              pset.get<fhicl::ParameterSet>(geoTestConfigPath));
 
   // 3. then we run it!
   unsigned int nErrors = Tester.Run();

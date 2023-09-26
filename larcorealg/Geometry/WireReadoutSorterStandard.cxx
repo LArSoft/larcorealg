@@ -1,10 +1,11 @@
 #include "larcorealg/Geometry/WireReadoutSorterStandard.h"
+#include "larcorealg/CoreUtils/RealComparisons.h"
 #include "larcorealg/Geometry/WireGeo.h"
 
 #include <utility>
 
 namespace {
-  constexpr double DistanceTol = 0.001; // cm
+  constexpr lar::util::RealComparisons<double> cmp{0.001 /*threshold in cm*/};
 }
 
 namespace geo {
@@ -15,16 +16,16 @@ namespace geo {
   //----------------------------------------------------------------------------
   bool WireReadoutSorterStandard::compareWires(WireGeo const& w1, WireGeo const& w2) const
   {
-    auto const [xyz1, xyz2] = std::make_pair(w1.GetCenter(), w2.GetCenter());
+    auto const [c1, c2] = std::pair{w1.GetCenter(), w2.GetCenter()};
 
-    //sort by z first
-    if (std::abs(xyz1.Z() - xyz2.Z()) > DistanceTol) return xyz1.Z() < xyz2.Z();
+    // sort by z first
+    if (cmp.nonEqual(c1.Z(), c2.Z())) return c1.Z() < c2.Z();
 
-    //if same z sort by y
-    if (std::abs(xyz1.Y() - xyz2.Y()) > DistanceTol) return xyz1.Y() < xyz2.Y();
+    // if same z sort by y
+    if (cmp.nonEqual(c1.Y(), c2.Y())) return c1.Y() < c2.Y();
 
-    //if same y sort by x
-    return xyz1.X() < xyz2.X();
+    // if same y sort by x
+    return c1.X() < c2.X();
   }
 
 }

@@ -146,12 +146,12 @@ namespace geo {
 
   //----------------------------------------------------------------------------
   template <>
-  inline TGeoHMatrix transformationFromPath<TGeoHMatrix>(std::vector<TGeoNode const*> const& path,
+  inline TGeoHMatrix transformationFromPath<TGeoHMatrix>(std::vector<GeoNodePathEntry> const& path,
                                                          size_t depth)
   {
-    TGeoHMatrix matrix = *(path[0]->GetMatrix());
+    TGeoHMatrix matrix = *(path[0].node->GetMatrix());
     for (size_t i = 1; i <= depth; ++i)
-      matrix.Multiply(path[i]->GetMatrix());
+      matrix.Multiply(path[i].node->GetMatrix());
     return matrix;
   }
 
@@ -161,16 +161,16 @@ namespace geo {
   {
     if (begin == end) return {TGeoIdentity()};
     auto iNode = begin;
-    TGeoHMatrix matrix = *((*iNode)->GetMatrix());
+    TGeoHMatrix matrix = *(iNode->node->GetMatrix());
     while (++iNode != end)
-      matrix.Multiply((*iNode)->GetMatrix());
+      matrix.Multiply(iNode->node->GetMatrix());
     return matrix;
   }
 
   //----------------------------------------------------------------------------
   template <>
   inline HepGeom::Transform3D transformationFromPath<HepGeom::Transform3D>(
-    std::vector<TGeoNode const*> const& path,
+    std::vector<GeoNodePathEntry> const& path,
     size_t depth)
   {
     auto const mat = transformationFromPath<TGeoHMatrix>(path, depth);

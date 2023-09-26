@@ -22,23 +22,21 @@
  * Currently provides:
  * - BasicGeometryEnvironmentConfiguration: a test environment configuration
  * - GeometryTesterEnvironment: a prepacked geometry-aware test environment
- *
  */
 
 #ifndef TEST_GEOMETRY_UNIT_TEST_BASE_H
 #define TEST_GEOMETRY_UNIT_TEST_BASE_H
 
 // LArSoft libraries
+#include "larcorealg/CoreUtils/SearchPathPlusRelative.h"
 #include "larcorealg/Geometry/GeometryBuilderStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/TestUtils/unit_test_base.h"
 
-// utility libraries
+// Framework libraries
+#include "cetlib/search_path.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-// CET libraries
-#include "cetlib/search_path.h"
 
 // C/C++ standard libraries
 #include <iostream> // for output before message facility is set up
@@ -271,41 +269,14 @@ namespace testing {
   {
     std::string ProviderParameterSetPath = this->Config().GeometryParameterSetPath();
 
-    //
-    // create the new geometry service provider
-    //
     fhicl::ParameterSet ProviderConfig =
       this->Parameters().template get<fhicl::ParameterSet>(ProviderParameterSetPath);
 
-    auto new_geom = std::make_unique<geo::GeometryCore>(
+    return std::make_unique<geo::GeometryCore>(
       ProviderConfig,
       std::make_unique<geo::GeometryBuilderStandard>(
         ProviderConfig.get<fhicl::ParameterSet>("Builder", {})),
       createSorter<ObjectSorter>(ProviderConfig.get<fhicl::ParameterSet>("SortingParameters", {})));
-
-    std::string RelativePath = ProviderConfig.get<std::string>("RelativePath", "");
-
-    std::string GDMLFileName = RelativePath + ProviderConfig.get<std::string>("GDML"),
-                ROOTFileName = RelativePath + ProviderConfig.get<std::string>("ROOT");
-
-    // Search all reasonable locations for the geometry file; we see if by any chance
-    // art's FW_SEARCH_PATH directory is set and try there; if not, we do expect the path
-    // to be complete enough for ROOT to cope.
-    cet::search_path sp("FW_SEARCH_PATH");
-
-    std::string ROOTfile;
-    if (!sp.find_file(ROOTFileName, ROOTfile)) ROOTfile = ROOTFileName;
-
-    // we really don't care of GDML file, since we are not going to run Geant4
-    std::string GDMLfile;
-    if (!sp.find_file(GDMLFileName, GDMLfile)) {
-      mf::LogWarning("CreateNewGeometry") << "GDML file '" << GDMLfile << "' not found.";
-    }
-
-    // initialize the geometry with the files we have found
-    new_geom->LoadGeometryFile(GDMLfile, ROOTfile);
-
-    return new_geom;
   }
 
   template <typename ConfigurationClass, typename ObjectSorter>

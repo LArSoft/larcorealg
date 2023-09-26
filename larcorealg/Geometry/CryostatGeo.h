@@ -356,7 +356,7 @@ namespace geo {
     // END Coordinate transformation -------------------------------------------
 
     /// Method to sort TPCGeo objects
-    void SortSubVolumes(Compare<TPCGeo> tpc_cmp, Compare<OpDetGeo> opdet_cmp);
+    void SortSubVolumes(GeoObjectSorter const& sorter);
 
     /// Performs all needed updates after geometry has sorted the cryostats
     void UpdateAfterSorting(CryostatID cryoid);

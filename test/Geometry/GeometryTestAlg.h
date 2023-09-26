@@ -98,6 +98,7 @@ namespace geo {
   public:
     explicit GeometryTestAlg(GeometryCore const* geom,
                              WireReadoutGeom const* wireReadoutGeom,
+                             AuxDetGeometryCore const* auxDetGeometry,
                              fhicl::ParameterSet const& pset);
 
     /// Virtual destructor
@@ -112,6 +113,7 @@ namespace geo {
   private:
     GeometryCore const* geom;
     WireReadoutGeom const* wireReadoutGeom;
+    AuxDetGeometryCore const* auxDetGeom;
 
     bool fDisableValidWireIDcheck; ///< disable test on out-of-world NearestWire()
     std::set<std::string> fNonFatalExceptions;

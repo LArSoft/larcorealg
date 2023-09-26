@@ -16,7 +16,6 @@
 
 // C++ standard library
 #include <algorithm>
-#include <iostream>
 #include <string_view>
 
 using namespace std::literals;
@@ -159,7 +158,7 @@ auto geo::GeometryBuilderStandard::extractTPCs(Path_t& path) const -> TPCs_t
 //------------------------------------------------------------------------------
 geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
 {
-  auto const* tpc = path.current();
+  auto const [tpc, hash_value] = path.current_entry();
   auto tpc_matrix = path.currentTransformation<TransformationMatrix>();
 
   std::vector<PlaneGeo> planes;
@@ -174,7 +173,6 @@ geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
     vect::toPoint(daughter_matrix(ROOT::Math::Transform3D::Point{}));
 
   auto const driftAxisWithSign = DriftAxisWithSign(active_volume_center, planes);
-  std::cerr << "Volume center: " << active_volume_center << '\n';
   auto const driftAxis = vect::normalize(planes[0].GetBoxCenter() - active_volume_center);
   double driftDistance{std::numeric_limits<double>::max()};
   for (auto const& plane : planes) {
@@ -183,5 +181,5 @@ geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
   }
 
   // [FIXME] This definition of driftDistance is incorrect.
-  return {tpc, std::move(tpc_matrix), driftAxisWithSign, driftDistance};
+  return {tpc, hash_value, std::move(tpc_matrix), driftAxisWithSign, driftDistance};
 }

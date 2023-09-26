@@ -50,10 +50,10 @@ namespace geo {
 
   //......................................................................
   // sort the TPCGeo objects, and the PlaneGeo objects inside
-  void CryostatGeo::SortSubVolumes(Compare<TPCGeo> tpc_cmp, Compare<OpDetGeo> opdet_cmp)
+  void CryostatGeo::SortSubVolumes(GeoObjectSorter const& sorter)
   {
-    std::sort(fTPCs.begin(), fTPCs.end(), tpc_cmp);
-    std::sort(fOpDets.begin(), fOpDets.end(), opdet_cmp);
+    sorter.sort(fTPCs);
+    sorter.sort(fOpDets);
   }
 
   //......................................................................

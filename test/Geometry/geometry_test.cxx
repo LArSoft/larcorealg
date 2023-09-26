@@ -16,6 +16,8 @@
 
 // LArSoft libraries
 #include "GeometryTestAlg.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
 #include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
@@ -57,10 +59,9 @@ using StandardGeometryTestEnvironment =
  * 0. name of the executable ("Geometry_test")
  * 1. path to the FHiCL configuration file
  * 2. FHiCL path to the configuration of the geometry test
- *    (default: physics.analysers.geotest)
+ *    (default: physics.analyzers.geotest)
  * 3. FHiCL path to the configuration of the geometry
  *    (default: services.Geometry)
- *
  */
 //------------------------------------------------------------------------------
 int main(int argc, char const** argv)
@@ -84,13 +85,18 @@ int main(int argc, char const** argv)
 
   // testing environment setup
   StandardGeometryTestEnvironment TestEnvironment(config);
-  auto const wireReadoutGeom = lar::standalone::SetupReadout({}, TestEnvironment.Geometry());
+  auto const wireReadoutGeom = lar::standalone::SetupReadout(
+    TestEnvironment.ServiceParameters("WireReadout"), TestEnvironment.Geometry());
+  auto const auxDetGeom =
+    lar::standalone::SetupAuxDetGeometry(TestEnvironment.ServiceParameters("AuxDetGeometry"));
 
   // run the test algorithm
 
   // 1. we initialize it from the configuration in the environment,
-  geo::GeometryTestAlg Tester{
-    TestEnvironment.Geometry(), wireReadoutGeom.get(), TestEnvironment.TesterParameters()};
+  geo::GeometryTestAlg Tester{TestEnvironment.Geometry(),
+                              wireReadoutGeom.get(),
+                              auxDetGeom.get(),
+                              TestEnvironment.TesterParameters()};
 
   // 2. then we run it!
   unsigned int nErrors = Tester.Run();

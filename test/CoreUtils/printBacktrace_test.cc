@@ -1,4 +1,3 @@
-
 #include "larcorealg/CoreUtils/DebugUtils.h"
 
 // C/C++ standard libraries
@@ -69,7 +68,7 @@ int main(int /* argc */, char** /* argv */)
   b.Do();
 
   // create test classes in a deeper, non-local context
-  std::vector<CClass> v [[gnu::unused]] (2);
+  std::vector<CClass> v [[maybe_unused]] (2);
 
   return 0;
 } // main()

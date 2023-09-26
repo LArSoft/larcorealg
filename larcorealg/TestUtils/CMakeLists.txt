@@ -30,10 +30,11 @@ cet_make_library(LIBRARY_NAME boost_unit_test_base INTERFACE
 cet_make_library(LIBRARY_NAME geometry_unit_test_base INTERFACE
   SOURCE geometry_unit_test_base.h
   LIBRARIES INTERFACE
+  larcorealg::CoreUtils
   larcorealg::unit_test_base
   larcorealg::Geometry
   messagefacility::MF_MessageLogger
-  cetlib::cetlib
+  larcorealg::CoreUtils
 )
 
 cet_make_library(SOURCE NameSelector.cxx

@@ -39,7 +39,6 @@ using boost::test_tools::tolerance;
 template <typename Vector, typename Point, typename Proj>
 void StandardDecomposerTest()
 {
-
   //
   // Test including all methods of geo::Decomposer<>
   //
@@ -48,7 +47,6 @@ void StandardDecomposerTest()
   using Vector3D_t = typename Decomposer_t::Vector_t;
   using Point3D_t = typename Decomposer_t::Point_t;
   using Projection_t = typename Decomposer_t::Projection_t;
-  using Distance_t [[gnu::unused]] = typename Decomposer_t::Distance_t;
   using DecomposedVector_t = typename Decomposer_t::DecomposedVector_t;
   using AffinePlaneBase_t = typename Decomposer_t::AffinePlaneBase_t;
 

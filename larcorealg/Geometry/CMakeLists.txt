@@ -110,8 +110,10 @@ cet_make_library(LIBRARY_NAME geoVectorUtils INTERFACE
 cet_make_library(SOURCE
   AuxDetGeo.cxx
   AuxDetGeometryCore.cxx
+  AuxDetGeoObjectSorter.cxx
+  AuxDetGeoObjectSorterStandard.cxx
+  AuxDetReadoutGeom.cxx
   AuxDetSensitiveGeo.cxx
-  AuxDetWireReadoutGeom.cxx
   BoxBoundedGeo.cxx
   CryostatGeo.cxx
   Decomposer.h
@@ -137,6 +139,7 @@ cet_make_library(SOURCE
   details/extractMaxGeometryElements.h
   details/GeometryIterationPolicy.cxx
   details/ReadoutIterationPolicy.cxx
+  details/maybe_default_detector_name.cxx
   LIBRARIES
   PUBLIC
   larcorealg::CoreUtils
@@ -161,6 +164,7 @@ cet_make_library(SOURCE
   ROOT::Geom
   ROOT::Physics
   PRIVATE
+  Boost::filesystem
   larcorealg::Exceptions
   larcorealg::geo_vectors_utils_TVector
   messagefacility::MF_MessageLogger

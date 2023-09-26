@@ -13,6 +13,8 @@
 #define LARCOREALG_GEOMETRY_STANDALONEGEOMETRYSETUP_H
 
 // LArSoft libraries
+#include "larcorealg/Geometry/AuxDetGeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
 #include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "larcorealg/Geometry/WireReadoutGeom.h"
@@ -92,39 +94,48 @@ namespace lar::standalone {
   std::unique_ptr<geo::GeometryCore> GeometryFor(fhicl::ParameterSet const& pset,
                                                  std::unique_ptr<geo::GeoObjectSorter> sorter);
 
+  std::unique_ptr<geo::AuxDetGeometryCore> AuxDetGeometryFor(
+    fhicl::ParameterSet const& pset,
+    std::unique_ptr<geo::AuxDetGeoObjectSorter> sorter,
+    std::unique_ptr<geo::AuxDetInitializer> initializer);
+
+  namespace detail {
+    template <typename T>
+    auto make_unique_maybe_default(fhicl::ParameterSet const& pset)
+    {
+      if (pset.is_empty()) {
+        if constexpr (std::is_constructible_v<T>) { return std::make_unique<T>(); }
+      }
+      return std::make_unique<T>(pset);
+    }
+  }
+
   template <typename ObjectSorter = geo::GeoObjectSorterStandard>
   std::unique_ptr<geo::GeometryCore> SetupGeometry(fhicl::ParameterSet const& pset)
   {
     auto sorting_parameters = pset.get<fhicl::ParameterSet>("SortingParameters", {});
-    if (sorting_parameters.is_empty()) {
-      if constexpr (std::is_constructible_v<ObjectSorter>) {
-        return GeometryFor(pset, std::make_unique<ObjectSorter>());
-      }
-    }
-    if constexpr (std::is_constructible_v<ObjectSorter, fhicl::ParameterSet>) {
-      return GeometryFor(pset, std::make_unique<ObjectSorter>(sorting_parameters));
-    }
-    return nullptr;
+    return GeometryFor(pset, detail::make_unique_maybe_default<ObjectSorter>(sorting_parameters));
   }
 
-  template <typename WireGeom = geo::WireReadoutStandardGeom,
-            typename ObjectSorter = geo::WireReadoutSorterStandard>
+  template <typename ObjectSorter = geo::AuxDetGeoObjectSorterStandard>
+  std::unique_ptr<geo::AuxDetGeometryCore> SetupAuxDetGeometry(
+    fhicl::ParameterSet const& pset,
+    std::unique_ptr<geo::AuxDetInitializer> initializer = nullptr)
+  {
+    auto sorting_parameters = pset.get<fhicl::ParameterSet>("SortingParameters", {});
+    return AuxDetGeometryFor(pset,
+                             detail::make_unique_maybe_default<ObjectSorter>(sorting_parameters),
+                             std::move(initializer));
+  }
+
+  template <typename ObjectSorter = geo::WireReadoutSorterStandard,
+            typename WireGeom = geo::WireReadoutStandardGeom>
   std::unique_ptr<geo::WireReadoutGeom> SetupReadout(fhicl::ParameterSet const& pset,
                                                      geo::GeometryCore const* geom)
   {
-    auto sorting_parameters =
-      pset.is_empty() ? pset : pset.get<fhicl::ParameterSet>("SortingParameters", {});
-    if (sorting_parameters.is_empty()) {
-      if constexpr (std::is_constructible_v<ObjectSorter>) {
-        return std::make_unique<WireGeom>(pset, geom, std::make_unique<ObjectSorter>());
-      }
-    }
-
-    if constexpr (std::is_constructible_v<ObjectSorter, fhicl::ParameterSet>) {
-      return std::make_unique<WireGeom>(
-        pset, geom, std::make_unique<ObjectSorter>(sorting_parameters));
-    }
-    return nullptr;
+    auto sorting_parameters = pset.get<fhicl::ParameterSet>("SortingParameters", {});
+    return std::make_unique<WireGeom>(
+      pset, geom, detail::make_unique_maybe_default<ObjectSorter>(sorting_parameters));
   }
 
   // --- END Geometry group --------------------------------------------------

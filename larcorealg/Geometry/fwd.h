@@ -5,8 +5,9 @@
 
 namespace geo {
   class AuxDetGeo;
+  class AuxDetGeoObjectSorter;
+  class AuxDetGeometryCore;
   class AuxDetSensitiveGeo;
-  class WireReadoutGeom;
   class CryostatGeo;
   class GeoObjectSorter;
   class GeometryBuilder;
@@ -15,6 +16,7 @@ namespace geo {
   class PlaneGeo;
   class TPCGeo;
   class WireGeo;
+  class WireReadoutGeom;
 
   template <typename T>
   using Compare = std::function<bool(T const&, T const&)>;

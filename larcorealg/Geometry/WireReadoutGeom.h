@@ -27,6 +27,7 @@
 // C/C++ standard libraries
 #include <cstddef>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <utility>
@@ -38,17 +39,16 @@ namespace geo {
    * @brief Interface for a class providing readout channel mapping to geometry
    * @ingroup Geometry
    *
-   * @note A number of methods react specifically when provided with invalid IDs
-   * as arguments. An invalid ID is an ID with the `isValid` flag unset, or, in
-   * case of channel IDs, an ID with value `raw::InvalidChannelID`.
-   * An ID that does not present this feature is by definition "valid"; this
-   * does not imply that the represented entity (channel, geometry entity or
-   * readout group) actually exists. *The behaviour of the methods to valid,
-   * non-existent IDs should be considered undefined*, and it is recommended
-   * that the existence of the entity is checked beforehand.
-   * Unless the documentation explicitly defines a behaviour, an undefined
-   * behaviour should be assumed; nevertheless, the documentation of some of the
-   * methods still reminds of this.
+   * @note A number of methods react specifically when provided with invalid IDs as
+   * arguments. An invalid ID is an ID with the `isValid` flag unset, or, in case of
+   * channel IDs, an ID with value `raw::InvalidChannelID`.  An ID that does not present
+   * this feature is by definition "valid"; this does not imply that the represented
+   * entity (channel, geometry entity or readout group) actually exists. *The behaviour of
+   * the methods to valid, non-existent IDs should be considered undefined*, and it is
+   * recommended that the existence of the entity is checked beforehand.  Unless the
+   * documentation explicitly defines a behaviour, an undefined behaviour should be
+   * assumed; nevertheless, the documentation of some of the methods still reminds of
+   * this.
    */
   class WireReadoutGeom
     : Iterable<details::ReadoutIterationPolicy, details::ToReadoutGeometryElement> {
@@ -75,7 +75,6 @@ namespace geo {
      * @brief Returns whether we have the specified plane
      *
      * The HasElement() method is overloaded and its meaning depends on the type of ID.
-     *
      */
     bool HasPlane(PlaneID const& planeid) const;
     bool HasElement(PlaneID const& planeid) const { return HasPlane(planeid); }
@@ -125,6 +124,16 @@ namespace geo {
     std::set<View_t> const& Views() const { return allViews; }
 
     std::set<View_t> Views(TPCID const& tpcid) const;
+
+    //@{
+    /**
+     * @brief Returns the first plane of the specified TPC
+     * @param tpc ID of the TPC
+     * @return a constant reference to the specified plane
+     * @throw cet::exception (`WireReadoutGeom` category) if plane not present
+     */
+    PlaneGeo const& FirstPlane(TPCID const& tpcid) const;
+    //@}
 
     //@{
     /**
@@ -232,8 +241,8 @@ namespace geo {
      *
      * The starting point is the wire end with lower z coordinate.
      *
-     * @deprecated use the wire ID interface instead (but note that it does not
-     *             sort the ends)
+     * @deprecated use the wire ID interface instead (but note that it does not sort the
+     *             ends)
      */
     void WireEndPoints(WireID const& wireid, double* xyzStart, double* xyzEnd) const;
 
@@ -244,11 +253,11 @@ namespace geo {
      * @return a segment whose ends are the wire end points
      * @throws cet::exception wire not present
      *
-     * The start and end are assigned as returned from the geo::WireGeo object.
-     * The rules for this assignment are documented in that class.
+     * The start and end are assigned as returned from the geo::WireGeo object.  The rules
+     * for this assignment are documented in that class.
      *
-     * @deprecated use the wire ID interface instead (but note that it does not
-     *             sort the ends)
+     * @deprecated use the wire ID interface instead (but note that it does not sort the
+     *             ends)
      */
     Segment WireEndPoints(WireID const& wireid) const
     {
@@ -333,20 +342,18 @@ namespace geo {
      * @param widIntersect (output) the coordinate of the intersection point
      * @return whether an intersection was found within the TPC
      *
-     * The "intersection" refers to the projection of the wires into the same
-     * @f$ x = 0 @f$ plane.
-     * Wires are assumed to have at most one intersection.
-     * If wires are parallel, `widIntersect` will have the two components set to
-     * infinity (`std::numeric_limits<>::infinity()`) and the TPC number set to
-     * invalid (`geo::TPCID::InvalidID`). Also, `false` is returned.
-     * If the intersection is outside the TPC, `false` is also returned, but the
-     * `widIntersect` will contain the coordinates of that intersection. The TPC
-     * number is still set to invalid, although the intersection _might_ belong
-     * to a valid TPC somewhere else.
+     * The "intersection" refers to the projection of the wires into the same @f$ x = 0
+     * @f$ plane.  Wires are assumed to have at most one intersection.  If wires are
+     * parallel, `widIntersect` will have the two components set to infinity
+     * (`std::numeric_limits<>::infinity()`) and the TPC number set to invalid
+     * (`geo::TPCID::InvalidID`). Also, `false` is returned.  If the intersection is
+     * outside the TPC, `false` is also returned, but the `widIntersect` will contain the
+     * coordinates of that intersection. The TPC number is still set to invalid, although
+     * the intersection _might_ belong to a valid TPC somewhere else.
      *
      *
-     * @deprecated This method uses arbitrary assumptions and should not be
-     *             used. Use the interface returning a full vector instead.
+     * @deprecated This method uses arbitrary assumptions and should not be used. Use the
+     *             interface returning a full vector instead.
      */
     std::optional<WireIDIntersection> WireIDsIntersect(WireID const& wid1,
                                                        WireID const& wid2) const;
@@ -586,12 +593,10 @@ namespace geo {
      * @param ropid readout plane ID
      * @return the type of signal on the specified ROP
      *
-     * Returns the view (wire orientation) on the channels of specified readout
-     * plane.
-     * If ropid is an invalid ID, geo::kUnknown is returned.
-     * If ropid is a valid ID (i.e. an ID whose isValid flag is set) that
-     * points to a non-existent readout plane, the result is undefined.
-     * Use HasROP() to check if the readout plane actually exists.
+     * Returns the view (wire orientation) on the channels of specified readout plane.  If
+     * ropid is an invalid ID, geo::kUnknown is returned.  If ropid is a valid ID (i.e. an
+     * ID whose isValid flag is set) that points to a non-existent readout plane, the
+     * result is undefined.  Use HasROP() to check if the readout plane actually exists.
      */
     View_t View(readout::ROPID const& ropid) const;
 
@@ -621,12 +626,12 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return signal type on the plane, or geo::kMysteryType if not known
      *
-     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.
-     * If the readout plane is not marked invalid, but it does not match an
-     * existing readout plane, the result is undefined.
+     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.  If the
+     * readout plane is not marked invalid, but it does not match an existing readout
+     * plane, the result is undefined.
      *
-     * The default implementation uses readout plane to channel mapping.
-     * Other implementation may decide to do the opposite.
+     * The default implementation uses readout plane to channel mapping.  Other
+     * implementation may decide to do the opposite.
      */
     SigType_t SignalType(readout::ROPID const& ropid) const;
 
@@ -680,17 +685,16 @@ namespace geo {
      * @param NOpDets number of optical detectors
      * @return optical channels contained in NOpDets detectors
      *
-     * This function returns how many channels can be expected to be present
-     * in a detector with NOpDets optical detectors. This is an upper limit, as
-     * not all channels have necessarily to be present.
+     * This function returns how many channels can be expected to be present in a detector
+     * with NOpDets optical detectors. This is an upper limit, as not all channels have
+     * necessarily to be present.
      *
-     * For example: if a detector has four channels per optical detector, the
-     * returned value will be four times the argument NOpDets. If there is a
-     * single channel on each optical detector, the return value will be the
-     * value NOpDets (this is in fact the fallback implementation). If each
-     * optical detector can have anywhere between 2 and 12 channels, the
-     * returned value is 12 times NOpDets, and it will be an overestimation of
-     * the number of channels.
+     * For example: if a detector has four channels per optical detector, the returned
+     * value will be four times the argument NOpDets. If there is a single channel on each
+     * optical detector, the return value will be the value NOpDets (this is in fact the
+     * fallback implementation). If each optical detector can have anywhere between 2 and
+     * 12 channels, the returned value is 12 times NOpDets, and it will be an
+     * overestimation of the number of channels.
      */
     virtual unsigned int NOpChannels(unsigned int NOpDets) const;
 
@@ -708,14 +712,12 @@ namespace geo {
      * @param NOpDets number of optical detectors
      * @return optical channels contained in NOpDets detectors
      *
-     * This function returns the first optical channel ID larger than the last
-     * channel ID in a detector with NOpDets optical detectors (with the same
-     * logic as `NOpChannels()`).
-     * For example, in a detector with 32 channels with contiguous
-     * IDs starting at 0, this function would return 32. If the channels started
-     * with ID 1, this function would instead return 33 and if there were a 16
-     * channel gap, so that valid channels are from 0 to 15 and from 32 to 47,
-     * this function would return 48.
+     * This function returns the first optical channel ID larger than the last channel ID
+     * in a detector with NOpDets optical detectors (with the same logic as
+     * `NOpChannels()`).  For example, in a detector with 32 channels with contiguous IDs
+     * starting at 0, this function would return 32. If the channels started with ID 1,
+     * this function would instead return 33 and if there were a 16 channel gap, so that
+     * valid channels are from 0 to 15 and from 32 to 47, this function would return 48.
      */
     virtual unsigned int MaxOpChannel(unsigned int NOpDets) const;
 
@@ -724,19 +726,18 @@ namespace geo {
      * @param opDet ID of the chosen optical detector
      * @return optical channels contained in optical detector with ID opDet
      *
-     * This function returns how many channels are actually present in the
-     * optical detector with the specified ID.
+     * This function returns how many channels are actually present in the optical
+     * detector with the specified ID.
      *
-     * For example: if a detector has four channels per optical detector, the
-     * returned value will be four, regardless opDet, and . If there is a
-     * single channel on each optical detector, the return value will be 1,
-     * again ignoring opDet (this is in fact the fallback implementation). If
-     * each optical detector can have anywhere between 2 and 12 channels, the
-     * returned value will be 2, 12, etc., that is the exact number of channels
-     * in opDet.
+     * For example: if a detector has four channels per optical detector, the returned
+     * value will be four, regardless opDet, and . If there is a single channel on each
+     * optical detector, the return value will be 1, again ignoring opDet (this is in fact
+     * the fallback implementation). If each optical detector can have anywhere between 2
+     * and 12 channels, the returned value will be 2, 12, etc., that is the exact number
+     * of channels in opDet.
      *
-     * Although implementations are encouraged to return 0 on invalid optical
-     * detectors, the actual return value in that case is undefined.
+     * Although implementations are encouraged to return 0 on invalid optical detectors,
+     * the actual return value in that case is undefined.
      */
     virtual unsigned int NOpHardwareChannels(unsigned int opDet) const;
 
@@ -746,8 +747,8 @@ namespace geo {
      * @param NOpDets number of optical detectors in the detector
      * @return whether opChannel would be a valid channel
      *
-     * The specification of the number of optical channels reflects the logic
-     * described in `NOpChannel()`.
+     * The specification of the number of optical channels reflects the logic described in
+     * `NOpChannel()`.
      */
     virtual bool IsValidOpChannel(unsigned int opChannel, unsigned int NOpDets) const;
 
@@ -757,8 +758,7 @@ namespace geo {
      * @param hwchannel hardware channel within the specified optical detector
      * @return ID of the channel identified by detector and hardware channel IDs
      *
-     * If the input IDs identify a non-existing channel, the result is
-     * undefined.
+     * If the input IDs identify a non-existing channel, the result is undefined.
      */
     virtual unsigned int OpChannel(unsigned int detNum, unsigned int hwchannel = 0) const;
 
@@ -803,12 +803,12 @@ namespace geo {
      * @return an index interpolation between the two nearest wires
      * @see NearestWireID()
      *
-     * Respect to NearestWireID(), this method returns a real number,
-     * representing a continuous coordinate in the wire axis, with the round
-     * values corresponding to the actual wires.
+     * Respect to NearestWireID(), this method returns a real number, representing a
+     * continuous coordinate in the wire axis, with the round values corresponding to the
+     * actual wires.
      *
-     * The plane is required to be valid and exist in the detector. Otherwise,
-     * the behaviour is undefined.
+     * The plane is required to be valid and exist in the detector. Otherwise, the
+     * behaviour is undefined.
      */
     virtual double WireCoordinate(double YPos, double ZPos, PlaneID const& planeID) const = 0;
 
@@ -820,126 +820,14 @@ namespace geo {
      * @throw InvalidWireIDError the ID found is not present in the detector
      * @see WireCoordinate(double, double, geo::PlaneID const&)
      *
-     * The plane is required to be valid and exist in the detector. Otherwise,
-     * the behaviour is undefined.
-     * An exception is thrown if the wire that would be the closest is actually
-     * not present; but no check is performed whether the specified position is
-     * outside the wire plane: wires are extrapolated to be infinitely long.
-     * In other words, the result can be trusted only as long as the position
-     * is within the specified wire plane.
+     * The plane is required to be valid and exist in the detector. Otherwise, the
+     * behaviour is undefined.  An exception is thrown if the wire that would be the
+     * closest is actually not present; but no check is performed whether the specified
+     * position is outside the wire plane: wires are extrapolated to be infinitely long.
+     * In other words, the result can be trusted only as long as the position is within
+     * the specified wire plane.
      */
     virtual WireID NearestWireID(Point_t const& worldPos, PlaneID const& planeID) const = 0;
-
-    /// @}
-
-    //--------------------------------------------------------------------------
-    /// @{
-    /// @name Auxiliary detectors
-
-    /**
-     * @brief Returns the auxiliary detector closest to the specified point
-     * @param point coordinates of the position to be investigated (x, y, z)
-     * @param auxDets list of the sought auxiliary detectors
-     * @param tolerance tolerance for comparison. Default 0.
-     * @return index of auxiliary detector within auxDets
-     */
-    virtual size_t NearestAuxDet(Point_t const& point,
-                                 std::vector<AuxDetGeo> const& auxDets,
-                                 double tolerance = 0) const;
-
-    /**
-     * @brief Returns sensitive auxiliary detector closest to specified point
-     * @param point coordinates of the position to be investigated (x, y, z)
-     * @param auxDets list of the auxiliary detectors
-     * @param tolerance tolerance for comparison. Default 0.
-     * @return index of sought sensitive auxiliary detector within auxDets
-     */
-    virtual size_t NearestSensitiveAuxDet(Point_t const& point,
-                                          std::vector<AuxDetGeo> const& auxDets,
-                                          double tolerance = 0) const;
-
-    /**
-     * @brief Returns the index of the detector containing the specified channel
-     * @param auxDets list of the auxiliary detectors
-     * @param detName name of the auxiliary detector being investigated
-     * @param channel number of the channel within that auxiliary detector
-     * @return index of the sought auxiliary detector within auxDets
-     *
-     * @bug This function is somehow broken in that it ignores the `auxDets`
-     *      in the arguments and instead relies on a cache that is never filled
-     *      by this class (derived classes can fill it though).
-     */
-    virtual size_t ChannelToAuxDet(std::vector<AuxDetGeo> const& auxDets,
-                                   std::string const& detName,
-                                   uint32_t const& channel) const;
-
-    /**
-     * @brief Returns the index of the sensitive detector containing the channel
-     * @param auxDets list of the sensitive auxiliary detectors
-     * @param detName name of the auxiliary detector being investigated
-     * @param channel number of the channel within that auxiliary detector
-     * @return index of the sought sensitive auxiliary detector within auxDets
-     */
-    virtual std::pair<size_t, size_t> ChannelToSensitiveAuxDet(
-      std::vector<AuxDetGeo> const& auxDets,
-      std::string const& detName,
-      uint32_t const& channel) const;
-
-    /**
-     * @brief Returns the index of the auxiliary detector at specified location.
-     * @param point location to be tested
-     * @param tolerance tolerance (cm) for matches. Default 0
-     * @return the index of the detector, or
-     *        `std::numeric_limits<unsigned int>::max()` if no detector is there
-     *
-     * @bug Actually, an exception is thrown.
-     */
-    unsigned int FindAuxDetAtPosition(Point_t const& point, double tolerance = 0) const;
-
-    /**
-     * @brief Returns the auxiliary detector at specified location
-     * @param point location to be tested
-     * @param ad _(output)_ the auxiliary detector index
-     * @param tolerance tolerance (cm) for matches. Default 0.
-     * @return constant reference to AuxDetGeo object of the auxiliary detector
-     *
-     * @todo what happens if it does not exist?
-     */
-    AuxDetGeo const& PositionToAuxDet(Point_t const& point,
-                                      unsigned int& ad,
-                                      double tolerance = 0) const;
-
-    /**
-     * @brief Fills the indices of the sensitive auxiliary detector at location
-     * @param point location to be tested
-     * @param adg _(output)_ auxiliary detector index
-     * @param sv _(output)_ sensitive volume index
-     * @param tolerance tolerance (cm) for matches. Default 0.
-     */
-    void FindAuxDetSensitiveAtPosition(Point_t const& point,
-                                       std::size_t& adg,
-                                       std::size_t& sv,
-                                       double tolerance = 0) const;
-
-    /**
-     * @brief Returns the auxiliary detector at specified location
-     * @param point location to be tested
-     * @param ad _(output)_ the auxiliary detector index
-     * @param sv _(output)_ the auxiliary detector sensitive volume index
-     * @param tolerance tolerance (cm) for matches. Default 0.
-     * @return reference to AuxDetSensitiveGeo object of the auxiliary detector
-     *
-     * @todo what happens if it does not exist?
-     */
-    AuxDetSensitiveGeo const& PositionToAuxDetSensitive(Point_t const& point,
-                                                        size_t& ad,
-                                                        size_t& sv,
-                                                        double tolerance = 0) const;
-
-    AuxDetGeo const& ChannelToAuxDet(std::string const& auxDetName, uint32_t channel) const;
-
-    AuxDetSensitiveGeo const& ChannelToAuxDetSensitive(std::string const& auxDetName,
-                                                       uint32_t channel) const;
 
     /// @}
 
@@ -970,10 +858,10 @@ namespace geo {
      * @param tpcsetid ID of the TPC set to convert into TPC IDs
      * @return the list of TPCs, empty if TPC set is invalid
      *
-     * Note that the check is performed on the validity of the TPC set ID, that
-     * does not necessarily imply that the TPC set specified by the ID actually
-     * exists. Check the existence of the TPC set first (HasTPCset()).
-     * Behaviour on valid, non-existent TPC set IDs is undefined.
+     * Note that the check is performed on the validity of the TPC set ID, that does not
+     * necessarily imply that the TPC set specified by the ID actually exists. Check the
+     * existence of the TPC set first (HasTPCset()).  Behaviour on valid, non-existent TPC
+     * set IDs is undefined.
      */
     virtual std::vector<TPCID> TPCsetToTPCs(readout::TPCsetID const& tpcsetid) const = 0;
 
@@ -1015,10 +903,10 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return the list of TPC IDs, empty if readout plane ID is invalid
      *
-     * Note that this check is performed on the validity of the readout plane
-     * ID, that does not necessarily imply that the readout plane specified by
-     * the ID actually exists. Check if the ROP exists with HasROP().
-     * The behaviour on non-existing readout planes is undefined.
+     * Note that this check is performed on the validity of the readout plane ID, that
+     * does not necessarily imply that the readout plane specified by the ID actually
+     * exists. Check if the ROP exists with HasROP().  The behaviour on non-existing
+     * readout planes is undefined.
      */
     virtual std::vector<TPCID> ROPtoTPCs(readout::ROPID const& ropid) const = 0;
 
@@ -1027,9 +915,9 @@ namespace geo {
      * @return the ID of the ROP the channel belongs to (invalid if channel is)
      * @see HasChannel()
      *
-     * The channel must exist, or be the invalid channel value.
-     * With a channel that is not present in the mapping and that is not the
-     * invalid channel (`raw::InvalidChannelID`), the result is undefined.
+     * The channel must exist, or be the invalid channel value.  With a channel that is
+     * not present in the mapping and that is not the invalid channel
+     * (`raw::InvalidChannelID`), the result is undefined.
      */
     virtual readout::ROPID ChannelToROP(raw::ChannelID_t channel) const = 0;
 
@@ -1038,10 +926,10 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return ID of first channel, or raw::InvalidChannelID if ID is invalid
      *
-     * Note that this check is performed on the validity of the readout plane
-     * ID, that does not necessarily imply that the readout plane specified by
-     * the ID actually exists. Check if the ROP exists with HasROP().
-     * The behaviour for non-existing readout planes is undefined.
+     * Note that this check is performed on the validity of the readout plane ID, that
+     * does not necessarily imply that the readout plane specified by the ID actually
+     * exists. Check if the ROP exists with HasROP().  The behaviour for non-existing
+     * readout planes is undefined.
      */
     virtual raw::ChannelID_t FirstChannelInROP(readout::ROPID const& ropid) const = 0;
 
@@ -1073,8 +961,8 @@ namespace geo {
      * @param channel ID of the channel
      * @return signal type of the channel, or geo::kMysteryType if not known
      *
-     * On any type of error (e.g., invalid or unknown channel ID),
-     * geo::kMysteryType is returned.
+     * On any type of error (e.g., invalid or unknown channel ID), geo::kMysteryType is
+     * returned.
      */
     virtual SigType_t SignalTypeForChannelImpl(raw::ChannelID_t const channel) const = 0;
 
@@ -1083,9 +971,9 @@ namespace geo {
      * @param ropid ID of the readout plane
      * @return signal type on the plane, or geo::kMysteryType if not known
      *
-     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.
-     * If the readout plane is not marked invalid, but it does not match an
-     * existing readout plane, the result is undefined.
+     * If the readout plane ID is marked invalid, geo::kMysteryType is returned.  If the
+     * readout plane is not marked invalid, but it does not match an existing readout
+     * plane, the result is undefined.
      *
      * The default implementation uses readout plane to channel mapping.
      * Other implementation may decide to do the opposite.
@@ -1103,9 +991,8 @@ namespace geo {
     /**
     * @name Internal structure data access
     *
-    * These functions allow access to the XxxInfoMap_t types based on geometry
-    * element IDs.
-    * They are strictly internal.
+    * These functions allow access to the XxxInfoMap_t types based on geometry element
+    * IDs.  They are strictly internal.
     */
     /// @{
 
@@ -1185,16 +1072,11 @@ namespace geo {
 
     ///@} Internal structure data access
 
-    // These 3D vectors are used in initializing the Channel map.
-    // Only a 1D vector is really needed so far, but these are more general.
+    // These 3D vectors are used in initializing the Channel map.  Only a 1D vector is
+    // really needed so far, but these are more general.
     PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInThisPlane;
     PlaneInfoMap_t<raw::ChannelID_t> fFirstChannelInNextPlane;
 
-    std::map<std::string, size_t>
-      fADNameToGeo; ///< map the names of the dets to the AuxDetGeo objects
-    std::map<size_t, std::vector<size_t>>
-      fADChannelToSensitiveGeo; ///< map the AuxDetGeo index to a vector of
-                                ///< indices corresponding to the AuxDetSensitiveGeo index
   private:
     /// Wire ID check for WireIDsIntersect methods
     bool WireIDIntersectionCheck(WireID const& wid1, WireID const& wid2) const;

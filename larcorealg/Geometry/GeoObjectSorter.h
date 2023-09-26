@@ -11,7 +11,6 @@
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
-#include <functional>
 #include <vector>
 
 namespace geo {
@@ -19,10 +18,11 @@ namespace geo {
   class GeoObjectSorter {
   public:
     virtual ~GeoObjectSorter() = default;
+    void sort(std::vector<CryostatGeo>& cryostats) const;
+    void sort(std::vector<TPCGeo>& tpcs) const;
+    void sort(std::vector<OpDetGeo>& ods) const;
 
-    virtual bool compareAuxDets(AuxDetGeo const& ad1, AuxDetGeo const& ad2) const = 0;
-    virtual bool compareAuxDetSensitives(AuxDetSensitiveGeo const& ads1,
-                                         AuxDetSensitiveGeo const& ads2) const = 0;
+  private:
     virtual bool compareCryostats(CryostatGeo const& c1, CryostatGeo const& c2) const = 0;
     virtual bool compareTPCs(TPCGeo const& t1, TPCGeo const& t2) const = 0;
 

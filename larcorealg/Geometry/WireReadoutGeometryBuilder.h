@@ -7,6 +7,7 @@
 #include "larcorealg/Geometry/fwd.h"
 
 // C++ standard library
+#include <cstddef>
 #include <map>
 #include <vector>
 
@@ -52,7 +53,7 @@ namespace geo {
     /// @{
 
     /// Collection of wire-plane information objects.
-    using Planes_t = std::map<TGeoVolume const*, std::vector<PlaneGeo>>;
+    using Planes_t = std::map<std::size_t, std::vector<PlaneGeo>>;
 
     /**
      * @brief Looks for all cryostats under the specified path.

@@ -9,7 +9,7 @@
 #include "larcorealg/Geometry/AuxDetGeo.h"
 
 // LArSoft libraries
-#include "larcorealg/Geometry/GeoObjectSorter.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorter.h"
 #include "larcorealg/Geometry/geo_vectors_utils.h" // geo::vect namespace
 
 // ROOT
@@ -97,12 +97,7 @@ namespace geo {
   }
 
   //......................................................................
-  void AuxDetGeo::SortSubVolumes(GeoObjectSorter& sorter)
-  {
-    std::sort(fSensitive.begin(), fSensitive.end(), [&sorter](auto const& a, auto const& b) {
-      return sorter.compareAuxDetSensitives(a, b);
-    });
-  }
+  void AuxDetGeo::SortSubVolumes(AuxDetGeoObjectSorter& sorter) { sorter.sort(fSensitive); }
 
   //......................................................................
   std::string AuxDetGeo::AuxDetInfo(std::string indent /* = "" */,

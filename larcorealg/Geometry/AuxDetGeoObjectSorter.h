@@ -8,9 +8,9 @@
 #ifndef GEO_AUXDETGEOOBJECTSORTER_H
 #define GEO_AUXDETGEOOBJECTSORTER_H
 
-#include <vector>
-
 #include "larcorealg/Geometry/fwd.h"
+
+#include <vector>
 
 namespace geo {
 
@@ -18,11 +18,15 @@ namespace geo {
   class AuxDetGeoObjectSorter {
   public:
     virtual ~AuxDetGeoObjectSorter() = default;
+    void sort(std::vector<AuxDetGeo>& ads) const;
+    void sort(std::vector<AuxDetSensitiveGeo>& adss) const;
 
-    virtual void SortAuxDets(std::vector<AuxDetGeo>& adgeo) const = 0;
-    virtual void SortAuxDetSensitive(std::vector<AuxDetSensitiveGeo>& adsgeo) const = 0;
+  private:
+    virtual bool compareAuxDets(AuxDetGeo const& ad1, AuxDetGeo const& ad2) const = 0;
+    virtual bool compareAuxDetSensitives(AuxDetSensitiveGeo const& ads1,
+                                         AuxDetSensitiveGeo const& ads2) const = 0;
   };
 
 }
 
-#endif // GEO_GEOOBJECTSORTER_H
+#endif // GEO_AUXDETGEOOBJECTSORTER_H

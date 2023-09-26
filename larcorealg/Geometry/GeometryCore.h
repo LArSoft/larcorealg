@@ -139,15 +139,6 @@ namespace geo {
     double DefaultWiggle() const { return fPositionWiggle; }
 
     /**
-     * @brief Returns the full directory path to the geometry file source
-     * @return the full directory path to the geometry file source
-     *
-     * This is the full path of the source of the detector geometry GeometryCore relies
-     * on.
-     */
-    std::string const& ROOTFile() const { return fROOTfile; }
-
-    /**
      * @brief Returns the full directory path to the GDML file source
      * @return the full directory path to the GDML file source
      *
@@ -610,37 +601,19 @@ namespace geo {
     // group features
     //
 
-    /**
-     * @brief Returns the number of auxiliary detectors
-     *
-     * This method returns the total number of scintillator paddles (Auxiliary Detectors
-     * aka AuxDet) outside of the cryostat
-     *
-     * @todo Change return type to size_t
-     */
-    unsigned int NAuxDets() const { return AuxDets().size(); }
+    // //
+    // // access
+    // //
 
-    /**
-     * @brief Returns the number of sensitive components of auxiliary detector
-     * @param aid ID of the auxiliary detector
-     * @return number of sensitive components in the auxiliary detector aid
-     * @thrws cet::exception (category "Geometry") if aid does not exist
-     */
-    unsigned int NAuxDetSensitive(size_t const& aid) const;
-
-    //
-    // access
-    //
-
-    /**
-     * @brief Returns the specified auxiliary detector
-     * @param ad the auxiliary detector index
-     * @return a constant reference to the specified auxiliary detector
-     *
-     * @todo what happens if it does not exist?
-     * @todo remove the default parameter?
-     */
-    AuxDetGeo const& AuxDet(unsigned int const ad = 0) const;
+    // /**
+    //  * @brief Returns the specified auxiliary detector
+    //  * @param ad the auxiliary detector index
+    //  * @return a constant reference to the specified auxiliary detector
+    //  *
+    //  * @todo what happens if it does not exist?
+    //  * @todo remove the default parameter?
+    //  */
+    // AuxDetGeo const& AuxDet(unsigned int const ad = 0) const;
 
     /// @} Auxiliary detectors access and information
 
@@ -665,13 +638,11 @@ namespace geo {
     // unsorted methods
     //
 
-    /// @name Geometry initialization
-    /// @{
+    CryostatList_t const& Cryostats() const noexcept { return fCryostats; }
 
+  private:
     /**
      * @brief Loads the geometry information from the specified files
-     * @param gdmlfile path to file to be used for Geant4 simulation
-     * @param rootfile path to file for internal geometry representation
      *
      * Both paths must directly resolve to an available file, as no search is performed
      * for them.
@@ -687,35 +658,25 @@ namespace geo {
      * considered complete, but the geometry service provider is not fully initialized
      * yet, since it's still necessary to provide or update the channel mapping.
      */
-    void LoadGeometryFile(std::string gdmlfile, std::string rootfile);
+    void LoadGeometryFile();
 
-    AuxDetList_t const& AuxDets() const noexcept { return fAuxDets; }
-
-  private:
     void SortGeometry();
 
-    std::unique_ptr<GeoObjectSorter> fSorter;
-    Compare<AuxDetGeo> fCompareAuxDets;
-    Compare<CryostatGeo> fCompareCryostats;
-    Compare<TPCGeo> fCompareTPCs;
-    Compare<OpDetGeo> fCompareOpDets;
-
     CryostatList_t fCryostats{};
-    AuxDetList_t fAuxDets{};
-
-    TGeoManager* fManager{nullptr};
-    double fSurfaceY;          ///< The point where air meets earth for this detector.
-    std::string fDetectorName; ///< Name of the detector.
-    std::string fGDMLfile;     ///< path to geometry file used for Geant4 simulation
-    std::string fROOTfile;     ///< path to geometry file for geometry in GeometryCore
-    double fPositionWiggle;    ///< accounting for rounding errors when testing positions
 
     std::unique_ptr<GeometryBuilder> fBuilder;
+    std::unique_ptr<GeoObjectSorter> fSorter;
 
-    std::vector<TGeoNode const*> FindDetectorEnclosure(
+    TGeoManager* fManager{nullptr};
+    std::string fGDMLfile;     ///< path to geometry file used for Geant4 simulation
+    std::string fDetectorName; ///< Name of the detector.
+    double fSurfaceY;          ///< The point where air meets earth for this detector.
+    double fPositionWiggle;    ///< accounting for rounding errors when testing positions
+
+    std::vector<GeoNodePathEntry> FindDetectorEnclosure(
       std::string const& name = "volDetEnclosure") const;
 
-    bool FindFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
+    bool FindFirstVolume(std::string const& name, std::vector<GeoNodePathEntry>& path) const;
 
     /// Parses ROOT geometry nodes and builds LArSoft geometry representation.
     void BuildGeometry();
@@ -732,8 +693,7 @@ template <typename Stream>
 void geo::GeometryCore::Print(Stream&& out, std::string indent /* = "  " */) const
 {
 
-  out << "Detector " << DetectorName() << " has " << Ncryostats() << " cryostats and " << NAuxDets()
-      << " auxiliary detectors:";
+  out << "Detector " << DetectorName() << " has " << Ncryostats() << " cryostats:";
 
   auto const& detEnclosureBox = DetectorEnclosureBox();
   out << "\n"
@@ -760,33 +720,6 @@ void geo::GeometryCore::Print(Stream&& out, std::string indent /* = "  " */) con
       opDet.PrintOpDetInfo(std::forward<Stream>(out), indent + "  ", opDet.MaxVerbosity);
     } // for
   }   // for cryostat
-
-  unsigned int const nAuxDets = NAuxDets();
-  for (unsigned int iDet = 0; iDet < nAuxDets; ++iDet) {
-    AuxDetGeo const& auxDet = AuxDet(iDet);
-
-    out << "\n" << indent << "[#" << iDet << "] ";
-    auxDet.PrintAuxDetInfo(std::forward<Stream>(out), indent + "  ", auxDet.MaxVerbosity);
-
-    unsigned int const nSensitive = auxDet.NSensitiveVolume();
-    switch (nSensitive) {
-    case 0: break;
-    case 1: {
-      AuxDetSensitiveGeo const& auxDetS = auxDet.SensitiveVolume(0U);
-      out << "\n" << indent << "  ";
-      auxDetS.PrintAuxDetInfo(std::forward<Stream>(out), indent + "    ", auxDetS.MaxVerbosity);
-      break;
-    }
-    default:
-      for (unsigned int iSens = 0; iSens < nSensitive; ++iSens) {
-        out << "\n" << indent << "[#" << iSens << "] ";
-        AuxDetSensitiveGeo const& auxDetS = auxDet.SensitiveVolume(iSens);
-        auxDetS.PrintAuxDetInfo(std::forward<Stream>(out), indent + "    ", auxDetS.MaxVerbosity);
-      } // for
-      break;
-    } // if sensitive detectors
-
-  } // for auxiliary detector
 
   out << '\n';
 

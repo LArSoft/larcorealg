@@ -11,7 +11,7 @@
 #define LARCOREALG_GEOMETRY_LOCALTRANSFORMATION_H
 
 // ROOT libraries
-// (none)
+class TGeoNode;
 
 // C/C++ standard libraries
 #include <cstdlib>     // std::size_t
@@ -29,7 +29,12 @@ namespace geo {
     struct TransformationMatrixConverter;
   } // namespace details
 
-  using GeoNodeIterator_t = std::vector<TGeoNode const*>::const_iterator;
+  struct GeoNodePathEntry {
+    TGeoNode const* node;
+    std::size_t hash_value;
+  };
+
+  using GeoNodeIterator_t = std::vector<GeoNodePathEntry>::const_iterator;
 
   /// Builds a matrix to go from local to world coordinates in one step
   template <typename StoredMatrix, typename ITER>
@@ -37,9 +42,8 @@ namespace geo {
 
   /// Builds a matrix to go from local to world coordinates in one step
   template <typename StoredMatrix>
-  static StoredMatrix transformationFromPath(std::vector<TGeoNode const*> const& path,
+  static StoredMatrix transformationFromPath(std::vector<GeoNodePathEntry> const& path,
                                              size_t depth);
-  //  { return transformationFromPath(path.begin(), path.begin() + depth); }
 
   /**
    * @brief Class to transform between world and local coordinates
@@ -85,7 +89,7 @@ namespace geo {
      * The resulting transformation is the sequence of transformations from
      * `depth` nodes from the first on.
      */
-    LocalTransformation(std::vector<TGeoNode const*> const& path, size_t depth)
+    LocalTransformation(std::vector<GeoNodePathEntry> const& path, size_t depth)
       : fGeoMatrix(transformationFromPath<StoredMatrix>(path.begin(), path.begin() + depth + 1))
     {}
 
@@ -96,7 +100,7 @@ namespace geo {
      * The resulting transformation is the sequence of transformations from
      * the first to the last node of the path.
      */
-    LocalTransformation(std::vector<TGeoNode const*> const& path)
+    LocalTransformation(std::vector<GeoNodePathEntry> const& path)
       : LocalTransformation(path, path.size())
     {}
 
