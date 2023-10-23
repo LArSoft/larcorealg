@@ -17,6 +17,7 @@
 // C++ standard library
 #include <algorithm>
 #include <string_view>
+#include <tuple>
 
 using namespace std::literals;
 
@@ -83,6 +84,34 @@ namespace {
     return {path.current(),
             path.currentTransformation<geo::TransformationMatrix>(),
             std::vector<geo::WireGeo>{}};
+  }
+
+  double driftDistance(geo::Point_t result,
+                       geo::DriftAxis const drift_axis_with_sign,
+                       TGeoBBox const* active_volume_box,
+                       geo::Point_t last_plane_box_center)
+  {
+    auto const [axis, sign] = drift_axis_with_sign;
+    auto const [offX, offY, offZ] = std::tuple{
+      active_volume_box->GetDX(), active_volume_box->GetDY(), active_volume_box->GetDZ()};
+
+    switch (axis) {
+    case geo::Coordinate::X: {
+      double const cathode_x = result.X() - to_int(sign) * offX;
+      return std::abs(cathode_x - last_plane_box_center.X());
+    }
+    case geo::Coordinate::Y: {
+      double const cathode_y = result.Y() - to_int(sign) * offY;
+      return std::abs(cathode_y - last_plane_box_center.Y());
+    }
+    case geo::Coordinate::Z: {
+      double const cathode_z = result.Z() - to_int(sign) * offZ;
+      return std::abs(cathode_z - last_plane_box_center.Z());
+    }
+    }
+
+    // unreachable
+    return {};
   }
 }
 
@@ -166,20 +195,30 @@ geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
     path, isPlaneNode, [&planes, this](Path_t& path) { planes.push_back(makePlane(path)); });
 
   // we don't keep the active volume information... just store its center:
-  auto const* active_volume = TPCGeo::NodeForActiveVolume(tpc);
-  assert(active_volume);
-  auto const daughter_matrix = tpc_matrix * makeTransformationMatrix(*active_volume->GetMatrix());
+  auto const* active_volume_node = TPCGeo::NodeForActiveVolume(tpc);
+  assert(active_volume_node);
+
+  auto const daughter_matrix =
+    tpc_matrix * makeTransformationMatrix(*active_volume_node->GetMatrix());
   auto const active_volume_center =
     vect::toPoint(daughter_matrix(ROOT::Math::Transform3D::Point{}));
 
   auto const driftAxisWithSign = DriftAxisWithSign(active_volume_center, planes);
   auto const driftAxis = vect::normalize(planes[0].GetBoxCenter() - active_volume_center);
-  double driftDistance{std::numeric_limits<double>::max()};
+  double distance_to_last_plane{std::numeric_limits<double>::min()};
+  geo::PlaneGeo const* last_plane = nullptr;
   for (auto const& plane : planes) {
     double const distance = vect::dot(plane.GetBoxCenter() - active_volume_center, driftAxis);
-    driftDistance = std::min(distance, driftDistance);
+    if (distance > distance_to_last_plane) {
+      distance_to_last_plane = distance;
+      last_plane = &plane;
+    }
   }
 
-  // [FIXME] This definition of driftDistance is incorrect.
-  return {tpc, hash_value, std::move(tpc_matrix), driftAxisWithSign, driftDistance};
+  auto const* active_volume_box =
+    static_cast<TGeoBBox const*>(active_volume_node->GetVolume()->GetShape());
+  auto const drift_distance = driftDistance(
+    active_volume_center, driftAxisWithSign, active_volume_box, last_plane->GetBoxCenter());
+
+  return {tpc, hash_value, std::move(tpc_matrix), driftAxisWithSign, drift_distance};
 }
