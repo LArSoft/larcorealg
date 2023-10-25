@@ -4,8 +4,8 @@
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef GEO_WIREREADOUTSORTERSTANDARD_H
-#define GEO_WIREREADOUTSORTERSTANDARD_H
+#ifndef LARCOREALG_GEOMETRY_WIREREADOUTSORTERSTANDARD_H
+#define LARCOREALG_GEOMETRY_WIREREADOUTSORTERSTANDARD_H
 
 #include "fhiclcpp/fwd.h"
 #include "larcorealg/Geometry/WireReadoutSorter.h"
@@ -22,4 +22,4 @@ namespace geo {
   };
 }
 
-#endif // GEO_WIREREADOUTSORTERSTANDARD_H
+#endif // LARCOREALG_GEOMETRY_WIREREADOUTSORTERSTANDARD_H

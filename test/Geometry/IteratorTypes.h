@@ -68,4 +68,4 @@ namespace geo {
   using wire_sentinel = details::element_sentinel_for<WireGeo>;
 }
 
-#endif // LARCOREALG_GEOMETRY_ITERATORTYPES_H
+#endif // TEST_GEOMETRY_ITERATORTYPES_H

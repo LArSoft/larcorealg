@@ -4,8 +4,8 @@
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef GEO_WIREREADOUTSORTER_H
-#define GEO_WIREREADOUTSORTER_H
+#ifndef LARCOREALG_GEOMETRY_WIREREADOUTSORTER_H
+#define LARCOREALG_GEOMETRY_WIREREADOUTSORTER_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -20,4 +20,4 @@ namespace geo {
 
 }
 
-#endif // GEO_WIREREADOUTSORTER_H
+#endif // LARCOREALG_GEOMETRY_WIREREADOUTSORTER_H

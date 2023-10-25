@@ -1,5 +1,5 @@
-#ifndef GEO_WIREREADOUTGEOM_H
-#define GEO_WIREREADOUTGEOM_H
+#ifndef LARCOREALG_GEOMETRY_WIREREADOUTGEOM_H
+#define LARCOREALG_GEOMETRY_WIREREADOUTGEOM_H
 // vim: sw=2 expandtab :
 
 ////////////////////////////////////////////////////////////////////////
@@ -1094,4 +1094,4 @@ namespace geo {
   };
 
 }
-#endif // GEO_WIREREADOUTGEOM_H
+#endif // LARCOREALG_GEOMETRY_WIREREADOUTGEOM_H

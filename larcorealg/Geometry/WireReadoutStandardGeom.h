@@ -3,8 +3,8 @@
 /// @brief Interface to algorithm class for a specific detector channel mapping
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
-#define LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
+#ifndef LARCOREALG_GEOMETRY_WIREREADOUTSTANDARDGEOM_H
+#define LARCOREALG_GEOMETRY_WIREREADOUTSTANDARDGEOM_H
 
 #include "larcorealg/Geometry/WireReadoutGeom.h"
 #include "larcorealg/Geometry/WireReadoutSorter.h"
@@ -217,4 +217,4 @@ namespace geo {
   };
 
 }
-#endif // LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
+#endif // LARCOREALG_GEOMETRY_WIREREADOUTSTANDARDGEOM_H

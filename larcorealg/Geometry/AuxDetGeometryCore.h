@@ -5,8 +5,8 @@
  * @ingroup Geometry
  */
 
-#ifndef GEO_AUXDETGEOMETRYCORE_H
-#define GEO_AUXDETGEOMETRYCORE_H
+#ifndef LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H
+#define LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H
 
 // LArSoft libraries
 #include "larcorealg/Geometry/AuxDetGeo.h"
@@ -205,4 +205,4 @@ namespace geo {
 
 } // namespace geo
 
-#endif // GEO_AUXDETGEOMETRYCORE_H
+#endif // LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H

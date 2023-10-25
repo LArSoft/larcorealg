@@ -4,8 +4,8 @@
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef GEO_AUXDETGEOOBJECTSORTERSTANDARD_H
-#define GEO_AUXDETGEOOBJECTSORTERSTANDARD_H
+#ifndef LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTERSTANDARD_H
+#define LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTERSTANDARD_H
 
 #include "fhiclcpp/fwd.h"
 #include "larcorealg/Geometry/AuxDetGeoObjectSorter.h"
@@ -27,4 +27,4 @@ namespace geo {
 
 }
 
-#endif // GEO_AUXDETGEOOBJECTSORTERSTANDARD_H
+#endif // LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTERSTANDARD_H

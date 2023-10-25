@@ -3,8 +3,8 @@
 /// @brief Interface to algorithm class for sorting geo::AuxDet objects
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
-#ifndef GEO_AUXDETGEOOBJECTSORTER_H
-#define GEO_AUXDETGEOOBJECTSORTER_H
+#ifndef LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H
+#define LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -27,4 +27,4 @@ namespace geo {
 
 }
 
-#endif // GEO_AUXDETGEOOBJECTSORTER_H
+#endif // LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H

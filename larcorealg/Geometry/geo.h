@@ -1,8 +1,8 @@
 /// @file    geo.h
 /// @brief   Collect all the geometry header files together
 
-#ifndef GEO_GEO_H
-#define GEO_GEO_H
+#ifndef LARCOREALG_GEOMETRY_GEO_H
+#define LARCOREALG_GEOMETRY_GEO_H
 
 #include "cetlib_except/exception.h"
 
@@ -248,4 +248,4 @@ inline bool geo::CrossesBoundary(double x0[],       // initial particle position
   }
 }
 
-#endif
+#endif // LARCOREALG_GEOMETRY_GEO_H

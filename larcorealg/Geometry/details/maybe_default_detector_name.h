@@ -1,5 +1,5 @@
-#ifndef GEO_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H
-#define GEO_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H
+#ifndef LARCOREALG_GEOMETRY_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H
+#define LARCOREALG_GEOMETRY_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H
 
 // ==================================================
 // Given a filename, remove the suffix (if present)
@@ -14,4 +14,4 @@ namespace geo::details {
                                           std::string const& filename);
 }
 
-#endif // GEO_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H
+#endif // LARCOREALG_GEOMETRY_DETAILS_MAYBE_DEFAULT_DETECTOR_NAME_H

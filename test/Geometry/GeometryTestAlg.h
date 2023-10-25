@@ -4,8 +4,8 @@
  * @see    GeometryTestAlg.cxx
  */
 
-#ifndef GEO_GEOMETRYTESTALG_H
-#define GEO_GEOMETRYTESTALG_H
+#ifndef TEST_GEOMETRY_GEOMETRYTESTALG_H
+#define TEST_GEOMETRY_GEOMETRYTESTALG_H
 
 // LArSoft includes
 #include "larcorealg/Geometry/fwd.h"
@@ -268,4 +268,4 @@ namespace geo {
 
 } // namespace geo
 
-#endif // GEO_GEOMETRYTESTALG_H
+#endif // TEST_GEOMETRY_GEOMETRYTESTALG_H

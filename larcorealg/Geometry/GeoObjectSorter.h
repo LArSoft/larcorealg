@@ -4,8 +4,8 @@
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef GEO_GEOOBJECTSORTER_H
-#define GEO_GEOOBJECTSORTER_H
+#ifndef LARCOREALG_GEOMETRY_GEOOBJECTSORTER_H
+#define LARCOREALG_GEOMETRY_GEOOBJECTSORTER_H
 
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
@@ -30,4 +30,4 @@ namespace geo {
 
 }
 
-#endif // GEO_GEOOBJECTSORTER_H
+#endif // LARCOREALG_GEOMETRY_GEOOBJECTSORTER_H

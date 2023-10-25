@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_H
-#define LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_H
+#ifndef LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_H
+#define LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_H
 
 // LArSoft libraries
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
@@ -2237,4 +2237,4 @@ bool geo::vect::isfinite(Vector const& v)
 
 //------------------------------------------------------------------------------
 
-#endif // LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_H
+#endif // LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_H

@@ -7,8 +7,8 @@
  * In the link list in `CMakeLists.txt`, link to `ROOT::GenVector`.
  */
 
-#ifndef LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_FHICL_H
-#define LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_FHICL_H
+#ifndef LARCOREALG_GEOMETRY_GEO_VECTORS_FHICL_H
+#define LARCOREALG_GEOMETRY_GEO_VECTORS_FHICL_H
 
 // LArSoft libraries
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
@@ -35,4 +35,4 @@ namespace lar::fhicl::geo {
 
 } // namespace lar::fhicl::geo
 
-#endif // LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_FHICL_H
+#endif // LARCOREALG_GEOMETRY_GEO_VECTORS_FHICL_H

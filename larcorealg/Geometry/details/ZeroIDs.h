@@ -1,5 +1,5 @@
-#ifndef LARCOREALG_GEOMETRY_DETAILS_ZEREOIDS_H
-#define LARCOREALG_GEOMETRY_DETAILS_ZEREOIDS_H
+#ifndef LARCOREALG_GEOMETRY_DETAILS_ZEROIDS_H
+#define LARCOREALG_GEOMETRY_DETAILS_ZEROIDS_H
 
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
@@ -8,4 +8,4 @@ namespace geo::details {
   inline constexpr TPCID tpc_zero{cryostat_zero, 0};
 }
 
-#endif // LARCOREALG_GEOMETRY_DETAILS_ZEREOIDS_H
+#endif // LARCOREALG_GEOMETRY_DETAILS_ZEROIDS_H

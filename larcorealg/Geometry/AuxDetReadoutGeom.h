@@ -4,8 +4,8 @@
 /// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef GEO_AUXDETREADOUTGEOM_H
-#define GEO_AUXDETREADOUTGEOM_H
+#ifndef LARCOREALG_GEOMETRY_AUXDETREADOUTGEOM_H
+#define LARCOREALG_GEOMETRY_AUXDETREADOUTGEOM_H
 
 #include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
@@ -69,4 +69,4 @@ namespace geo {
                             ///< corresponding to the channel and AuxDetSensitiveGeo index
   };
 }
-#endif // GEO_AUXDETREADOUTGEOM_H
+#endif // LARCOREALG_GEOMETRY_AUXDETREADOUTGEOM_H

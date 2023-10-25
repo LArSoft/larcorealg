@@ -5,8 +5,8 @@
  * @date   May 7th, 2015
  */
 
-#ifndef GEO_GEOMETRYITERATORTESTALG_H
-#define GEO_GEOMETRYITERATORTESTALG_H
+#ifndef TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H
+#define TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -47,4 +47,4 @@ namespace geo {
 
 } // namespace geo
 
-#endif // GEO_GEOMETRYITERATORTESTALG_H
+#endif // TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H
