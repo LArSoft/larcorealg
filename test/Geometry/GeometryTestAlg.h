@@ -1,11 +1,7 @@
 /**
  * @file   GeometryTestAlg.h
  * @brief  Unit test for geometry functionalities
- * @date   2011/02/17
- * @author brebel@fnal.gov
  * @see    GeometryTestAlg.cxx
- *
- * Refactored by Gianluca Petrillo on May 5th, 2015.
  */
 
 #ifndef GEO_GEOMETRYTESTALG_H

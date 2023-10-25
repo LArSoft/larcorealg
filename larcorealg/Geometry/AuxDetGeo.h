@@ -1,9 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/AuxDetGeo.h
-/// \brief Encapsulate the geometry of an auxiliary detector
-/// \ingroup Geometry
+/// @file  larcorealg/Geometry/AuxDetGeo.h
+/// @brief Encapsulate the geometry of an auxiliary detector
+/// @ingroup Geometry
 ///
-/// \author  miceli@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_AUXDETGEO_H
@@ -33,7 +32,7 @@ class TGeoNode;
 
 namespace geo {
 
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetGeo {
   public:
     /// Type of list of sensitive volumes.

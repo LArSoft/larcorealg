@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/geo_vectors_utils_TVector.h
  * @brief  Specializations of `geo_vectors_utils.h` for ROOT old vector types.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   December 2, 2017
  * @see    `larcorealg/Geometry/geo_vectors_utils.h`
  * @ingroup Geometry
  *

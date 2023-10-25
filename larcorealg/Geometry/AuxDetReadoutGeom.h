@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  AuxDetReadoutGeom.h
-/// \brief Interface to auxiliary-detector geometry for wire readouts.
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  AuxDetReadoutGeom.h
+/// @brief Interface to auxiliary-detector geometry for wire readouts.
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef GEO_AUXDETREADOUTGEOM_H
 #define GEO_AUXDETREADOUTGEOM_H
 
@@ -38,7 +37,7 @@ namespace geo {
     virtual AuxDetReadoutInitializers initialize(std::vector<AuxDetGeo> const& ads) const = 0;
   };
 
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetReadoutGeom {
   public:
     explicit AuxDetReadoutGeom(AuxDetReadoutInitializers initializers);

@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeoNodePath.cxx
  * @brief  Class representing a path in ROOT geometry.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 29, 2019
  * @see    `larcorealg/Geometry/GeoNodePath.h`
  */
 

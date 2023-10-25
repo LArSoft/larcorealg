@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/OpDetGeo.cxx
-/// \brief Encapsulate the geometry of an OpDet
+/// @file  larcorealg/Geometry/OpDetGeo.cxx
+/// @brief Encapsulate the geometry of an OpDet
 ///
-/// \author  bjpjones@mit.edu
 ////////////////////////////////////////////////////////////////////////
 
 // class header

@@ -1,8 +1,6 @@
 /**
  * @file   Decomposer.h
  * @brief  Classes to project and compose a vector on a plane
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   December 1, 2016
  * @ingroup Geometry
  *
  */

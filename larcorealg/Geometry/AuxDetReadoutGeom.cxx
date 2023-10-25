@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  WireReadoutGeom.cxx
-/// \brief Interface to algorithm class for a specific detector channel mapping
-///
-/// \author  brebel@fnal.gov
+/// @file  WireReadoutGeom.cxx
+/// @brief Interface to algorithm class for a specific detector channel mapping
 ////////////////////////////////////////////////////////////////////////
 
 #include "larcorealg/Geometry/AuxDetReadoutGeom.h"

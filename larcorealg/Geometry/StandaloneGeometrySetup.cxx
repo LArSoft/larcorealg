@@ -1,8 +1,6 @@
 /**
  * @file   StandaloneGeometrySetup.cxx
  * @brief  Utilities for one-line geometry initialization.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   June 22, 2017
  */
 
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h"

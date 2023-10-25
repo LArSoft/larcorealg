@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/details/extractMaxGeometryElements.h
  * @brief  Algorithm discovering the number of elements in the geometry.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   October 19, 2019
  *
  * This is a header only library.
  */

@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorter.h
-/// \brief Interface to algorithm class for sorting geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorter.h
+/// @brief Interface to algorithm class for sorting geo::XXXGeo objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef GEO_WIREREADOUTSORTER_H
 #define GEO_WIREREADOUTSORTER_H
 

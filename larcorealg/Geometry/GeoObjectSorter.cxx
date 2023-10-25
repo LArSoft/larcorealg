@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorter.cxx
-/// \brief Interface to algorithm class for sorting geo::XXXGeo objects
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorter.cxx
+/// @brief Interface to algorithm class for sorting geo::XXXGeo objects
 ////////////////////////////////////////////////////////////////////////
 
 #include "larcorealg/Geometry/GeoObjectSorter.h"

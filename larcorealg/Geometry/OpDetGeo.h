@@ -1,9 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/OpDetGeo.h
-/// \brief Encapsulate the geometry of an optical detector
-/// \ingroup Geometry
+/// @file  larcorealg/Geometry/OpDetGeo.h
+/// @brief Encapsulate the geometry of an optical detector
+/// @ingroup Geometry
 ///
-/// \author  bjpjones@mit.gov
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_OPDETGEO_H

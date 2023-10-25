@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryDataContainers.h
  * @brief  Containers to hold one datum per TPC or plane.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   January 2nd, 2018
  * @ingroup Geometry
  *
  * This is a header-only library.

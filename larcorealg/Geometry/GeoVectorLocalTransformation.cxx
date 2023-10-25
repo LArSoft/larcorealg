@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeoVectorLocalTransformation.cxx
  * @brief  Specialization of local-to-world transformations for ROOT GenVector.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 31, 2019
  * @see    `larcorealg/Geometry/GeoVectorLocalTransformation.h`
  * @ingroup Geometry
  *

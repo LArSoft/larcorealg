@@ -2,8 +2,6 @@
  * @file   larcorealg/Geometry/LocalTransformation.tcc
  * @brief  Class containing local-to-world transformations
  *         (template implementation)
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 30, 2016
  * @see    LocalTransformation.h
  *
  * This file is expected to be included directly in the header.

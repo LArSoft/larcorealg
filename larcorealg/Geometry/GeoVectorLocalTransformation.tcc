@@ -2,8 +2,6 @@
  * @file   larcorealg/Geometry/GeoVectorLocalTransformation.tcc
  * @brief  Specialization of local-to-world transformations for ROOT GenVector
  *         (template implementation).
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 31, 2019
  * @see    `GeoVectorLocalTransformation.h`
  *
  * This file is expected to be included directly in the header.

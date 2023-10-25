@@ -1,7 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryCore.h
- * @brief  Access the description of detector geometry
- * @author brebel@fnal.gov
+ * @brief  Access the description of the physical detector geometry
  * @see    larcorealg/Geometry/GeometryCore.cxx
  * @ingroup Geometry
  */
@@ -55,68 +54,54 @@ namespace geo {
   /// @ingroup Geometry
   /// @{
 
-  //
-  // GeometryCore
-  //
-
   /** **************************************************************************
-   * @brief Description of geometry of one entire detector
+   * @brief Description of the physical geometry of one entire detector
    *
    * @note All lengths are specified in centimeters
    *
    *
-   * How to correctly instantiate a GeometryCore object
-   * ---------------------------------------------------
+   * GeometryCore construction
+   * -------------------------
    *
-   * Instantiation is a multi-step procedure:
+   * The constructor of GeometryCore performs two steps:
    *
-   * 1. construct a GeometryCore object (the "service provider"), with the full
-   *    configuration; at this step, configuration is just stored
+   * 1. It initializes a GeometryCore object (the "service provider") with the configuration
+   *    parameters, a user-provided geometry builder, and a user-provided geometry sorter.
    *
-   * 2. load a geometry with GeometryCore::LoadGeometryFile(); this loads the detector
-   *    geometry information
-   *
-   * 3. prepare a channel map algorithm object (might use for example
-   *    GeometryCore::DetectorName() or the detector geometry from the newly created
-   *    object, but any use of channel mapping related functions is forbidden and it would
-   *    yield undefined behaviour (expected to be catastrophic)
-   *
-   * 4. sort geometry according to the sorter provided by the channel map
-   *
-   * Step 3 (creation of the channel mapping algorithm object) can be performed at any
-   * time before step 4, provided that no GeometryCore instance is needed for it.
+   * 2. It loads the geometry with GeometryCore::LoadGeometryFile(), which:
+   *    a. imports the GDML file into ROOT's TGeo* system
+   *    b. builds all LArSoft geometry constructs using ROOT's geometry system according
+   *       to the user-provided builder
+   *    c. sorts all LArSoft geometry constructs according to the provided sorter.
    *
    *
    * Configuration parameters
    * ------------------------
    *
-   * - *Name* (string; mandatory): string identifying the detector; it can be different
-   *   from the base name of the file used to initialize the geometry; standard names are
-   *   recommended by each experiment.  This name can be used, for example, to select
-   *   which channel mapping algorithm to use.
+   * - *GDML* (string; mandatory): string identifying GDML file that represents the
+        detector goemetry.
+   * - *RelativePath* (string; default: (empty)): string identifying path of GDML file
+        relative to any paths on the `FW_SEARCH_PATH` environment variable.
+   * - *Name* (string; default: stem of GDML file): string identifying the detector; it
+   *   can be different from the base name of the file used to initialize the geometry;
+   *   standard names are recommended by each experiment.
    * - *SurfaceY* (real; mandatory): depth of the detector, in centimeters; see SurfaceY()
    *   for details
-   * - *MinWireZDist* (real; default: 3)
    * - *PositionEpsilon* (real; default: 0.01%) set the default tolerance (see
    *   DefaultWiggle())
-   *
    */
 
   class GeometryCore : Iterable<details::GeometryIterationPolicy, details::ToGeometryElement> {
     using Iteration = Iterable<details::GeometryIterationPolicy, details::ToGeometryElement>;
 
   public:
-    /// Type of list of cryostats
     using CryostatList_t = std::vector<CryostatGeo>;
-    /// Type of list of auxiliary detectors
-    using AuxDetList_t = std::vector<AuxDetGeo>;
 
     /**
      * @brief Initialize geometry from a given configuration
      * @param pset configuration parameters
-     *
-     * This constructor does not load any geometry description.  The next step is to do
-     * exactly that, by GeometryCore::LoadGeometryFile().
+     * @param builder builder for LArSoft's geometry constructs
+     * @param sorter sorter for LArSoft's geometry constructs, applied after building is complete
      */
     GeometryCore(fhicl::ParameterSet const& pset,
                  std::unique_ptr<GeometryBuilder> builder,
@@ -262,7 +247,8 @@ namespace geo {
     //@{
     /**
      * @brief Name of the deepest material containing the point xyz
-     * @return material of the origin by default
+     * @param point the location to query, in world coordinates
+     * @return material name at the specified position
      */
     std::string MaterialName(Point_t const& point) const;
     //@}
@@ -339,7 +325,6 @@ namespace geo {
     //@{
     /**
      * @brief Returns the specified cryostat
-     * @param cstat number of cryostat
      * @param cryoid cryostat ID
      * @return a constant reference to the specified cryostat
      * @throw cet::exception (`GeometryCore` category) if cryostat not present
@@ -457,8 +442,6 @@ namespace geo {
     /**
      * @brief Returns the specified TPC
      * @param tpcid ID of the tpc
-     * @param tpc tpc number within the cryostat
-     * @param cstat number of cryostat
      * @return a constant reference to the specified TPC
      * @throw cet::exception (`GeometryCore` category) if cryostat not present
      * @throw cet::exception (`TPCOutOfRange` category) if no such TPC
@@ -491,7 +474,7 @@ namespace geo {
     //@{
     /**
      * @brief Returns the ID of the TPC at specified location.
-     * @param worldLoc 3D point (world reference frame, centimeters)
+     * @param point 3D point (world reference frame, centimeters)
      * @return the TPC ID, or an invalid one if no TPC is there
      */
     TPCID FindTPCAtPosition(Point_t const& point) const;
@@ -565,8 +548,8 @@ namespace geo {
     //@{
     /**
      * @brief Find the nearest OpChannel to some point
-     * @param xyz point to be queried, in world coordinates
-     * @return the nearest OpChannel to the point,
+     * @param point point to be queried, in world coordinates
+     * @return the index of the nearest OpChannel to the point,
      *         or `std::numeric_limits<unsigned int>::max()` if invalid point
      *
      * @deprecated This method does not tell in which cryostat the detector is;
@@ -582,7 +565,7 @@ namespace geo {
 
     /**
      * @brief Returns gdml string which gives sensitive opdet name
-     * @param c ID of the cryostat the detector is in
+     * @param cid ID of the cryostat the detector is in
      *
      * This name is defined in the geometry (GDML) description.
      *
@@ -592,31 +575,9 @@ namespace geo {
 
     /// @} Optical detector access and information
 
-    /// @name Auxiliary detectors access and information
-    /// @{
-
-    /// @todo use a AutDetID_t instead of unsigned int?
-
     //
     // group features
     //
-
-    // //
-    // // access
-    // //
-
-    // /**
-    //  * @brief Returns the specified auxiliary detector
-    //  * @param ad the auxiliary detector index
-    //  * @return a constant reference to the specified auxiliary detector
-    //  *
-    //  * @todo what happens if it does not exist?
-    //  * @todo remove the default parameter?
-    //  */
-    // AuxDetGeo const& AuxDet(unsigned int const ad = 0) const;
-
-    /// @} Auxiliary detectors access and information
-
     /**
      * @name Optical readout channels
      * @anchor GeometryCoreOpDetChannel
@@ -641,25 +602,7 @@ namespace geo {
     CryostatList_t const& Cryostats() const noexcept { return fCryostats; }
 
   private:
-    /**
-     * @brief Loads the geometry information from the specified files
-     *
-     * Both paths must directly resolve to an available file, as no search is performed
-     * for them.
-     *
-     * The gdmlfile parameter does not have to necessarily be in GDML format, as long as
-     * it's something supported by Geant4. This file is not used by the geometry, but its
-     * path is provided on request by the simulation modules (see LArSoft `LArG4` module).
-     * The rootfile also does not need to be a ROOT file, but just anything that
-     * TGeoManager::Import() supports. This file is parsed immediately and the internal
-     * geometry representation is built out of it.
-     *
-     * @note After calling this method, the detector geometry information can be
-     * considered complete, but the geometry service provider is not fully initialized
-     * yet, since it's still necessary to provide or update the channel mapping.
-     */
     void LoadGeometryFile();
-
     void SortGeometry();
 
     CryostatList_t fCryostats{};

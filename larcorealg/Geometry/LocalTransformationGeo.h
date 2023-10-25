@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/LocalTransformationGeo.h
  * @brief  Local-to-world transformations with LArSoft geometry vectors.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 30, 2016
  *
  */
 

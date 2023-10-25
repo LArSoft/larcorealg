@@ -1,8 +1,6 @@
 /**
  * @file   Partitions.h
  * @brief  Classes describing partition of an area with associated data.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   July 13, 2017
  *
  * This is used by `geo::DriftPartitions` to describe the partition of a plane
  * across TPCs.

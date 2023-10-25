@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  WireReadoutGeom.cxx
-/// \brief Interface to geometry for wire readouts
-///
-/// \author  brebel@fnal.gov
+/// @file  WireReadoutGeom.cxx
+/// @brief Interface to geometry for wire readouts
 ////////////////////////////////////////////////////////////////////////
 
 #include "larcorealg/Geometry/WireReadoutGeom.h"

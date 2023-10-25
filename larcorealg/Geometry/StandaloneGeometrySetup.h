@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/StandaloneGeometrySetup.h
  * @brief  Utilities for one-line geometry initialization.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   June 22, 2017
  * @ingroup Geometry
  *
  * The main entry point for initializing the geometry is `SetupGeometry()`.

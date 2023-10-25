@@ -1,9 +1,7 @@
 /**
  * @file   AuxDetGeometryCore.cxx
  * @brief  Access the description of auxiliary detector geometry - implementation file
- * @author brebel@fnal.gov
  * @see    AuxDetGeometryCore.h
- *
  */
 
 // class header

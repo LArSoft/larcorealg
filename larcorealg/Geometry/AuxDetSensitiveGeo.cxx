@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/AuxDetSensitiveGeo.cxx
-/// \brief Encapsulate the geometry of the sensitive portion of an auxilary detector
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/AuxDetSensitiveGeo.cxx
+/// @brief Encapsulate the geometry of the sensitive portion of an auxilary detector
 ////////////////////////////////////////////////////////////////////////
 
 // class header

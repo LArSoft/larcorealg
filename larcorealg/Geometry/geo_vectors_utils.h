@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/geo_vectors_utils.h
  * @brief  Utilities to extend the interface of geometry vectors.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 27, 2017
  * @ingroup Geometry
  *
  * This library provides facilities that can be used for both LArSoft geometry

@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryBuilder.h
  * @brief  Interface for geometry extractor classes.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 29, 2019
  *
  * This is a header-only library.
  */
@@ -15,13 +13,7 @@
 #include "larcorealg/Geometry/CryostatGeo.h"
 #include "larcorealg/Geometry/GeoNodePath.h"
 
-// ROOT libraries
-#include "TGeoNode.h"
-
 // C++ standard library
-#include <algorithm> // std::transform()
-#include <iterator>  // std::back_inserter()
-#include <string>
 #include <vector>
 
 namespace geo {
@@ -41,11 +33,8 @@ namespace geo {
    * Customization of geometry objects
    * ----------------------------------
    *
-   * The builders return collections of LArSoft geometry objects dynamically allocated. In
-   * this way, in future it will be possible to easily customize those objects for
-   * detector-specific needs.  Note that as of LArSoft `v08_06_00`, no polymorphism is
-   * actually implemented.
-   *
+   * The builders return collections of dynamically allocated LArSoft geometry objects. In
+   * this way, it is possible to customize those objects for detector-specific needs.
    */
   class GeometryBuilder {
   public:

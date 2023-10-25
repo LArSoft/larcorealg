@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/WireGeo.h
-/// \brief Encapsulate the geometry of a wire
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/WireGeo.h
+/// @brief Encapsulate the geometry of a wire
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_WIREGEO_H

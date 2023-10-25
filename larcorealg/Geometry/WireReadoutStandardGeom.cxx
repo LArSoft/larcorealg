@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  WireReadoutStandardGeom.cxx
-/// \brief Interface to algorithm class for the standar, simplest detector channel mapping
-///
-/// \author  brebel@fnal.gov
+/// @file  WireReadoutStandardGeom.cxx
+/// @brief Interface to algorithm class for the standar, simplest detector channel mapping
 ////////////////////////////////////////////////////////////////////////
 
 #include "larcorealg/Geometry/WireReadoutStandardGeom.h"

@@ -1,9 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  WireReadoutStandardGeom.h
-/// \brief Interface to algorithm class for a specific detector channel mapping
-///
-/// \author  brebel@fnal.gov
+/// @file  WireReadoutStandardGeom.h
+/// @brief Interface to algorithm class for a specific detector channel mapping
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
 #define LARCOREALG_GEOMETRY_CHANNELSTANDARDMAPALG_H
 

@@ -1,12 +1,11 @@
 #ifndef GEO_WIREREADOUTGEOM_H
 #define GEO_WIREREADOUTGEOM_H
 // vim: sw=2 expandtab :
+
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/WireReadoutGeom.h
-/// \brief Interface to geometry for wire readouts
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/WireReadoutGeom.h
+/// @brief Interface to geometry for wire readouts
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
 // LArSoft libraries
@@ -138,10 +137,9 @@ namespace geo {
     //@{
     /**
      * @brief Returns the specified wire
+     * @param tpcid ID of the TPC
+     * @param view number of the requested view
      * @param planeid ID of the plane
-     * @param p plane number within the TPC
-     * @param tpc TPC number within the cryostat
-     * @param cstat number of cryostat
      * @return a constant reference to the specified plane
      * @throw cet::exception (`GeometryCore` category) if cryostat not present
      * @throw cet::exception (`TPCOutOfRange` category) if no such TPC
@@ -277,8 +275,6 @@ namespace geo {
     /**
      * @brief Returns the angle of the wires in the specified view from vertical
      * @param view the view
-     * @param TPC the index of the TPC in the specified cryostat
-     * @param Cryo the cryostat
      * @param tpcid ID of the TPC
      * @return the angle [radians]
      * @throw cet::exception ("GeometryCore" category) if no such view
@@ -649,9 +645,7 @@ namespace geo {
      * @brief Returns an intersection point of two channels
      * @param c1 one channel ID
      * @param c2 the other channel ID
-     * @param y (output) y coordinate of the intersection
-     * @param z (output) z coordinate of the intersection
-     * @return whether a intersection point was found
+     * @return WireIDIntersection object if intersection point was found; otherwise std::nullopt
      *
      * @todo what happens for channels from different TPCs?
      * @todo what happens for channels with multiple intersection points?

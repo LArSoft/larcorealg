@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/CryostatGeo.h
-/// \brief Encapsulate the construction of a single cyostat
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/CryostatGeo.h
+/// @brief Encapsulate the construction of a single cyostat
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef LARCOREALG_GEOMETRY_CRYOSTATGEO_H
 #define LARCOREALG_GEOMETRY_CRYOSTATGEO_H
 

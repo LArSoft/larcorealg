@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/AuxDetSensitiveGeo.h
-/// \brief Encapsulate the geometry of the sensitive portion of an auxiliary detector
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/AuxDetSensitiveGeo.h
+/// @brief Encapsulate the geometry of the sensitive portion of an auxiliary detector
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_AUXDETSENSITIVEGEO_H
@@ -30,7 +28,7 @@ class TGeoVolume;
 
 namespace geo {
 
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetSensitiveGeo {
   public:
     /// @{

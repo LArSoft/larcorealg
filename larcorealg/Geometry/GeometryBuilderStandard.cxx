@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryBuilderStandard.cxx
  * @brief  Standard implementation of geometry extractor (implementation file).
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 29, 2019
  * @see    `larcorealg/Geometry/GeometryBuilderStandard.h`
  */
 

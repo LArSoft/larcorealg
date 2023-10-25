@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/WireGeo.cxx
-/// \brief Encapsulate the geometry of a wire
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/WireGeo.cxx
+/// @brief Encapsulate the geometry of a wire
 ////////////////////////////////////////////////////////////////////////
 
 // class header

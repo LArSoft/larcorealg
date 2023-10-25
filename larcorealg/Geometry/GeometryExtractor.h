@@ -1,8 +1,6 @@
 /**
- * @file   larcorealg/Geometry/GeometryBuilderStandard.h
- * @brief  Standard implementation of geometry extractor.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 29, 2019
+ * @file   larcorealg/Geometry/GeometryExtractor.h
+ * @brief  Implementation of geometry extractor.
  * @see    `larcorealg/Geometry/GeometryBuilder.h`,
  *         `larcorealg/Geometry/GeometryBuilderStandard.cxx`
  */
@@ -25,6 +23,19 @@
 
 namespace geo {
 
+  /**
+   * @brief Object for extracting geometry objects from the GDML file.
+   *
+   * The general flow of the algorithm is a top-down crawl of the geometry tree structure,
+   * where the top objects (cryostats and auxiliary detectors) are discovered and built,
+   * and each of these objects takes care of discovering its own relevant
+   * components. Therefore e.g. the cryostat algorithm will, once found a candidate
+   * cryostat, descend into it to discover TPCs and optical detectors. This nested
+   * discovery is delegated to other algorithms, and e.g. the TPC algorithm will take care
+   * of creating a TPC and populating it with wire planes whose discovery is again
+   * delegated to another algorithm.
+   */
+
   class GeometryExtractor {
     using Path_t = GeoNodePath;
 
@@ -40,16 +51,19 @@ namespace geo {
     explicit GeometryExtractor(Config const& config) : fMaxDepth{config.maxDepth()} {}
 
     /**
-     * @brief Boilerplate implementation of `doExtractXxxx()` methods.
+     * @brief Boilerplate implementation of geometry-extraction methods.
      * @tparam ObjGeo the geometry object being extracted (e.g. `geo::WireGeo`)
      * @param path the path to the node describing the object
      * @param IsObj function to identify if a node is of the right type
-     * @param MakeObj class method creating the target object from a path
+     * @param captureObject callable object invoked to create the target object from a path
      *
      * This implementation first evaluates if the current node in the specified path is
      * suitable to create a `ObjGeo`; if not, then it descends into the node daughters and
      * recursively to their descendents.  For each candidate node, a `ObjGeo` is
      * created. All descendents of the candidates are ignored.
+     *
+     * @note The recursive descent is an inefficiency whenever it is know that the
+     * specified element will not be part of a given branch of the geometry tree.
      *
      * @note Multithreading note: `path` is allowed to change during processing.
      */

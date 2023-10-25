@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorter.h
-/// \brief Interface to algorithm class for sorting geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorter.h
+/// @brief Interface to algorithm class for sorting geo::AuxDet objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 #ifndef GEO_AUXDETGEOOBJECTSORTER_H
 #define GEO_AUXDETGEOOBJECTSORTER_H
@@ -14,7 +12,7 @@
 
 namespace geo {
 
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetGeoObjectSorter {
   public:
     virtual ~AuxDetGeoObjectSorter() = default;

@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/PlaneGeo.h
-/// \brief Encapsulate the construction of a single detector plane
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/PlaneGeo.h
+/// @brief Encapsulate the construction of a single detector plane
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef LARCOREALG_GEOMETRY_PLANEGEO_H
 #define LARCOREALG_GEOMETRY_PLANEGEO_H
 

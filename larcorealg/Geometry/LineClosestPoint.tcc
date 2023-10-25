@@ -1,7 +1,6 @@
 /**
  * @file   larcorealg/Geometry/LineClosestPoint.tcc
  * @brief  Utility for intersection of two 3D lines: template implementation.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
  * @see    larcorealg/Geometry/LineClosestPoint.h
  */
 

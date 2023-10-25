@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  WireReadoutSorterStandard.h
-/// \brief Interface to algorithm class for standard sorting of geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  WireReadoutSorterStandard.h
+/// @brief Interface to algorithm class for standard sorting of geo::XXXGeo objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef GEO_WIREREADOUTSORTERSTANDARD_H
 #define GEO_WIREREADOUTSORTERSTANDARD_H
 

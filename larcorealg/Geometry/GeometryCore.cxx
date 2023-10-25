@@ -1,7 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryCore.cxx
  * @brief  Access the description of detector geometry - implementation file
- * @author brebel@fnal.gov
  * @see    larcorealg/Geometry/GeometryCore.h
  */
 

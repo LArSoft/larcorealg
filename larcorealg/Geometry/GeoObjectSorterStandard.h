@@ -1,10 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorterStandard.h
-/// \brief Interface to algorithm class for standard sorting of geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorterStandard.h
+/// @brief Standard algorithm class for sorting of geo::XXXGeo objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
+
 #ifndef GEO_GEOOBJECTSORTERSTANDARD_H
 #define GEO_GEOOBJECTSORTERSTANDARD_H
 

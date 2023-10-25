@@ -1,8 +1,6 @@
 /**
  * @file   GeometryTestAlg.cxx
  * @brief  Unit test for geometry functionalities: implementation file
- * @date   2011/02/17
- * @author brebel@fnal.gov
  * @see    GeometryTestAlg.h
  */
 

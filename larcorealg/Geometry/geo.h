@@ -1,12 +1,12 @@
-/// \file    geo.h
-/// \brief   Collect all the geometry header files together
-/// \author  brebel@fnal.gov
+/// @file    geo.h
+/// @brief   Collect all the geometry header files together
+
 #ifndef GEO_GEO_H
 #define GEO_GEO_H
 
 #include "cetlib_except/exception.h"
 
-#include "stdexcept"
+#include <stdexcept>
 
 /// Detector geometry definition and interface
 namespace geo {

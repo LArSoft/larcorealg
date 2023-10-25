@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/ReadoutIDmapper.h
  * @brief  Mapping between geometry/readout ID and flat index.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   October 26, 2019
  * @ingroup Geometry
  *
  * This is a header-only library.

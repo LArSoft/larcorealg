@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/BoxBoundedGeo.h
  * @brief  Provides a base class aware of world box coordinates
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   April 9th, 2015
  * @see    larcorealg/Geometry/BoxBoundedGeo.cpp
  * @ingroup Geometry
  */
@@ -449,8 +447,6 @@ namespace geo {
     //@{
     /**
      * @brief Calculates the entry and exit points of a trajectory on the box surface
-     * @author Christoph Rudolf von Rohr (crohr@fnal.gov)
-     * @date July 27th, 2015
      * @param TrajectoryStart position of the trajectory source
      * @param TrajectoryDirect direction vector of the trajectory
      *
