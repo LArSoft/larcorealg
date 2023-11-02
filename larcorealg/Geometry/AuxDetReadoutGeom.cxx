@@ -17,6 +17,9 @@ namespace {
 }
 
 namespace geo {
+
+  AuxDetInitializer::~AuxDetInitializer() = default;
+
   AuxDetReadoutInitializers AuxDetInitializer::init(std::vector<AuxDetGeo> const& ads) const
   {
     return initialize(ads);

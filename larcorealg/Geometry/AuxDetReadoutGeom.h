@@ -32,6 +32,7 @@ namespace geo {
   class AuxDetInitializer {
   public:
     AuxDetReadoutInitializers init(std::vector<AuxDetGeo> const& ads) const;
+    virtual ~AuxDetInitializer();
 
   private:
     virtual AuxDetReadoutInitializers initialize(std::vector<AuxDetGeo> const& ads) const = 0;
