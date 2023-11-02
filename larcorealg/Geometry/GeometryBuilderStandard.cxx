@@ -139,7 +139,7 @@ geo::AuxDetGeo geo::GeometryBuilderStandard::makeAuxDet(Path_t& path) const
 auto geo::GeometryBuilderStandard::extractAuxDetSensitive(Path_t& path) const -> AuxDetSensitive_t
 {
   std::vector<AuxDetSensitiveGeo> result;
-  fExtractObjects(path, isAuxDetSensitiveNode, [&result, this](Path_t const& path) {
+  fExtractObjects(path, isAuxDetSensitiveNode, [&result](Path_t const& path) {
     result.push_back(makeAuxDetSensitive(path));
   });
   return result;
@@ -169,7 +169,7 @@ auto geo::GeometryBuilderStandard::extractOpDets(Path_t& path) const -> OpDets_t
   std::vector<OpDetGeo> result;
   fExtractObjects(path,
                   [this](auto const& node) { return isOpDetNode(node, fOpDetGeoName); },
-                  [&result, this](Path_t const& path) { result.push_back(makeOpDet(path)); });
+                  [&result](Path_t const& path) { result.push_back(makeOpDet(path)); });
   return result;
 }
 
@@ -190,7 +190,7 @@ geo::TPCGeo geo::GeometryBuilderStandard::makeTPC(Path_t& path) const
 
   std::vector<PlaneGeo> planes;
   fExtractObjects(
-    path, isPlaneNode, [&planes, this](Path_t& path) { planes.push_back(makePlane(path)); });
+    path, isPlaneNode, [&planes](Path_t& path) { planes.push_back(makePlane(path)); });
 
   // we don't keep the active volume information... just store its center:
   auto const* active_volume_node = TPCGeo::NodeForActiveVolume(tpc);
