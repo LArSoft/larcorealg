@@ -393,7 +393,7 @@ public:
 template <std::size_t N, typename T>
 auto geo::details::initializerListToArray(std::initializer_list<T> values)
 {
-  std::array<T, N> data;
+  std::array<T, N> data{}; // <- initializing to quiet the compiler
   std::copy(values.begin(), values.end(), data.begin());
   return data;
 } // geo::details::initializerListToArray()

@@ -22,7 +22,7 @@ cet_test(SortByPointers_test USE_BOOST_UNIT
 )
 cet_test(span_test USE_BOOST_UNIT
   LIBRARIES PRIVATE
-  Boost::headers
+  Boost::boost
 )
 cet_test(MetaUtils_test USE_BOOST_UNIT)
 cet_test(ContainerMeta_test USE_BOOST_UNIT)

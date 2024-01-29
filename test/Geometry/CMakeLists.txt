@@ -1,4 +1,6 @@
 cet_enable_asserts()
+cet_test_env_prepend(FHICL_FILE_PATH ${PROJECT_BINARY_DIR}/fcl ${PROJECT_BINARY_DIR}/job)
+cet_test_env(FW_SEARCH_PATH=${PROJECT_BINARY_DIR}/gdml)
 
 cet_test(geo_vectors_utils_test USE_BOOST_UNIT
   LIBRARIES PRIVATE
@@ -150,6 +152,7 @@ cet_test(driftvolumes_test SOURCE driftvolumes_test.cxx
   larcorealg::Geometry
   larcorealg::geometry_unit_test_base
   messagefacility::MF_MessageLogger
+  TEST_PROPERTIES ENVIRONMENT FW_SEARCH_PATH=${PROJECT_BINARY_DIR}/gdml
 )
 
 cet_test(geometrydatacontainers_test USE_BOOST_UNIT
@@ -178,13 +181,6 @@ cet_test(topology_test USE_BOOST_UNIT
   SOURCE topology_test.cxx
   LIBRARIES PRIVATE
   larcorealg::Geometry
-)
-
-set_property(TEST geometry_iterator_test geometry_test geometry_loader_test
-  geometry_iterator_loop_test geometry_standardchannelmapping_test
-  geometry_geoid_test geometry_thirdplaneslope_test
-  APPEND PROPERTY ENVIRONMENT
-  "FHICL_FILE_PATH=.:${PROJECT_BINARY_DIR}/job;FW_SEARCH_PATH=${PROJECT_BINARY_DIR}/gdml"
 )
 
 file(COPY ${GeometryTestLib_HEADERS}

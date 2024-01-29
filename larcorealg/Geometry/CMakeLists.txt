@@ -23,7 +23,7 @@ cet_make_library(LIBRARY_NAME GeometryDataContainers INTERFACE
   LIBRARIES INTERFACE
   larcorealg::GeometryIDmapper
   larcoreobj::SimpleTypesAndConstants
-  Boost::headers
+  Boost::boost
 )
 
 cet_make_library(LIBRARY_NAME geo_vectors_utils INTERFACE
