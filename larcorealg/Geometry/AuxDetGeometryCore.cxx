@@ -94,7 +94,10 @@ namespace geo {
   } // AuxDetGeometryCore::LoadGeometryFile()
 
   //......................................................................
-  void AuxDetGeometryCore::ClearGeometry() { AuxDets().clear(); }
+  void AuxDetGeometryCore::ClearGeometry()
+  {
+    AuxDets().clear();
+  }
 
   //......................................................................
   unsigned int AuxDetGeometryCore::NAuxDetSensitive(size_t const& aid) const

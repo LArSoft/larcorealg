@@ -117,7 +117,10 @@ namespace geo {
   }
 
   //......................................................................
-  void OpDetGeo::UpdateAfterSorting(geo::OpDetID opdetid) { fID = opdetid; }
+  void OpDetGeo::UpdateAfterSorting(geo::OpDetID opdetid)
+  {
+    fID = opdetid;
+  }
 
 }
 ////////////////////////////////////////////////////////////////////////

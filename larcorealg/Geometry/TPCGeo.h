@@ -656,7 +656,7 @@ template <typename Stream>
 void geo::TPCGeo::PrintTPCInfo(Stream&& out,
                                std::string indent /* = "" */,
                                unsigned int verbosity /* = 1 */
-                               ) const
+) const
 {
 
   //----------------------------------------------------------------------------

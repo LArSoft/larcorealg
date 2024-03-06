@@ -211,7 +211,7 @@ template <typename Stream>
 void geo::AuxDetGeo::PrintAuxDetInfo(Stream&& out,
                                      std::string indent /* = "" */,
                                      unsigned int verbosity /* = 1 */
-                                     ) const
+) const
 {
   //----------------------------------------------------------------------------
   out << "\"" << Name() << "\"";

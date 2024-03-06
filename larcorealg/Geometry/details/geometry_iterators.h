@@ -214,8 +214,8 @@ namespace geo::details {
     /// Returns the type of ID we act on
     LocalID_t const& localID() const { return upper_iterator::ID(); }
 
-    using ID_t = std::remove_reference_t<decltype(
-      std::declval<LocalID_t>().deepestIndex())>; ///< specific type for element ID
+    using ID_t = std::remove_reference_t<
+      decltype(std::declval<LocalID_t>().deepestIndex())>; ///< specific type for element ID
 
     /// Skips to the next element
     void next()

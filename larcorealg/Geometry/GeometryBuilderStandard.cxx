@@ -34,20 +34,35 @@ namespace {
     return s.compare(0, key.size(), key) == 0;
   }
 
-  bool isAuxDetNode(TGeoNode const& node) { return starts_with(node.GetName(), "volAuxDet"sv); }
+  bool isAuxDetNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volAuxDet"sv);
+  }
   bool isAuxDetSensitiveNode(TGeoNode const& node)
   {
     return std::string_view(node.GetName()).find("Sensitive") != std::string_view::npos;
   }
-  bool isCryostatNode(TGeoNode const& node) { return starts_with(node.GetName(), "volCryostat"sv); }
+  bool isCryostatNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volCryostat"sv);
+  }
 
   bool isOpDetNode(TGeoNode const& node, std::string_view const opDetGeoName)
   {
     return starts_with(node.GetName(), opDetGeoName);
   }
-  bool isTPCNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPC"sv); }
-  bool isPlaneNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCPlane"sv); }
-  bool isWireNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCWire"sv); }
+  bool isTPCNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPC"sv);
+  }
+  bool isPlaneNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPCPlane"sv);
+  }
+  bool isWireNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPCWire"sv);
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -406,7 +406,7 @@ template <typename Stream>
 void geo::CryostatGeo::PrintCryostatInfo(Stream&& out,
                                          std::string indent /* = "" */,
                                          unsigned int verbosity /* = 1 */
-                                         ) const
+) const
 {
 
   //----------------------------------------------------------------------------

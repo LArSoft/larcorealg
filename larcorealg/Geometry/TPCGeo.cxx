@@ -292,7 +292,10 @@ namespace geo {
   } // TPCGeo::MaxWires()
 
   //......................................................................
-  auto TPCGeo::IterateElements() const -> ElementIteratorBox { return fPlanes; }
+  auto TPCGeo::IterateElements() const -> ElementIteratorBox
+  {
+    return fPlanes;
+  }
 
   //......................................................................
   std::set<geo::View_t> TPCGeo::Views() const
@@ -308,7 +311,10 @@ namespace geo {
   //......................................................................
   // returns distance between plane 0 to each of the remaining planes
   // not the distance between two consecutive planes
-  double TPCGeo::Plane0Pitch(unsigned int p) const { return fPlane0Pitch[p]; }
+  double TPCGeo::Plane0Pitch(unsigned int p) const
+  {
+    return fPlane0Pitch[p];
+  }
 
   //......................................................................
   geo::Point_t TPCGeo::GetCathodeCenterImpl() const
@@ -359,7 +365,10 @@ namespace geo {
 
   //......................................................................
   // This method returns the distance between wires in the given plane.
-  double TPCGeo::WirePitch(unsigned plane) const { return this->Plane(plane).WirePitch(); }
+  double TPCGeo::WirePitch(unsigned plane) const
+  {
+    return this->Plane(plane).WirePitch();
+  }
 
   //......................................................................
   void TPCGeo::ResetDriftDirection()

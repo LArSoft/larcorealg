@@ -474,7 +474,10 @@ namespace geo {
   //......................................................................
 
   // sort the WireGeo objects
-  void PlaneGeo::SortWires(geo::GeoObjectSorter const& sorter) { sorter.SortWires(fWire); }
+  void PlaneGeo::SortWires(geo::GeoObjectSorter const& sorter)
+  {
+    sorter.SortWires(fWire);
+  }
 
   //......................................................................
   bool PlaneGeo::WireIDincreasesWithZ() const
@@ -640,7 +643,10 @@ namespace geo {
   } // PlaneGeo::InterWireDistance()
 
   //......................................................................
-  double PlaneGeo::ThetaZ() const { return FirstWire().ThetaZ(); }
+  double PlaneGeo::ThetaZ() const
+  {
+    return FirstWire().ThetaZ();
+  }
 
   //......................................................................
   void PlaneGeo::UpdateAfterSorting(geo::PlaneID planeid, geo::BoxBoundedGeo const& TPCbox)

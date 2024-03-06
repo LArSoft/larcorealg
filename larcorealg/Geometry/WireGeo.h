@@ -486,7 +486,7 @@ template <typename Stream>
 void geo::WireGeo::PrintWireInfo(Stream&& out,
                                  std::string indent /* = "" */,
                                  unsigned int verbosity /* = 1 */
-                                 ) const
+) const
 {
   //----------------------------------------------------------------------------
   out << "wire from " << GetStart() << " to " << GetEnd();

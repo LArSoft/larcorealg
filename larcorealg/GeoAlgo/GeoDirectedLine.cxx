@@ -26,6 +26,9 @@ namespace geoalgo {
     check_and_raise(_pt1, _pt2);
   }
 
-  Vector_t DirectedLine::Dir() const { return _pt2 - _pt1; }
+  Vector_t DirectedLine::Dir() const
+  {
+    return _pt2 - _pt1;
+  }
 
 }

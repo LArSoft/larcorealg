@@ -1756,8 +1756,12 @@ namespace geo {
             // 2.1. capping projection
             //
             geo::PlaneGeo::WidthDepthProjection_t expected_movedProjection(
-              (inWidth ? expected_w : (expected_w < 0) ? -halfWidth : +halfWidth),
-              (inDepth ? expected_d : (expected_d < 0) ? -halfDepth : +halfDepth));
+              (inWidth          ? expected_w :
+               (expected_w < 0) ? -halfWidth :
+                                  +halfWidth),
+              (inDepth          ? expected_d :
+               (expected_d < 0) ? -halfDepth :
+                                  +halfDepth));
             auto movedProjection = plane.MoveProjectionToPlane(expected_proj);
             if (vector2Dis.nonEqual(movedProjection, expected_movedProjection)) {
               ++nErrors;
@@ -2696,7 +2700,7 @@ namespace geo {
     geo::Point_t const& A,
     geo::Point_t const& B,
     const double driftVelocity /* = 0.1 */
-    ) const
+  ) const
   {
     // This function returns a list of entries, one for each plane:
     // - plane ID

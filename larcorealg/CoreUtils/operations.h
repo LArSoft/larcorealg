@@ -82,7 +82,10 @@ namespace util {
    * This `util::takeAddress()` operates in a very similar way to the lambda in
    * the last example.
    */
-  decltype(auto) takeAddress() { return AddressTaker(); }
+  decltype(auto) takeAddress()
+  {
+    return AddressTaker();
+  }
 
   //----------------------------------------------------------------------------
   /**
@@ -122,7 +125,10 @@ namespace util {
    * will fill the vector `values` with the values pointed by the elements in
    * `ptrs`.
    */
-  decltype(auto) dereference() { return Dereferencer(); }
+  decltype(auto) dereference()
+  {
+    return Dereferencer();
+  }
 
   //----------------------------------------------------------------------------
 

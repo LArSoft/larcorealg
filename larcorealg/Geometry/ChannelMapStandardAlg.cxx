@@ -175,7 +175,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  raw::ChannelID_t ChannelMapStandardAlg::Nchannels() const { return fNchannels; }
+  raw::ChannelID_t ChannelMapStandardAlg::Nchannels() const
+  {
+    return fNchannels;
+  }
 
   //----------------------------------------------------------------------------
   unsigned int ChannelMapStandardAlg::Nchannels(readout::ROPID const& ropid) const
@@ -288,7 +291,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  std::set<PlaneID> const& ChannelMapStandardAlg::PlaneIDs() const { return fPlaneIDs; }
+  std::set<PlaneID> const& ChannelMapStandardAlg::PlaneIDs() const
+  {
+    return fPlaneIDs;
+  }
 
   //----------------------------------------------------------------------------
   unsigned int ChannelMapStandardAlg::NTPCsets(readout::CryostatID const& cryoid) const
@@ -298,7 +304,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  unsigned int ChannelMapStandardAlg::MaxTPCsets() const { return MaxTPCs(); }
+  unsigned int ChannelMapStandardAlg::MaxTPCsets() const
+  {
+    return MaxTPCs();
+  }
 
   //----------------------------------------------------------------------------
   bool ChannelMapStandardAlg::HasTPCset(readout::TPCsetID const& tpcsetid) const

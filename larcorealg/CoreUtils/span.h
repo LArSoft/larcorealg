@@ -179,16 +179,15 @@ namespace util {
 
   // deduction guide for adapted span
   template <typename IterB, typename IterE, typename Adaptor>
-  span(IterB&& b, IterE&& e, Adaptor&& adaptor)
-    ->span<
+  span(IterB&& b, IterE&& e, Adaptor&& adaptor) -> span<
 #if 0  // this is C++17...
       std::invoke_result_t<Adaptor, IterB>,
       std::invoke_result_t<Adaptor, IterE>
 #else  // ... and this is what Clang 5.0 undestands
-      decltype(adaptor(std::forward<IterB>(b))),
-      decltype(adaptor(std::forward<IterE>(e)))
+    decltype(adaptor(std::forward<IterB>(b))),
+    decltype(adaptor(std::forward<IterE>(e)))
 #endif // 0
-      >;
+    >;
 
   // --- BEGIN -- Span helper functions ----------------------------------------
   /// @name Span helper functions

@@ -741,8 +741,8 @@ namespace geo {
     /// An object that can be bound to a vector to manage its Y coordinate.
     /// @see `geo::vect::XcoordManager`
     template <typename Vector>
-    static constexpr auto const YcoordManager = details::makeCoordManager(&Vector::Y,
-                                                                          &Vector::SetY);
+    static constexpr auto const YcoordManager =
+      details::makeCoordManager(&Vector::Y, &Vector::SetY);
 
     /// An object that can be bound to a vector to manage its Y coordinate.
     /// @see `geo::vect::XcoordManager`
@@ -1818,14 +1818,15 @@ namespace geo::vect::details {
 
   //----------------------------------------------------------------------------
   template <typename Vector, typename /* = void */>
-  struct DimensionImpl
-    : public std::integral_constant<
-        unsigned int,
-        HasT<Vector>() ? 4U :
-                         HasZ<Vector>() ? 3U : HasY<Vector>() ? 2U : HasX<Vector>() ? 1U : 0U> {};
+  struct DimensionImpl : public std::integral_constant<unsigned int,
+                                                       HasT<Vector>() ? 4U :
+                                                       HasZ<Vector>() ? 3U :
+                                                       HasY<Vector>() ? 2U :
+                                                       HasX<Vector>() ? 1U :
+                                                                        0U> {};
 
   template <typename Array>
-  struct DimensionImpl<Array, std::enable_if_t<(std::extent_v<Array>> 0)>>
+  struct DimensionImpl<Array, std::enable_if_t<(std::extent_v < Array >> 0)>>
     : public std::integral_constant<unsigned int, std::extent_v<Array>> {};
 
   template <typename T, std::size_t Dim>

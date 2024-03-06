@@ -183,7 +183,7 @@ template <typename Stream>
 void geo::AuxDetSensitiveGeo::PrintAuxDetInfo(Stream&& out,
                                               std::string indent /* = "" */,
                                               unsigned int verbosity /* = 0 */
-                                              ) const
+) const
 {
 
   //----------------------------------------------------------------------------

@@ -154,7 +154,10 @@ namespace geo {
   }
 
   //......................................................................
-  void GeometryCore::ClearGeometry() { fGeoData = {}; }
+  void GeometryCore::ClearGeometry()
+  {
+    fGeoData = {};
+  }
 
   //......................................................................
   void GeometryCore::SortGeometry(GeoObjectSorter const& sorter)
@@ -186,10 +189,16 @@ namespace geo {
   }
 
   //......................................................................
-  TGeoManager* GeometryCore::ROOTGeoManager() const { return gGeoManager; }
+  TGeoManager* GeometryCore::ROOTGeoManager() const
+  {
+    return gGeoManager;
+  }
 
   //......................................................................
-  unsigned int GeometryCore::Nchannels() const { return fChannelMapAlg->Nchannels(); }
+  unsigned int GeometryCore::Nchannels() const
+  {
+    return fChannelMapAlg->Nchannels();
+  }
 
   //......................................................................
   unsigned int GeometryCore::Nchannels(readout::ROPID const& ropid) const
@@ -277,7 +286,10 @@ namespace geo {
 
   //......................................................................
   // Number of different views, or wire orientations
-  unsigned int GeometryCore::Nviews() const { return MaxPlanes(); }
+  unsigned int GeometryCore::Nviews() const
+  {
+    return MaxPlanes();
+  }
 
   //......................................................................
   //
@@ -474,7 +486,10 @@ namespace geo {
   }
 
   //......................................................................
-  View_t GeometryCore::View(PlaneID const& pid) const { return pid ? Plane(pid).View() : kUnknown; }
+  View_t GeometryCore::View(PlaneID const& pid) const
+  {
+    return pid ? Plane(pid).View() : kUnknown;
+  }
 
   //--------------------------------------------------------------------
   bool GeometryCore::HasChannel(raw::ChannelID_t channel) const
@@ -676,7 +691,10 @@ namespace geo {
   }
 
   //......................................................................
-  Length_t GeometryCore::DetLength(TPCID const& tpcid) const { return TPC(tpcid).ActiveLength(); }
+  Length_t GeometryCore::DetLength(TPCID const& tpcid) const
+  {
+    return TPC(tpcid).ActiveLength();
+  }
 
   //......................................................................
   Length_t GeometryCore::CryostatHalfWidth(CryostatID const& cid) const
@@ -1452,7 +1470,10 @@ namespace geo {
   }
 
   //--------------------------------------------------------------------
-  unsigned int GeometryCore::MaxTPCsets() const { return fChannelMapAlg->MaxTPCsets(); }
+  unsigned int GeometryCore::MaxTPCsets() const
+  {
+    return fChannelMapAlg->MaxTPCsets();
+  }
 
   //--------------------------------------------------------------------
   bool GeometryCore::HasTPCset(readout::TPCsetID const& tpcsetid) const
@@ -1488,7 +1509,10 @@ namespace geo {
   }
 
   //--------------------------------------------------------------------
-  unsigned int GeometryCore::MaxROPs() const { return fChannelMapAlg->MaxROPs(); }
+  unsigned int GeometryCore::MaxROPs() const
+  {
+    return fChannelMapAlg->MaxROPs();
+  }
 
   //--------------------------------------------------------------------
   bool GeometryCore::HasROP(readout::ROPID const& ropid) const

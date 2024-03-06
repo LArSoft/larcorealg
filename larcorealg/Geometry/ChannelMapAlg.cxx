@@ -38,7 +38,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  unsigned int ChannelMapAlg::OpDetFromOpChannel(unsigned int opChannel) const { return opChannel; }
+  unsigned int ChannelMapAlg::OpDetFromOpChannel(unsigned int opChannel) const
+  {
+    return opChannel;
+  }
 
   //----------------------------------------------------------------------------
   unsigned int ChannelMapAlg::HardwareChannelFromOpChannel(unsigned int /* opChannel */) const

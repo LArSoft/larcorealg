@@ -19,7 +19,10 @@ namespace geoalgo {
     _radius = r;
   }
 
-  Sphere::Sphere(const Point_t& center, const double r) : _radius(r) { _center = center; }
+  Sphere::Sphere(const Point_t& center, const double r) : _radius(r)
+  {
+    _center = center;
+  }
 
   Sphere::Sphere(const Point_t& pt1, const Point_t& pt2)
   {
@@ -330,9 +333,15 @@ namespace geoalgo {
     }
   }
 
-  const Point_t& Sphere::Center() const { return _center; }
+  const Point_t& Sphere::Center() const
+  {
+    return _center;
+  }
 
-  double Sphere::Radius() const { return _radius; }
+  double Sphere::Radius() const
+  {
+    return _radius;
+  }
 
   void Sphere::Center(const double x, const double y, const double z)
   {
