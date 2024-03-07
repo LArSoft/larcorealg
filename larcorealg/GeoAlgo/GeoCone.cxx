@@ -48,11 +48,20 @@ namespace geoalgo {
     _angle = atan(_radius / _length);
   }
 
-  double Cone::Length() const { return _length; }
+  double Cone::Length() const
+  {
+    return _length;
+  }
 
-  double Cone::Radius() const { return _radius; }
+  double Cone::Radius() const
+  {
+    return _radius;
+  }
 
-  double Cone::Angle() const { return _angle; }
+  double Cone::Angle() const
+  {
+    return _angle;
+  }
 
   void Cone::Length(double const l)
   {

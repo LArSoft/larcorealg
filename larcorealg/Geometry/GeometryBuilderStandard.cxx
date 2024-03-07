@@ -27,19 +27,31 @@ namespace {
     return s.compare(0, key.size(), key) == 0;
   }
 
-  bool isAuxDetNode(TGeoNode const& node) { return starts_with(node.GetName(), "volAuxDet"sv); }
+  bool isAuxDetNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volAuxDet"sv);
+  }
   bool isAuxDetSensitiveNode(TGeoNode const& node)
   {
     return std::string_view(node.GetName()).find("Sensitive") != std::string_view::npos;
   }
-  bool isCryostatNode(TGeoNode const& node) { return starts_with(node.GetName(), "volCryostat"sv); }
+  bool isCryostatNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volCryostat"sv);
+  }
 
   bool isOpDetNode(TGeoNode const& node, std::string_view const opDetGeoName)
   {
     return starts_with(node.GetName(), opDetGeoName);
   }
-  bool isTPCNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPC"sv); }
-  bool isPlaneNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCPlane"sv); }
+  bool isTPCNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPC"sv);
+  }
+  bool isPlaneNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPCPlane"sv);
+  }
 
   geo::DriftSign PosOrNeg(bool const condition)
   {
@@ -167,9 +179,10 @@ geo::CryostatGeo geo::GeometryBuilderStandard::makeCryostat(Path_t& path) const
 auto geo::GeometryBuilderStandard::extractOpDets(Path_t& path) const -> OpDets_t
 {
   std::vector<OpDetGeo> result;
-  fExtractObjects(path,
-                  [this](auto const& node) { return isOpDetNode(node, fOpDetGeoName); },
-                  [&result](Path_t const& path) { result.push_back(makeOpDet(path)); });
+  fExtractObjects(
+    path,
+    [this](auto const& node) { return isOpDetNode(node, fOpDetGeoName); },
+    [&result](Path_t const& path) { result.push_back(makeOpDet(path)); });
   return result;
 }
 

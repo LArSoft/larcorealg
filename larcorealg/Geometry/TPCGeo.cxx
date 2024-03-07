@@ -162,7 +162,10 @@ namespace geo {
   }
 
   //......................................................................
-  double TPCGeo::DriftDistance() const { return fDriftDistance; }
+  double TPCGeo::DriftDistance() const
+  {
+    return fDriftDistance;
+  }
 
   //......................................................................
   std::string TPCGeo::TPCInfo(std::string indent /* = "" */, unsigned int verbosity /* = 1 */) const
@@ -201,7 +204,10 @@ namespace geo {
   }
 
   //......................................................................
-  void TPCGeo::UpdateAfterSorting(TPCID tpcid) { fID = tpcid; }
+  void TPCGeo::UpdateAfterSorting(TPCID tpcid)
+  {
+    fID = tpcid;
+  }
 
   //......................................................................
   TGeoNode const* TPCGeo::NodeForActiveVolume(TGeoNode const* tpc)

@@ -1258,7 +1258,7 @@ template <typename Stream>
 void geo::PlaneGeo::PrintPlaneInfo(Stream&& out,
                                    std::string indent /* = "" */,
                                    unsigned int verbosity /* = 1 */
-                                   ) const
+) const
 {
 
   //----------------------------------------------------------------------------

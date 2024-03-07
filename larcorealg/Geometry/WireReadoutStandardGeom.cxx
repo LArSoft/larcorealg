@@ -203,7 +203,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  raw::ChannelID_t WireReadoutStandardGeom::Nchannels() const { return fNchannels; }
+  raw::ChannelID_t WireReadoutStandardGeom::Nchannels() const
+  {
+    return fNchannels;
+  }
 
   //----------------------------------------------------------------------------
   unsigned int WireReadoutStandardGeom::Nchannels(readout::ROPID const& ropid) const
@@ -317,7 +320,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  std::set<PlaneID> const& WireReadoutStandardGeom::PlaneIDs() const { return fPlaneIDs; }
+  std::set<PlaneID> const& WireReadoutStandardGeom::PlaneIDs() const
+  {
+    return fPlaneIDs;
+  }
 
   //----------------------------------------------------------------------------
   unsigned int WireReadoutStandardGeom::NTPCsets(readout::CryostatID const& cryoid) const
@@ -327,7 +333,10 @@ namespace geo {
   }
 
   //----------------------------------------------------------------------------
-  unsigned int WireReadoutStandardGeom::MaxTPCsets() const { return MaxTPCs(); }
+  unsigned int WireReadoutStandardGeom::MaxTPCsets() const
+  {
+    return MaxTPCs();
+  }
 
   //----------------------------------------------------------------------------
   bool WireReadoutStandardGeom::HasTPCset(readout::TPCsetID const& tpcsetid) const

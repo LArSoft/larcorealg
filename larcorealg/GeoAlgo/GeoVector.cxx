@@ -54,7 +54,10 @@ namespace geoalgo {
     return res;
   }
 
-  double Vector::Length() const { return sqrt(SqLength()); }
+  double Vector::Length() const
+  {
+    return sqrt(SqLength());
+  }
 
   double Vector::SqDist(Vector const& obj) const
   {
@@ -62,7 +65,10 @@ namespace geoalgo {
     return _SqDist_(obj);
   }
 
-  double Vector::Dist(Vector const& obj) const { return sqrt(SqDist(obj)); }
+  double Vector::Dist(Vector const& obj) const
+  {
+    return sqrt(SqDist(obj));
+  }
 
   double Vector::Dot(Vector const& obj) const
   {
@@ -107,7 +113,10 @@ namespace geoalgo {
     return TLorentzVector((*this)[0], (*this)[1], (*this)[2], 0.);
   }
 
-  void Vector::Normalize() { (*this) /= this->Length(); }
+  void Vector::Normalize()
+  {
+    (*this) /= this->Length();
+  }
 
   Vector Vector::Dir() const
   {
@@ -134,9 +143,15 @@ namespace geoalgo {
     return dist;
   }
 
-  double Vector::_Dist_(Vector const& obj) const { return sqrt(_SqDist_(obj)); }
+  double Vector::_Dist_(Vector const& obj) const
+  {
+    return sqrt(_SqDist_(obj));
+  }
 
-  double Vector::_Dot_(Vector const& obj) const { return (*this) * obj; }
+  double Vector::_Dot_(Vector const& obj) const
+  {
+    return (*this) * obj;
+  }
 
   Vector Vector::_Cross_(Vector const& obj) const
   {

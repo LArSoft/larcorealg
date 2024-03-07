@@ -180,7 +180,7 @@ namespace util {
   // deduction guide for adapted span
   template <typename IterB, typename IterE, typename Adaptor>
   span(IterB&& b, IterE&& e, Adaptor&& adaptor)
-    ->span<std::invoke_result_t<Adaptor, IterB>, std::invoke_result_t<Adaptor, IterE>>;
+    -> span<std::invoke_result_t<Adaptor, IterB>, std::invoke_result_t<Adaptor, IterE>>;
 
   // --- BEGIN -- Span helper functions ----------------------------------------
   /// @name Span helper functions

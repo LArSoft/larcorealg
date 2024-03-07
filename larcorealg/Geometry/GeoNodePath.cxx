@@ -24,7 +24,10 @@ namespace {
   }
 
   std::hash<TGeoNode const*> node_hash;
-  geo::GeoNodePath::Entry entry_for(TGeoNode const* node) { return {node, node_hash(node)}; }
+  geo::GeoNodePath::Entry entry_for(TGeoNode const* node)
+  {
+    return {node, node_hash(node)};
+  }
   geo::GeoNodePath::Entry entry_for(geo::GeoNodePath::Entry const& parent, TGeoNode const* node)
   {
     return {node, combine(parent.hash_value, node_hash(node))};
@@ -35,13 +38,25 @@ namespace geo {
 
   GeoNodePath::GeoNodePath(TGeoNode const* topNode) : fNodes{entry_for(topNode)} {}
 
-  bool GeoNodePath::empty() const { return fNodes.empty(); }
+  bool GeoNodePath::empty() const
+  {
+    return fNodes.empty();
+  }
 
-  GeoNodePath::Depth_t GeoNodePath::depth() const { return fNodes.size(); }
+  GeoNodePath::Depth_t GeoNodePath::depth() const
+  {
+    return fNodes.size();
+  }
 
-  TGeoNode const* GeoNodePath::current() const { return current_entry().node; }
+  TGeoNode const* GeoNodePath::current() const
+  {
+    return current_entry().node;
+  }
 
-  auto GeoNodePath::current_entry() const -> Entry { return fNodes.back(); }
+  auto GeoNodePath::current_entry() const -> Entry
+  {
+    return fNodes.back();
+  }
 
   auto GeoNodePath::parent_entry() const -> Entry
   {
@@ -55,7 +70,10 @@ namespace geo {
     fNodes.push_back(std::move(entry));
   }
 
-  void GeoNodePath::pop() { fNodes.pop_back(); }
+  void GeoNodePath::pop()
+  {
+    fNodes.pop_back();
+  }
 
   GeoNodePath::operator std::string() const
   {

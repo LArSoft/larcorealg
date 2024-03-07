@@ -21,8 +21,14 @@ namespace geoalgo {
     check_and_raise(pt1, pt2);
   }
 
-  Point_t const& Line::Pt1() const { return _pt1; }
-  Point_t const& Line::Pt2() const { return _pt2; }
+  Point_t const& Line::Pt1() const
+  {
+    return _pt1;
+  }
+  Point_t const& Line::Pt2() const
+  {
+    return _pt2;
+  }
 
   void Line::Pt1(double const x, double const y, double const z)
   {

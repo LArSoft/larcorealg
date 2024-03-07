@@ -60,7 +60,10 @@ namespace geo::details {
     return {EndPlaneID(id), 0};
   }
 
-  WireID ReadoutIterationPolicy::EndWireID(TPCID const& id) const { return {EndPlaneID(id), 0}; }
+  WireID ReadoutIterationPolicy::EndWireID(TPCID const& id) const
+  {
+    return {EndPlaneID(id), 0};
+  }
 
   WireID ReadoutIterationPolicy::EndWireID(PlaneID const& id) const
   {
@@ -68,7 +71,10 @@ namespace geo::details {
   }
 
   // TPCsetID
-  readout::TPCsetID ReadoutIterationPolicy::EndTPCsetID() const { return {EndCryostatID(), 0}; }
+  readout::TPCsetID ReadoutIterationPolicy::EndTPCsetID() const
+  {
+    return {EndCryostatID(), 0};
+  }
 
   readout::TPCsetID ReadoutIterationPolicy::EndTPCsetID(CryostatID const& id) const
   {
@@ -76,7 +82,10 @@ namespace geo::details {
   }
 
   // ROPID
-  readout::ROPID ReadoutIterationPolicy::EndROPID() const { return {EndTPCsetID(), 0}; }
+  readout::ROPID ReadoutIterationPolicy::EndROPID() const
+  {
+    return {EndTPCsetID(), 0};
+  }
 
   readout::ROPID ReadoutIterationPolicy::EndROPID(CryostatID const& id) const
   {

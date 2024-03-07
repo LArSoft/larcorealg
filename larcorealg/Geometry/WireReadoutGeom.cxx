@@ -157,7 +157,10 @@ namespace geo {
 
   //......................................................................
   // Number of different views, or wire orientations
-  unsigned int WireReadoutGeom::Nviews() const { return MaxPlanes(); }
+  unsigned int WireReadoutGeom::Nviews() const
+  {
+    return MaxPlanes();
+  }
 
   //......................................................................
   unsigned int WireReadoutGeom::MaxPlanes() const
@@ -473,10 +476,16 @@ namespace geo {
   }
 
   //......................................................................
-  unsigned int WireReadoutGeom::NOpChannels() const { return NOpChannels(fGeom->NOpDets()); }
+  unsigned int WireReadoutGeom::NOpChannels() const
+  {
+    return NOpChannels(fGeom->NOpDets());
+  }
 
   //......................................................................
-  unsigned int WireReadoutGeom::MaxOpChannel() const { return MaxOpChannel(fGeom->NOpDets()); }
+  unsigned int WireReadoutGeom::MaxOpChannel() const
+  {
+    return MaxOpChannel(fGeom->NOpDets());
+  }
 
   //......................................................................
   bool WireReadoutGeom::IsValidOpChannel(int opChannel) const

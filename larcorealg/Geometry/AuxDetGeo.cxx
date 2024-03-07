@@ -56,7 +56,10 @@ namespace geo {
   //......................................................................
 
   // Return the unit normal vector (0,0,1) in local coordinates to global coordinates
-  Vector_t AuxDetGeo::GetNormalVector() const { return toWorldCoords(Zaxis<LocalVector_t>()); }
+  Vector_t AuxDetGeo::GetNormalVector() const
+  {
+    return toWorldCoords(Zaxis<LocalVector_t>());
+  }
 
   //......................................................................
   std::size_t AuxDetGeo::FindSensitiveVolume(Point_t const& point) const
@@ -96,7 +99,10 @@ namespace geo {
   }
 
   //......................................................................
-  void AuxDetGeo::SortSubVolumes(AuxDetGeoObjectSorter& sorter) { sorter.sort(fSensitive); }
+  void AuxDetGeo::SortSubVolumes(AuxDetGeoObjectSorter& sorter)
+  {
+    sorter.sort(fSensitive);
+  }
 
   //......................................................................
   std::string AuxDetGeo::AuxDetInfo(std::string indent /* = "" */,

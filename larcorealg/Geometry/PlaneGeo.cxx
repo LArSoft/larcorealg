@@ -407,7 +407,10 @@ namespace geo {
   }
 
   //......................................................................
-  void PlaneGeo::SortWires(Compare<WireGeo> cmp) { std::sort(fWire.begin(), fWire.end(), cmp); }
+  void PlaneGeo::SortWires(Compare<WireGeo> cmp)
+  {
+    std::sort(fWire.begin(), fWire.end(), cmp);
+  }
 
   //......................................................................
   bool PlaneGeo::WireIDincreasesWithZ() const
@@ -543,7 +546,10 @@ namespace geo {
   }
 
   //......................................................................
-  double PlaneGeo::ThetaZ() const { return FirstWire().ThetaZ(); }
+  double PlaneGeo::ThetaZ() const
+  {
+    return FirstWire().ThetaZ();
+  }
 
   //......................................................................
   void PlaneGeo::UpdateAfterSorting(PlaneID planeid, BoxBoundedGeo const& TPCbox)

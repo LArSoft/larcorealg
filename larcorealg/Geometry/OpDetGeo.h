@@ -260,7 +260,7 @@ template <typename Stream>
 void geo::OpDetGeo::PrintOpDetInfo(Stream&& out,
                                    std::string indent /* = "" */,
                                    unsigned int verbosity /* = 0 */
-                                   ) const
+) const
 {
 
   lar::util::RealComparisons<double> cmp(1e-5);

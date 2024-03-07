@@ -89,7 +89,10 @@ namespace geo {
   }
 
   //......................................................................
-  auto CryostatGeo::IterateElements() const -> ElementIteratorBox { return fTPCs; }
+  auto CryostatGeo::IterateElements() const -> ElementIteratorBox
+  {
+    return fTPCs;
+  }
 
   //......................................................................
   // wiggle is 1+a small number to allow for rounding errors on the

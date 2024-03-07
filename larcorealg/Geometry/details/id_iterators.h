@@ -19,7 +19,7 @@ namespace geo::details {
   };
 
   template <typename ID>
-  id_sentinel(ID)->id_sentinel<ID>;
+  id_sentinel(ID) -> id_sentinel<ID>;
 
   template <typename ID>
   std::ostream& operator<<(std::ostream& out, id_sentinel<ID> const& sentinel)
@@ -215,8 +215,8 @@ namespace geo::details {
   private:
     IterationPolicy policy;
 
-    using ID_t = std::decay_t<decltype(
-      std::declval<LocalID_t>().deepestIndex())>; ///< specific type for element ID
+    using ID_t = std::decay_t<
+      decltype(std::declval<LocalID_t>().deepestIndex())>; ///< specific type for element ID
 
     /// maximum number of elements in the current cryostat
     ID_t limit = LocalID_t::InvalidID;

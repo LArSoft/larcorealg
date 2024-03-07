@@ -107,5 +107,8 @@ namespace geoalgo {
     return _Dir_(i);
   }
 
-  Vector Trajectory::_Dir_(size_t i) const { return ((*this)[i + 1] - (*this)[i]); }
+  Vector Trajectory::_Dir_(size_t i) const
+  {
+    return ((*this)[i + 1] - (*this)[i]);
+  }
 }

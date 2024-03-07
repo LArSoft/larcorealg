@@ -2,7 +2,10 @@
 
 namespace geoalgo {
 
-  HalfLine::HalfLine() : _start(3), _dir(3) { Normalize(); }
+  HalfLine::HalfLine() : _start(3), _dir(3)
+  {
+    Normalize();
+  }
 
   HalfLine::HalfLine(double const x,
                      double const y,
@@ -22,9 +25,15 @@ namespace geoalgo {
     Normalize();
   }
 
-  Point_t const& HalfLine::Start() const { return _start; }
+  Point_t const& HalfLine::Start() const
+  {
+    return _start;
+  }
 
-  Vector_t const& HalfLine::Dir() const { return _dir; }
+  Vector_t const& HalfLine::Dir() const
+  {
+    return _dir;
+  }
 
   void HalfLine::Start(double const x, double const y, double const z)
   {

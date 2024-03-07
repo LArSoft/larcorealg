@@ -91,7 +91,10 @@ namespace geo {
   }
 
   //......................................................................
-  double OpDetGeo::DistanceToPoint(Point_t const& point) const { return (point - GetCenter()).R(); }
+  double OpDetGeo::DistanceToPoint(Point_t const& point) const
+  {
+    return (point - GetCenter()).R();
+  }
 
   //......................................................................
   std::string OpDetGeo::OpDetInfo(std::string indent /* = "" */,
@@ -110,7 +113,10 @@ namespace geo {
   }
 
   //......................................................................
-  void OpDetGeo::UpdateAfterSorting(OpDetID opdetid) { fID = opdetid; }
+  void OpDetGeo::UpdateAfterSorting(OpDetID opdetid)
+  {
+    fID = opdetid;
+  }
 
 }
 ////////////////////////////////////////////////////////////////////////

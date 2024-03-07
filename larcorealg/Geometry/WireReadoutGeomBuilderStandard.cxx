@@ -24,8 +24,14 @@ namespace {
     return s.compare(0, key.size(), key) == 0;
   }
 
-  bool isPlaneNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCPlane"sv); }
-  bool isWireNode(TGeoNode const& node) { return starts_with(node.GetName(), "volTPCWire"sv); }
+  bool isPlaneNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPCPlane"sv);
+  }
+  bool isWireNode(TGeoNode const& node)
+  {
+    return starts_with(node.GetName(), "volTPCWire"sv);
+  }
 }
 
 geo::WireReadoutGeomBuilderStandard::WireReadoutGeomBuilderStandard(
