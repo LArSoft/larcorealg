@@ -334,7 +334,9 @@ namespace geo {
                                                        result.y,
                                                        result.z);
 
-    result.TPC = (within ? wid1.TPC : TPCID::InvalidID);
+    if (!within) { return std::nullopt; }
+
+    result.TPC = wid1.TPC;
     return result;
   }
 
