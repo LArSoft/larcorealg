@@ -30,9 +30,6 @@
 // Framework and infrastructure libraries
 #include "fhiclcpp/fwd.h"
 
-// External libraries
-#include "range/v3/view.hpp"
-
 // C/C++ standard libraries
 #include <cstddef> // size_t
 #include <memory>  // std::shared_ptr<>

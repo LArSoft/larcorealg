@@ -1017,14 +1017,6 @@ void test_CoordConstIterator()
   auto const v = geo::vect::makeFromCoords<Vector_t>(expected);
 
   unsigned int index = 0;
-  for (Coord_t c : geo::vect::iterateCoords(v)) {
-    BOOST_TEST(c == expected[index]);
-    ++index;
-  } // for
-
-  // same test as above,
-  // but implicitly using ROOT::Math::cbegin()/cend() we provide
-  index = 0;
   for (Coord_t c : v) {
     BOOST_TEST(c == expected[index]);
     ++index;

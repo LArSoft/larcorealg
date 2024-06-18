@@ -26,9 +26,6 @@
 #include "Math/GenVector/PositionVector2D.h"
 #include "Math/GenVector/PositionVector3D.h"
 
-// Other libraries
-#include "range/v3/view.hpp"
-
 // C/C++ standard library
 #include <array>
 #include <cassert>
@@ -1124,25 +1121,6 @@ namespace geo {
     auto vector_cend(Vector const& v)
     {
       return CoordConstIterator(v, vect::dimension(v));
-    }
-
-    /**
-     * @brief Returns an object for ranged-for iteration on coordinates.
-     * @tparam Vector type of vector to iterate through
-     * @param v vector whose coordinates will be iterated
-     * @return an object suitable for range-for loop
-     *
-     * Example:
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-     * geo::Vector_t v{ 3.0, 4.0, 5.0 };
-     * for (auto c: geo::vect::iterateCoords(v)) std::cout << c << ' ';
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * will print `3 4 5 `.
-     */
-    template <typename Vector>
-    auto iterateCoords(Vector const& v)
-    {
-      return ranges::make_subrange(vector_cbegin(v), vector_cend(v));
     }
 
     /**

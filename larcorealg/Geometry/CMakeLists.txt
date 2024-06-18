@@ -30,7 +30,6 @@ cet_make_library(LIBRARY_NAME geo_vectors_utils INTERFACE
   SOURCE geo_vectors_utils.h
   LIBRARIES INTERFACE
   larcoreobj::geo_vectors
-  range-v3::range-v3
   ROOT::GenVector
 )
 
