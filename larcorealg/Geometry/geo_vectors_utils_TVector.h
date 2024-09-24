@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/geo_vectors_utils_TVector.h
  * @brief  Specializations of `geo_vectors_utils.h` for ROOT old vector types.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   December 2, 2017
  * @see    `larcorealg/Geometry/geo_vectors_utils.h`
  * @ingroup Geometry
  *
@@ -15,8 +13,8 @@
  *
  */
 
-#ifndef LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_TVECTOR_H
-#define LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_TVECTOR_H
+#ifndef LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_TVECTOR_H
+#define LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_TVECTOR_H
 
 // LArSoft libraries
 #include "larcorealg/Geometry/geo_vectors_utils.h"
@@ -211,4 +209,4 @@ inline decltype(auto) cend(TLorentzVector const& v)
 
 //------------------------------------------------------------------------------
 
-#endif // LARCOREOBJ_SIMPLETYPESANDCONSTANTS_GEO_VECTORS_UTILS_TVECTOR_H
+#endif // LARCOREALG_GEOMETRY_GEO_VECTORS_UTILS_TVECTOR_H

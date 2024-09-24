@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/WireGeo.cxx
-/// \brief Encapsulate the geometry of a wire
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/WireGeo.cxx
+/// @brief Encapsulate the geometry of a wire
 ////////////////////////////////////////////////////////////////////////
 
 // class header
@@ -28,8 +26,8 @@
 namespace geo {
 
   //-----------------------------------------
-  WireGeo::WireGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fWireNode(&node), fTrans(std::move(trans)), flipped(false)
+  WireGeo::WireGeo(TGeoNode const* node, TransformationMatrix&& trans)
+    : fWireNode(node), fTrans(std::move(trans)), flipped(false)
   {
     fHalfL = ((TGeoTube*)fWireNode->GetVolume()->GetShape())->GetDZ();
 
@@ -42,7 +40,7 @@ namespace geo {
     //   std::cout << p.c_str() << std::endl;
 
     // determine the orientation of the wire
-    auto lp = geo::origin<LocalPoint_t>();
+    auto lp = origin<LocalPoint_t>();
     fCenter = toWorldCoords(lp);
 
     lp.SetZ(fHalfL);
@@ -93,7 +91,7 @@ namespace geo {
   } // WireGeo::WireInfo()
 
   //......................................................................
-  double WireGeo::DistanceFrom(geo::WireGeo const& wire) const
+  double WireGeo::DistanceFrom(WireGeo const& wire) const
   {
     //
     // The algorithm assumes that picking any point on the wire will do,
@@ -116,7 +114,7 @@ namespace geo {
   } // WireGeo::DistanceFrom()
 
   //......................................................................
-  void WireGeo::UpdateAfterSorting(geo::WireID const&, bool flip)
+  void WireGeo::UpdateAfterSorting(WireID const&, bool flip)
   {
 
     // flip, if asked

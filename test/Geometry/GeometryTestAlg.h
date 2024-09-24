@@ -1,31 +1,24 @@
 /**
  * @file   GeometryTestAlg.h
  * @brief  Unit test for geometry functionalities
- * @date   2011/02/17
- * @author brebel@fnal.gov
  * @see    GeometryTestAlg.cxx
- *
- * Refactored by Gianluca Petrillo on May 5th, 2015.
  */
 
-#ifndef GEO_GEOMETRYTESTALG_H
-#define GEO_GEOMETRYTESTALG_H
+#ifndef TEST_GEOMETRY_GEOMETRYTESTALG_H
+#define TEST_GEOMETRY_GEOMETRYTESTALG_H
 
 // LArSoft includes
 #include "larcorealg/Geometry/fwd.h"
 #include "larcorealg/TestUtils/NameSelector.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
+#include "fhiclcpp/fwd.h"
+
 // C/C++ standard libraries
 #include <array>
 #include <set>
 #include <string>
 #include <vector>
-
-// forward declarations
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace geo {
 
@@ -99,22 +92,24 @@ namespace geo {
    */
   class GeometryTestAlg {
   public:
-    explicit GeometryTestAlg(fhicl::ParameterSet const& pset);
+    explicit GeometryTestAlg(GeometryCore const* geom,
+                             WireReadoutGeom const* wireReadoutGeom,
+                             AuxDetGeometryCore const* auxDetGeometry,
+                             fhicl::ParameterSet const& pset);
 
     /// Virtual destructor
     virtual ~GeometryTestAlg() = default;
-
-    /// Runs the test
-    virtual void Setup(geo::GeometryCore const& new_geo) { geom = &new_geo; }
 
     /// Runs the test, returns a number of errors (very unlikely!)
     virtual unsigned int Run();
 
     /// Returns the direction on plane orthogonal to wires where wire number increases
-    static std::array<double, 3> GetIncreasingWireDirection(const geo::PlaneGeo& plane);
+    static std::array<double, 3> GetIncreasingWireDirection(PlaneGeo const& plane);
 
   private:
-    geo::GeometryCore const* geom; ///< pointer to geometry service provider
+    GeometryCore const* geom;
+    WireReadoutGeom const* wireReadoutGeom;
+    AuxDetGeometryCore const* auxDetGeom;
 
     bool fDisableValidWireIDcheck; ///< disable test on out-of-world NearestWire()
     std::set<std::string> fNonFatalExceptions;
@@ -127,15 +122,14 @@ namespace geo {
     testing::NameSelector fRunTests; ///< test filter
 
     void printDetectorIntro() const;
-    void printChannelSummary();
     void printVolBounds();
     void printDetDim();
     void printWirePos();
-    void printWiresInTPC(const TPCGeo& tpc, std::string indent = "") const;
+    void printWiresInTPC(TPCGeo const& tpc, std::string indent = "") const;
     void printAllGeometry() const;
     void testFindVolumes();
     void testCryostat();
-    void testTPC(geo::CryostatID const& cid);
+    void testTPC(CryostatID const& cid);
     void testPlaneDirections() const;
     void testWireOrientations() const;
     void testChannelToROP() const;
@@ -175,13 +169,13 @@ namespace geo {
     /// Prints information of an auxiliary detector into the specified stream.
     template <typename Stream>
     void printAuxDetGeo(Stream&& out,
-                        geo::AuxDetGeo const& auxDet,
+                        AuxDetGeo const& auxDet,
                         std::string indent,
                         std::string firstIndent) const;
 
     /// Prints information of an auxiliary detector into the specified stream.
     template <typename Stream>
-    void printAuxDetGeo(Stream&& out, geo::AuxDetGeo const& auxDet, std::string indent = "") const
+    void printAuxDetGeo(Stream&& out, AuxDetGeo const& auxDet, std::string indent = "") const
     {
       printAuxDetGeo(std::forward<Stream>(out), auxDet, indent, indent);
     }
@@ -189,43 +183,40 @@ namespace geo {
     /// Prints information of the sensitive auxiliary detector into a stream.
     template <typename Stream>
     void printAuxDetSensitiveGeo(Stream&& out,
-                                 geo::AuxDetSensitiveGeo const& auxDetSens,
+                                 AuxDetSensitiveGeo const& auxDetSens,
                                  std::string indent,
                                  std::string firstIndent) const;
 
     /// Prints information of the sensitive auxiliary detector into a stream.
     template <typename Stream>
     void printAuxDetSensitiveGeo(Stream&& out,
-                                 geo::AuxDetSensitiveGeo const& auxDetSens,
+                                 AuxDetSensitiveGeo const& auxDetSens,
                                  std::string indent = "") const
     {
       printAuxDetSensitiveGeo(std::forward<Stream>(out), auxDetSens, indent, indent);
     }
 
     /// Returns whether the auxiliary detector at `pos` is the `expected` one.
-    bool CheckAuxDetAtPosition(geo::Point_t const pos, unsigned int expected) const;
+    bool CheckAuxDetAtPosition(Point_t const pos, unsigned int expected) const;
 
     /// Returns whether the auxiliary sensitive detector at `pos` is expected.
-    bool CheckAuxDetSensitiveAtPosition(geo::Point_t const pos,
+    bool CheckAuxDetSensitiveAtPosition(Point_t const pos,
                                         unsigned int expectedDet,
                                         unsigned int expectedSens) const;
 
     /// Helper function for `testWireIntersection()`.
-    bool isWireAlignedToPlaneDirections(geo::PlaneGeo const& plane,
-                                        geo::Vector_t const& wireDir) const;
+    bool isWireAlignedToPlaneDirections(PlaneGeo const& plane, Vector_t const& wireDir) const;
 
     /// Performs the wire intersection test at a single point
-    unsigned int testWireIntersectionAt(geo::TPCGeo const& TPC, geo::Point_t const& point) const;
+    unsigned int testWireIntersectionAt(TPCGeo const& TPC, Point_t const& point) const;
 
     /// Returns dT/dW expected from the specified segment A-to-B
-    std::vector<std::pair<geo::PlaneID, double>> ExpectedPlane_dTdW(
-      geo::Point_t const& A,
-      geo::Point_t const& B,
-      const double driftVelocity = -0.1) const;
+    std::vector<std::pair<PlaneID, double>>
+    ExpectedPlane_dTdW(Point_t const& A, Point_t const& B, double const driftVelocity = -0.1) const;
 
     /// Performs the third plane slope test with a single configuration
     unsigned int testThirdPlane_dTdW_at(
-      std::vector<std::pair<geo::PlaneID, double>> const& plane_dTdW) const;
+      std::vector<std::pair<PlaneID, double>> const& plane_dTdW) const;
   };
 
   namespace details {
@@ -277,4 +268,4 @@ namespace geo {
 
 } // namespace geo
 
-#endif // GEO_GEOMETRYTESTALG_H
+#endif // TEST_GEOMETRY_GEOMETRYTESTALG_H

@@ -5,8 +5,8 @@
  * @date   May 7th, 2015
  */
 
-#ifndef GEO_GEOMETRYITERATORTESTALG_H
-#define GEO_GEOMETRYITERATORTESTALG_H
+#ifndef TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H
+#define TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -14,7 +14,10 @@ namespace geo {
 
   class GeometryIteratorTestAlg {
   public:
-    explicit GeometryIteratorTestAlg(geo::GeometryCore const* new_geo) : geom{new_geo} {}
+    explicit GeometryIteratorTestAlg(GeometryCore const* new_geo,
+                                     WireReadoutGeom const* wireReadoutGeom)
+      : geom{new_geo}, wireReadoutGeom{wireReadoutGeom}
+    {}
 
     /// Executes the test
     unsigned int Run() const;
@@ -38,9 +41,10 @@ namespace geo {
     /// @}
 
   private:
-    GeometryCore const* geom = nullptr;
+    GeometryCore const* geom;
+    WireReadoutGeom const* wireReadoutGeom;
   };
 
 } // namespace geo
 
-#endif // GEO_GEOMETRYITERATORTESTALG_H
+#endif // TEST_GEOMETRY_GEOMETRYITERATORTESTALG_H

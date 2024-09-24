@@ -2,15 +2,13 @@ cet_make_library(SOURCE
   makeValueIndex.h
   DebugUtils.cxx
   NumericUtils.cxx
+  SearchPathPlusRelative.cxx
   SortByPointers.h
   LIBRARIES PUBLIC
+  range-v3::range-v3
   cetlib_except::cetlib_except
-)
-
-cet_make_library(LIBRARY_NAME Math_Functor INTERFACE
-  SOURCE quiet_Math_Functor.h
-  LIBRARIES INTERFACE
-  ROOT::MathCore
+  PRIVATE
+  cetlib::cetlib
 )
 
 cet_make_library(LIBRARY_NAME ParticleFilters INTERFACE

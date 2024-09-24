@@ -8,19 +8,17 @@
  *
  *     geometry_loader_test  ConfigurationFile [test configuration FHiCL path]
  *
- * The configuration file path must be complete, i.e. it must point directly to
- * the configuration file.
- * By default, the test configuration is expected in
+ * The configuration file path must be complete, i.e. it must point directly to the
+ * configuration file.  By default, the test configuration is expected in
  * `"physics.analysis.geotest"`.
  *
  * This unit test uses `StaticLoadGeometry()` to set up the geometry.
- *
  */
 
 // LArSoft libraries
 #include "GeometryTestAlg.h"
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
-#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
 #include "larcorealg/Geometry/StandaloneBasicSetup.h"    // SetupMessageFacility()...
 #include "larcorealg/Geometry/StandaloneGeometrySetup.h" // SetupGeometry()
 
@@ -50,15 +48,12 @@
  *    (default: physics.analysers.geotest)
  * 3. FHiCL path to the configuration of the geometry
  *    (default: services.Geometry)
- *
  */
+
 //------------------------------------------------------------------------------
 int main(int argc, char const** argv)
 {
-
-  //
   // parameter parsing
-  //
   std::string configPath;
   std::string geoTestConfigPath = "physics.analyzers.geotest";
 
@@ -73,10 +68,7 @@ int main(int argc, char const** argv)
   // second argument: test configuration path
   if (++iParam < argc) geoTestConfigPath = argv[iParam];
 
-  //
   // 1. testing environment setup
-  //
-
   using namespace lar::standalone;
 
   // parse a configuration file
@@ -87,27 +79,25 @@ int main(int argc, char const** argv)
   mf::SetContextIteration("setup");
 
   // set up geometry
-  auto geom =
-    SetupGeometry<geo::ChannelMapStandardAlg>(pset.get<fhicl::ParameterSet>("services.Geometry"));
+  auto geom = SetupGeometry(pset.get<fhicl::ParameterSet>("services.Geometry"));
+  auto const wireReadoutGeom =
+    SetupReadout(pset.get<fhicl::ParameterSet>("services.WireGeom", {}), geom.get());
+  auto const auxDetGeom =
+    SetupAuxDetGeometry(pset.get<fhicl::ParameterSet>("services.AuxDetGeometry", {}));
 
   // update the context string for the messages
   mf::SetContextIteration("run");
 
-  //
   // 2. prepare the test algorithm
-  //
+  geo::GeometryTestAlg Tester(geom.get(),
+                              wireReadoutGeom.get(),
+                              auxDetGeom.get(),
+                              pset.get<fhicl::ParameterSet>(geoTestConfigPath));
 
-  geo::GeometryTestAlg Tester(pset.get<fhicl::ParameterSet>(geoTestConfigPath));
-  Tester.Setup(*geom);
-
-  //
   // 3. then we run it!
-  //
   unsigned int nErrors = Tester.Run();
 
-  //
   // 4. And finally we cross fingers.
-  //
   mf::SetContextIteration("end");
   if (nErrors > 0) { mf::LogError("geometry_test") << nErrors << " errors detected!"; }
 

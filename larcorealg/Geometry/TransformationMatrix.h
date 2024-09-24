@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/TransformationMatrix.h
  * @brief  Selection of the type of transformation matrix used in geometry.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   February 1, 2019
  * @see    `larcorealg/Geometry/GeoVectorLocalTransformation.h`
  * @ingroup Geometry
  *
@@ -32,7 +30,7 @@ namespace geo {
   template <typename Trans>
   decltype(auto) makeTransformationMatrix(Trans&& trans)
   {
-    return convertTransformationMatrix<geo::TransformationMatrix>(trans);
+    return convertTransformationMatrix<TransformationMatrix>(trans);
   }
 
 } // namespace geo

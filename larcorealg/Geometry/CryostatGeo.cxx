@@ -1,7 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file larcorealg/Geometry/CryostatGeo.cxx
-///
-/// \author  brebel@fnal.gov
+/// @file larcorealg/Geometry/CryostatGeo.cxx
 ////////////////////////////////////////////////////////////////////////
 
 // class header
@@ -21,6 +19,7 @@
 #include "TGeoShape.h" // for TGeoShape
 
 // C++ standard libraries
+#include <algorithm>
 #include <limits>  // std::numeric_limits<>
 #include <sstream> // std::ostringstream
 #include <utility> // std::move()
@@ -29,75 +28,63 @@
 namespace geo {
 
   //......................................................................
-  CryostatGeo::CryostatGeo(TGeoNode const& node,
-                           geo::TransformationMatrix&& trans,
+  CryostatGeo::CryostatGeo(TGeoNode const* node,
+                           TransformationMatrix&& trans,
                            TPCList_t&& TPCs,
                            OpDetList_t&& OpDets)
-    : fTrans(std::move(trans)), fTPCs(std::move(TPCs)), fOpDets(std::move(OpDets)), fVolume(nullptr)
+    : fTrans(std::move(trans))
+    , fTPCs(std::move(TPCs))
+    , fOpDets(std::move(OpDets))
+    , fVolume(node->GetVolume())
   {
-
     // all planes are going to be contained in the volume named volCryostat
-    // now get the total volume of the Cryostat
-    fVolume = node.GetVolume();
     if (!fVolume) throw cet::exception("CryostatGeo") << "cannot find cryostat outline volume\n";
 
     MF_LOG_DEBUG("Geometry") << "cryostat  volume is " << fVolume->GetName();
 
     // set the bounding box
     InitCryoBoundaries();
-
-    // Set OpDetName;
-    fOpDetGeoName = "volOpDetSensitive";
   }
 
   //......................................................................
   // sort the TPCGeo objects, and the PlaneGeo objects inside
-  void CryostatGeo::SortSubVolumes(geo::GeoObjectSorter const& sorter)
+  void CryostatGeo::SortSubVolumes(GeoObjectSorter const& sorter)
   {
-    sorter.SortTPCs(fTPCs);
-
-    for (geo::TPCGeo& TPC : fTPCs) {
-      TPC.SortSubVolumes(sorter);
-    }
-
-    sorter.SortOpDets(fOpDets);
-  } // CryostatGeo::SortSubVolumes()
+    sorter.sort(fTPCs);
+    sorter.sort(fOpDets);
+  }
 
   //......................................................................
-  void CryostatGeo::UpdateAfterSorting(geo::CryostatID cryoid)
+  void CryostatGeo::UpdateAfterSorting(CryostatID cryoid)
   {
-
     // update the cryostat ID
     fID = cryoid;
 
     // trigger all the optical detectors to update
     for (unsigned int opdet = 0; opdet < NOpDet(); ++opdet)
-      fOpDets[opdet].UpdateAfterSorting(geo::OpDetID(fID, opdet));
+      fOpDets[opdet].UpdateAfterSorting(OpDetID(fID, opdet));
 
     // trigger all the TPCs to update as well
     for (unsigned int tpc = 0; tpc < NTPC(); ++tpc)
-      fTPCs[tpc].UpdateAfterSorting(geo::TPCID(fID, tpc));
-
-  } // CryostatGeo::UpdateAfterSorting()
+      fTPCs[tpc].UpdateAfterSorting(TPCID(fID, tpc));
+  }
 
   //......................................................................
-  const TPCGeo& CryostatGeo::TPC(unsigned int itpc) const
+  TPCGeo const& CryostatGeo::TPC(unsigned int itpc) const
   {
     TPCGeo const* pTPC = TPCPtr(itpc);
     if (!pTPC) {
       throw cet::exception("TPCOutOfRange") << "Request for non-existant TPC " << itpc << "\n";
     }
-
     return *pTPC;
   }
 
   //......................................................................
-  const OpDetGeo& CryostatGeo::OpDet(unsigned int iopdet) const
+  OpDetGeo const& CryostatGeo::OpDet(unsigned int iopdet) const
   {
     if (iopdet >= fOpDets.size()) {
       throw cet::exception("OpDetOutOfRange") << "Request for non-existant OpDet " << iopdet;
     }
-
     return fOpDets[iopdet];
   }
 
@@ -110,18 +97,18 @@ namespace geo {
   //......................................................................
   // wiggle is 1+a small number to allow for rounding errors on the
   // passed in world loc relative to the boundaries.
-  geo::TPCID CryostatGeo::PositionToTPCID(geo::Point_t const& point, double wiggle) const
+  TPCID CryostatGeo::PositionToTPCID(Point_t const& point, double wiggle) const
   {
-    geo::TPCGeo const* tpc = PositionToTPCptr(point, wiggle);
-    return tpc ? tpc->ID() : geo::TPCID{};
+    TPCGeo const* tpc = PositionToTPCptr(point, wiggle);
+    return tpc ? tpc->ID() : TPCID{};
   }
 
   //......................................................................
   // wiggle is 1+a small number to allow for rounding errors on the
   // passed in world loc relative to the boundaries.
-  TPCGeo const& CryostatGeo::PositionToTPC(geo::Point_t const& point, double wiggle) const
+  TPCGeo const& CryostatGeo::PositionToTPC(Point_t const& point, double wiggle) const
   {
-    geo::TPCGeo const* tpc = PositionToTPCptr(point, wiggle);
+    TPCGeo const* tpc = PositionToTPCptr(point, wiggle);
     if (!tpc) {
       throw cet::exception("CryostatGeo")
         << "Can't find any TPC for position " << point << " within " << ID() << "\n";
@@ -130,34 +117,12 @@ namespace geo {
   }
 
   //......................................................................
-  geo::TPCGeo const* CryostatGeo::PositionToTPCptr(geo::Point_t const& point, double wiggle) const
+  TPCGeo const* CryostatGeo::PositionToTPCptr(Point_t const& point, double wiggle) const
   {
     for (auto const& tpc : IterateTPCs())
       if (tpc.ContainsPosition(point, wiggle)) return &tpc;
     return nullptr;
-  } // CryostatGeo::PositionToTPCptr()
-
-  //......................................................................
-  unsigned int CryostatGeo::MaxPlanes() const
-  {
-    unsigned int maxPlanes = 0;
-    for (geo::TPCGeo const& TPC : fTPCs) {
-      unsigned int maxPlanesInTPC = TPC.Nplanes();
-      if (maxPlanesInTPC > maxPlanes) maxPlanes = maxPlanesInTPC;
-    } // for
-    return maxPlanes;
-  } // CryostatGeo::MaxPlanes()
-
-  //......................................................................
-  unsigned int CryostatGeo::MaxWires() const
-  {
-    unsigned int maxWires = 0;
-    for (geo::TPCGeo const& TPC : fTPCs) {
-      unsigned int maxWiresInTPC = TPC.MaxWires();
-      if (maxWiresInTPC > maxWires) maxWires = maxWiresInTPC;
-    } // for
-    return maxWires;
-  } // CryostatGeo::MaxWires()
+  }
 
   //......................................................................
   double CryostatGeo::HalfWidth() const
@@ -186,7 +151,7 @@ namespace geo {
     boundaries[3] = MaxY();
     boundaries[4] = MinZ();
     boundaries[5] = MaxZ();
-  } // CryostatGeo::CryostatBoundaries(double*)
+  }
 
   //......................................................................
   std::string CryostatGeo::CryostatInfo(std::string indent /* = "" */,
@@ -195,19 +160,19 @@ namespace geo {
     std::ostringstream sstr;
     PrintCryostatInfo(sstr, indent, verbosity);
     return sstr.str();
-  } // CryostatGeo::CryostatInfo()
+  }
 
   //......................................................................
   // Find the nearest opdet to point in this cryostat
 
-  geo::OpDetGeo const* CryostatGeo::GetClosestOpDetPtr(geo::Point_t const& point) const
+  OpDetGeo const* CryostatGeo::GetClosestOpDetPtr(Point_t const& point) const
   {
     unsigned int iOpDet = GetClosestOpDet(point);
     return (iOpDet == std::numeric_limits<double>::max()) ? nullptr : &OpDet(iOpDet);
   }
 
   //......................................................................
-  unsigned int CryostatGeo::GetClosestOpDet(geo::Point_t const& point) const
+  unsigned int CryostatGeo::GetClosestOpDet(Point_t const& point) const
   {
     unsigned int ClosestDet = std::numeric_limits<unsigned int>::max();
     double ClosestDist = std::numeric_limits<double>::max();
@@ -220,18 +185,17 @@ namespace geo {
       }
     } // for
     return ClosestDet;
-  } // CryostatGeo::GetClosestOpDet(geo::Point_t)
+  }
 
   //......................................................................
   unsigned int CryostatGeo::GetClosestOpDet(double const* point) const
   {
-    return GetClosestOpDet(geo::vect::makePointFromCoords(point));
+    return GetClosestOpDet(vect::makePointFromCoords(point));
   }
 
   //......................................................................
   void CryostatGeo::InitCryoBoundaries()
   {
-
     // check that this is indeed a box
     if (!dynamic_cast<TGeoBBox*>(Volume()->GetShape())) {
       // at initialisation time we don't know yet our real ID
@@ -240,14 +204,13 @@ namespace geo {
     }
 
     // get the half width, height, etc of the cryostat
-    const double halflength = HalfLength();
-    const double halfwidth = HalfWidth();
-    const double halfheight = HalfHeight();
+    double const halflength = HalfLength();
+    double const halfwidth = HalfWidth();
+    double const halfheight = HalfHeight();
 
     SetBoundaries(toWorldCoords(LocalPoint_t{-halfwidth, -halfheight, -halflength}),
                   toWorldCoords(LocalPoint_t{+halfwidth, +halfheight, +halflength}));
-
-  } // CryostatGeo::InitCryoBoundaries()
+  }
 
   //......................................................................
 

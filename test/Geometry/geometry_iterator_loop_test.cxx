@@ -18,32 +18,31 @@
 
 // LArSoft libraries
 #include "GeometryIteratorLoopTestAlg.h"
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
 #include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/StandaloneGeometrySetup.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
 
-// utility libraries
+// art libraries
+#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //------------------------------------------------------------------------------
 //---  The test environment
 //---
 
-// we define here all the configuration that is needed;
-// we use an existing class provided for this purpose, since our test
-// environment allows us to tailor it at run time.
-using StandardGeometryConfiguration =
-  testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>;
+// we define here all the configuration that is needed; we use an existing class provided
+// for this purpose, since our test environment allows us to tailor it at run time.
+using StandardGeometryConfiguration = testing::BasicGeometryEnvironmentConfiguration;
 
 /*
  * GeometryTesterFixture, configured with the object above, is used in a
  * non-Boost-unit-test context.
  * It provides:
  * - `geo::GeometryCore const* Geometry()`
- * - `geo::GeometryCore const* GlobalGeometry()` (static member)
  */
 using StandardGeometryTestEnvironment =
-  testing::GeometryTesterEnvironment<StandardGeometryConfiguration>;
+  testing::GeometryTesterEnvironment<StandardGeometryConfiguration, geo::GeoObjectSorterStandard>;
 
 //------------------------------------------------------------------------------
 //---  The tests
@@ -90,13 +89,14 @@ int main(int argc, char const** argv)
   // testing environment setup
   //
   StandardGeometryTestEnvironment TestEnvironment(config);
+  auto const wireReadoutGeom = lar::standalone::SetupReadout({}, TestEnvironment.Geometry());
 
   //
   // run the test algorithm
   //
 
   // 1. we initialize it with the geometry from the environment
-  geo::GeometryIteratorLoopTestAlg Tester{TestEnvironment.Provider<geo::GeometryCore>()};
+  geo::GeometryIteratorLoopTestAlg Tester{TestEnvironment.Geometry(), wireReadoutGeom.get()};
 
   // 3. then we run it!
   unsigned int nErrors = Tester.Run();

@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/BoxBoundedGeo.h
  * @brief  Provides a base class aware of world box coordinates
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   April 9th, 2015
  * @see    larcorealg/Geometry/BoxBoundedGeo.cpp
  * @ingroup Geometry
  */
@@ -32,7 +30,7 @@ namespace geo {
    */
   class BoxBoundedGeo {
   public:
-    using Coords_t = geo::Point_t;    ///< Type of the coordinate triplet.
+    using Coords_t = Point_t;         ///< Type of the coordinate triplet.
     using Coord_t = Coords_t::Scalar; ///< Type of the coordinate.
 
     /**
@@ -132,13 +130,13 @@ namespace geo {
     double HalfSizeZ() const { return SizeZ() / 2.0; }
 
     /// Returns the corner point with the smallest coordinates.
-    geo::Point_t Min() const { return c_min; }
+    Point_t Min() const { return c_min; }
 
     /// Returns the corner point with the largest coordinates.
-    geo::Point_t Max() const { return c_max; }
+    Point_t Max() const { return c_max; }
 
     /// Returns the center point of the box.
-    geo::Point_t Center() const { return {CenterX(), CenterY(), CenterZ()}; }
+    Point_t Center() const { return {CenterX(), CenterY(), CenterZ()}; }
 
     /// @}
 
@@ -207,13 +205,13 @@ namespace geo {
      * the wiggle factor.
      * If the wiggle is less than 1, each size is shrinked.
      */
-    bool ContainsPosition(geo::Point_t const& point, double wiggle = 1.0) const
+    bool ContainsPosition(Point_t const& point, double wiggle = 1.0) const
     {
       return ContainsX(point.X(), wiggle) && ContainsYZ(point.Y(), point.Z(), wiggle);
     } // ContainsPosition()
-    /// @see `ContainsPosition(geo::Point_t const&, double) const`.
+    /// @see `ContainsPosition(Point_t const&, double) const`.
     bool ContainsPosition(TVector3 const& point, double wiggle = 1.0) const;
-    /// @see `ContainsPosition(geo::Point_t const&, double) const`.
+    /// @see `ContainsPosition(Point_t const&, double) const`.
     bool ContainsPosition(double const* point, double wiggle = 1.0) const;
 
     /// @}
@@ -319,25 +317,25 @@ namespace geo {
     /// @{
 
     /// Returns if the _x_ coordinates covered by this and `other` box overlap.
-    bool OverlapsX(geo::BoxBoundedGeo const& other) const
+    bool OverlapsX(BoxBoundedGeo const& other) const
     {
       return std::min(MaxX(), other.MaxX()) > std::max(MinX(), other.MinX());
     }
 
     /// Returns if the _y_ coordinates covered by this and `other` box overlap.
-    bool OverlapsY(geo::BoxBoundedGeo const& other) const
+    bool OverlapsY(BoxBoundedGeo const& other) const
     {
       return std::min(MaxY(), other.MaxY()) > std::max(MinY(), other.MinY());
     }
 
     /// Returns if the _z_ coordinates covered by this and `other` box overlap.
-    bool OverlapsZ(geo::BoxBoundedGeo const& other) const
+    bool OverlapsZ(BoxBoundedGeo const& other) const
     {
       return std::min(MaxZ(), other.MaxZ()) > std::max(MinZ(), other.MinZ());
     }
 
     /// Returns if this and `other` box overlap.
-    bool Overlaps(geo::BoxBoundedGeo const& other) const
+    bool Overlaps(BoxBoundedGeo const& other) const
     {
       return OverlapsX(other) && OverlapsY(other) && OverlapsZ(other);
     }
@@ -420,16 +418,13 @@ namespace geo {
      * @param y y coordinate of the point to include
      * @param z z coordinate of the point to include
      */
-    void ExtendToInclude(Coord_t x, Coord_t y, Coord_t z)
-    {
-      ExtendToInclude(geo::Point_t(x, y, z));
-    }
+    void ExtendToInclude(Coord_t x, Coord_t y, Coord_t z) { ExtendToInclude(Point_t(x, y, z)); }
 
     /**
      * @brief Extends the current box to also include the specified point.
      * @param point coordinates of the point to include
      */
-    void ExtendToInclude(geo::Point_t const& point)
+    void ExtendToInclude(Point_t const& point)
     {
       set_min(c_min, point);
       set_max(c_max, point);
@@ -452,8 +447,6 @@ namespace geo {
     //@{
     /**
      * @brief Calculates the entry and exit points of a trajectory on the box surface
-     * @author Christoph Rudolf von Rohr (crohr@fnal.gov)
-     * @date July 27th, 2015
      * @param TrajectoryStart position of the trajectory source
      * @param TrajectoryDirect direction vector of the trajectory
      *
@@ -465,8 +458,8 @@ namespace geo {
      */
     std::vector<TVector3> GetIntersections(TVector3 const& TrajectoryStart,
                                            TVector3 const& TrajectoryDirect) const;
-    std::vector<geo::Point_t> GetIntersections(geo::Point_t const& TrajectoryStart,
-                                               geo::Vector_t const& TrajectoryDirect) const;
+    std::vector<Point_t> GetIntersections(Point_t const& TrajectoryStart,
+                                          Vector_t const& TrajectoryDirect) const;
     //@}
 
     /// Sets var to value if value is smaller than the current var value.
@@ -482,7 +475,7 @@ namespace geo {
     }
 
     /// Sets each coordinate of var to the one in value if the latter is smaller.
-    static void set_min(Coords_t& var, geo::Point_t const& value)
+    static void set_min(Coords_t& var, Point_t const& value)
     {
       if (value.X() < var.X()) var.SetX(value.X());
       if (value.Y() < var.Y()) var.SetY(value.Y());
@@ -490,7 +483,7 @@ namespace geo {
     }
 
     /// Sets each coordinate of var to the one in value if the latter is larger.
-    static void set_max(Coords_t& var, geo::Point_t const& value)
+    static void set_max(Coords_t& var, Point_t const& value)
     {
       if (value.X() > var.X()) var.SetX(value.X());
       if (value.Y() > var.Y()) var.SetY(value.Y());

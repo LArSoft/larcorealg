@@ -2,12 +2,9 @@
  * @file   larcorealg/Geometry/LocalTransformation.tcc
  * @brief  Class containing local-to-world transformations
  *         (template implementation)
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 30, 2016
  * @see    LocalTransformation.h
  *
  * This file is expected to be included directly in the header.
- *
  */
 
 #ifndef LARCOREALG_GEOMETRY_LOCALTRANSFORMATION_TCC
@@ -70,7 +67,7 @@ void geo::LocalTransformation<Matrix>::LocalToWorld(double const* local, double*
 {
   details::checkVectorBufferOverlap(local, world);
   fGeoMatrix.LocalToMaster(local, world);
-} // geo::LocalTransformation::LocalToWorld()
+}
 
 //------------------------------------------------------------------------------
 template <typename Matrix>
@@ -78,7 +75,7 @@ void geo::LocalTransformation<Matrix>::LocalToWorldVect(double const* local, dou
 {
   details::checkVectorBufferOverlap(local, world);
   fGeoMatrix.LocalToMasterVect(local, world);
-} // geo::LocalTransformation::LocalToWorldVect()
+}
 
 //------------------------------------------------------------------------------
 template <typename Matrix>
@@ -86,7 +83,7 @@ void geo::LocalTransformation<Matrix>::WorldToLocal(double const* world, double*
 {
   details::checkVectorBufferOverlap(local, world);
   fGeoMatrix.MasterToLocal(world, local);
-} // geo::LocalTransformation::WorldToLocal()
+}
 
 //------------------------------------------------------------------------------
 template <typename Matrix>
@@ -94,7 +91,7 @@ void geo::LocalTransformation<Matrix>::WorldToLocalVect(const double* world, dou
 {
   details::checkVectorBufferOverlap(local, world);
   fGeoMatrix.MasterToLocalVect(world, local);
-} // geo::LocalTransformation::WorldToLocalVect()
+}
 
 //------------------------------------------------------------------------------
 template <typename Matrix>
@@ -105,7 +102,7 @@ DestPoint geo::LocalTransformation<Matrix>::WorldToLocalImpl(SrcPoint const& wor
   double localArray[3];
   WorldToLocal(worldArray, localArray);
   return {localArray[0], localArray[1], localArray[2]};
-} // geo::LocalTransformation::WorldToLocal()
+}
 
 //......................................................................
 template <typename Matrix>
@@ -116,7 +113,7 @@ DestVector geo::LocalTransformation<Matrix>::WorldToLocalVectImpl(SrcVector cons
   double localArray[3];
   WorldToLocalVect(worldArray, localArray);
   return {localArray[0], localArray[1], localArray[2]};
-} // geo::LocalTransformation::WorldToLocalVect()
+}
 
 //......................................................................
 template <typename Matrix>
@@ -127,7 +124,7 @@ DestPoint geo::LocalTransformation<Matrix>::LocalToWorldImpl(SrcPoint const& loc
   double worldArray[3];
   LocalToWorld(localArray, worldArray);
   return {worldArray[0], worldArray[1], worldArray[2]};
-} // geo::LocalTransformation::LocalToWorld()
+}
 
 //......................................................................
 template <typename Matrix>
@@ -138,7 +135,7 @@ DestVector geo::LocalTransformation<Matrix>::LocalToWorldVectImpl(SrcVector cons
   double worldArray[3];
   LocalToWorldVect(localArray, worldArray);
   return {worldArray[0], worldArray[1], worldArray[2]};
-} // geo::LocalTransformation::LocalToWorldVect()
+}
 
 //------------------------------------------------------------------------------
 // specialisations (template implementations)
@@ -147,14 +144,14 @@ namespace geo {
 
   //----------------------------------------------------------------------------
   template <>
-  inline TGeoHMatrix transformationFromPath<TGeoHMatrix>(std::vector<TGeoNode const*> const& path,
+  inline TGeoHMatrix transformationFromPath<TGeoHMatrix>(std::vector<GeoNodePathEntry> const& path,
                                                          size_t depth)
   {
-    TGeoHMatrix matrix = *(path[0]->GetMatrix());
+    TGeoHMatrix matrix = *(path[0].node->GetMatrix());
     for (size_t i = 1; i <= depth; ++i)
-      matrix.Multiply(path[i]->GetMatrix());
+      matrix.Multiply(path[i].node->GetMatrix());
     return matrix;
-  } // geo::LocalTransformation<TGeoHMatrix>::transformationFromPath()
+  }
 
   template <>
   inline TGeoHMatrix transformationFromPath<TGeoHMatrix, GeoNodeIterator_t>(GeoNodeIterator_t begin,
@@ -162,38 +159,33 @@ namespace geo {
   {
     if (begin == end) return {TGeoIdentity()};
     auto iNode = begin;
-    TGeoHMatrix matrix = *((*iNode)->GetMatrix());
+    TGeoHMatrix matrix = *(iNode->node->GetMatrix());
     while (++iNode != end)
-      matrix.Multiply((*iNode)->GetMatrix());
+      matrix.Multiply(iNode->node->GetMatrix());
     return matrix;
-
-  } // geo::LocalTransformation<TGeoHMatrix>::transformationFromPath(ITER)
+  }
 
   //----------------------------------------------------------------------------
   template <>
   inline HepGeom::Transform3D transformationFromPath<HepGeom::Transform3D>(
-    std::vector<TGeoNode const*> const& path,
+    std::vector<GeoNodePathEntry> const& path,
     size_t depth)
   {
-
     auto const mat = transformationFromPath<TGeoHMatrix>(path, depth);
     const Double_t* translation = mat.GetTranslation();
     return HepGeom::Transform3D(CLHEP::HepRotation(CLHEP::HepRep3x3(mat.GetRotationMatrix())),
                                 CLHEP::Hep3Vector(translation[0], translation[1], translation[2]));
-
-  } // geo::LocalTransformation<HepGeom::Transform3D>::transformationFromPath()
+  }
 
   template <>
   HepGeom::Transform3D inline transformationFromPath<HepGeom::Transform3D>(GeoNodeIterator_t begin,
                                                                            GeoNodeIterator_t end)
   {
-
     auto const mat = transformationFromPath<TGeoHMatrix>(begin, end);
     const Double_t* translation = mat.GetTranslation();
     return HepGeom::Transform3D(CLHEP::HepRotation(CLHEP::HepRep3x3(mat.GetRotationMatrix())),
                                 CLHEP::Hep3Vector(translation[0], translation[1], translation[2]));
-
-  } // geo::LocalTransformation<HepGeom::Transform3D>::transformationFromPath()
+  }
 
   //----------------------------------------------------------------------------
   namespace details {

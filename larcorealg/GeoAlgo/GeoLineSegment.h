@@ -32,28 +32,28 @@ namespace geoalgo {
     virtual ~LineSegment() {}
 
     /// Alternative ctor (1)
-    LineSegment(const double start_x,
-                const double start_y,
-                const double start_z,
-                const double end_x,
-                const double end_y,
-                const double end_z);
+    LineSegment(double const start_x,
+                double const start_y,
+                double const start_z,
+                double const end_x,
+                double const end_y,
+                double const end_z);
 
     /// Altenartive ctor (2)
-    LineSegment(const Point_t& start, const Point_t& end);
+    LineSegment(Point_t const& start, Point_t const& end);
 
     //
     // Getters
     //
-    const Point_t& Start() const; ///< Start getter
-    const Point_t& End() const;   ///< End getter
-    const Vector_t Dir() const;   ///< Direction getter
+    Point_t const& Start() const; ///< Start getter
+    Point_t const& End() const;   ///< End getter
+    Vector_t const Dir() const;   ///< Direction getter
 
     //
     // Setters
     //
-    void Start(const double x, const double y, const double z); ///< Start setter
-    void End(const double x, const double y, const double z);   ///< End setter
+    void Start(double const x, double const y, double const z); ///< Start setter
+    void End(double const x, double const y, double const z);   ///< End setter
 
   protected:
     void DirReset(); ///< Internal function to reset direction
@@ -67,7 +67,7 @@ namespace geoalgo {
     //
     /// Alternative ctor using template (3)
     template <class T, class U>
-    LineSegment(const T& start, const U& end) : LineSegment(Point_t(start), Point_t(end))
+    LineSegment(T const& start, U const& end) : LineSegment(Point_t(start), Point_t(end))
     {}
   };
 

@@ -8,18 +8,18 @@ namespace geoalgo {
     DirReset();
   }
 
-  LineSegment::LineSegment(const double start_x,
-                           const double start_y,
-                           const double start_z,
-                           const double end_x,
-                           const double end_y,
-                           const double end_z)
+  LineSegment::LineSegment(double const start_x,
+                           double const start_y,
+                           double const start_z,
+                           double const end_x,
+                           double const end_y,
+                           double const end_z)
     : _start(start_x, start_y, start_z), _end(end_x, end_y, end_z), _dir(3)
   {
     DirReset();
   }
 
-  LineSegment::LineSegment(const Point_t& start, const Point_t& end)
+  LineSegment::LineSegment(Point_t const& start, Point_t const& end)
     : _start(start), _end(end), _dir(3)
   {
     if (start.size() != 3 || end.size() != 3)
@@ -27,22 +27,22 @@ namespace geoalgo {
     DirReset();
   }
 
-  const Point_t& LineSegment::Start() const
+  Point_t const& LineSegment::Start() const
   {
     return _start;
   }
 
-  const Point_t& LineSegment::End() const
+  Point_t const& LineSegment::End() const
   {
     return _end;
   }
 
-  const Vector_t LineSegment::Dir() const
+  Vector_t const LineSegment::Dir() const
   {
     return _dir;
   }
 
-  void LineSegment::Start(const double x, const double y, const double z)
+  void LineSegment::Start(double const x, double const y, double const z)
   {
     _start[0] = x;
     _start[1] = y;
@@ -50,7 +50,7 @@ namespace geoalgo {
     DirReset();
   }
 
-  void LineSegment::End(const double x, const double y, const double z)
+  void LineSegment::End(double const x, double const y, double const z)
   {
     _end[0] = x;
     _end[1] = y;

@@ -166,6 +166,7 @@ cet_test(geometrydatacontainers_test USE_BOOST_UNIT
 cet_test(geoidmapper_test USE_BOOST_UNIT
   SOURCE geoidmapper_test.cxx
   LIBRARIES PRIVATE
+  larcorealg::CoreUtils
   larcorealg::GeometryIDmapper
   larcoreobj::SimpleTypesAndConstants
 )
@@ -173,6 +174,7 @@ cet_test(geoidmapper_test USE_BOOST_UNIT
 cet_test(readoutdatacontainers_test USE_BOOST_UNIT
   SOURCE readoutdatacontainers_test.cxx
   LIBRARIES PRIVATE
+  larcorealg::CoreUtils
   larcorealg::ReadoutDataContainers
   larcoreobj::SimpleTypesAndConstants
 )

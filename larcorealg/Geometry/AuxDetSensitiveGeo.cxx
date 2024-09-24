@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/AuxDetSensitiveGeo.cxx
-/// \brief Encapsulate the geometry of the sensitive portion of an auxilary detector
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/AuxDetSensitiveGeo.cxx
+/// @brief Encapsulate the geometry of the sensitive portion of an auxilary detector
 ////////////////////////////////////////////////////////////////////////
 
 // class header
@@ -26,8 +24,8 @@
 namespace geo {
 
   //-----------------------------------------
-  AuxDetSensitiveGeo::AuxDetSensitiveGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fTrans(std::move(trans)), fTotalVolume(node.GetVolume())
+  AuxDetSensitiveGeo::AuxDetSensitiveGeo(TGeoNode const* node, TransformationMatrix&& trans)
+    : fTrans(std::move(trans)), fTotalVolume(node->GetVolume())
   {
 
     MF_LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();
@@ -36,7 +34,7 @@ namespace geo {
   }
 
   //......................................................................
-  geo::Point_t AuxDetSensitiveGeo::GetCenter(double localz /* = 0.0 */) const
+  Point_t AuxDetSensitiveGeo::GetCenter(double localz /* = 0.0 */) const
   {
     return toWorldCoords(LocalPoint_t{0.0, 0.0, localz});
   }
@@ -44,15 +42,15 @@ namespace geo {
   //......................................................................
 
   // Return the unit normal vector (0,0,1) in local coordinates to global coordinates
-  geo::Vector_t AuxDetSensitiveGeo::GetNormalVector() const
+  Vector_t AuxDetSensitiveGeo::GetNormalVector() const
   {
-    return toWorldCoords(geo::Zaxis<LocalVector_t>());
+    return toWorldCoords(Zaxis<LocalVector_t>());
   }
 
   //......................................................................
-  geo::Length_t AuxDetSensitiveGeo::DistanceToPoint(double const* point) const
+  Length_t AuxDetSensitiveGeo::DistanceToPoint(double const* point) const
   {
-    return DistanceToPoint(geo::vect::makePointFromCoords(point));
+    return DistanceToPoint(vect::makePointFromCoords(point));
   }
 
   //......................................................................
@@ -62,7 +60,7 @@ namespace geo {
     std::ostringstream sstr;
     PrintAuxDetInfo(sstr, indent, verbosity);
     return sstr.str();
-  } // AuxDetSensitiveGeo::AuxDetInfo()
+  }
 
   //......................................................................
   void AuxDetSensitiveGeo::InitShapeSize()
@@ -89,6 +87,6 @@ namespace geo {
       fLength = 2.0 * ((TGeoBBox*)fTotalVolume->GetShape())->GetDZ();
       fHalfWidth2 = fHalfWidth1;
     }
-  } // AuxDetSensitiveGeo::InitShapeSize()
+  }
 }
 ////////////////////////////////////////////////////////////////////////

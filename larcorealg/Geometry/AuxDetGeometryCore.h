@@ -1,16 +1,18 @@
 /**
  * @file   AuxDetGeometryCore.h
  * @brief  Access the description of auxiliary detector geometry
- * @author brebel@fnal.gov
  * @see    AuxDetGeometryCore.cxx
  * @ingroup Geometry
  */
-#ifndef GEO_AUXDETGEOMETRYCORE_H
-#define GEO_AUXDETGEOMETRYCORE_H
+
+#ifndef LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H
+#define LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H
 
 // LArSoft libraries
-#include "larcorealg/Geometry/AuxDetChannelMapAlg.h"
 #include "larcorealg/Geometry/AuxDetGeo.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorter.h"
+#include "larcorealg/Geometry/AuxDetReadoutGeom.h"
+#include "larcorealg/Geometry/fwd.h"
 #include "larcoreobj/SimpleTypesAndConstants/geo_vectors.h"
 
 // Framework and infrastructure libraries
@@ -23,81 +25,59 @@
 #include <string>
 #include <vector>
 
-/// Namespace collecting geometry-related classes utilities
 namespace geo {
 
-  // Forward declarations within namespace.
-  class AuxDetSensitiveGeo;
-
-  /// Data in the geometry description
-  /// \ingroup Geometry
-  struct AuxDetGeometryData_t {
-
-    /// Type of list of auxiliary detectors
-    using AuxDetList_t = std::vector<AuxDetGeo>;
-
-    AuxDetList_t auxDets; ///< The auxiliary detectors
-
-  }; // AuxDetGeometryData_t
-
   /** **************************************************************************
-   * @brief Description of geometry of one set of auxiliary detectors
+   * @brief Description of physical geometry of one set of auxiliary detectors
    * @ingroup Geometry
    *
-   * @note All lengths are specified in centimetres
+   * @note All lengths are specified in centimeters
    *
    *
-   * How to correctly instantiate a GeometryCore object
-   * ---------------------------------------------------
+   * AuxDetGeometryCore construction
+   * -------------------------------
    *
-   * Instantiation is a multi-step procedure:
-   * 1. construct a GeometryCore object (the "service provider"),
-   *    with the full configuration; at this step, configuration is just stored
-   * 2. load a geometry with GeometryCore::LoadGeometryFile();
-   *    this loads the detector geometry information
-   * 3. prepare a channel map algorithm object (might use for example
-   *    GeometryCore::DetectorName() or the detector geometry from the
-   *    newly created object, but any use of channel mapping related functions
-   *    is forbidden and it would yield undefined behaviour (expected to be
-   *    catastrophic)
-   * 4. acquire the channel mapping algorithm with
-   *    GeometryCore::ApplyChannelMap(); at this point, the ChannelMapAlg object
-   *    is asked to initialize itself and to perform whatever modifications to
-   *    the geometry provider is needed.
+   * The constructor of the AuxDetGeometryCore performs two steps:
    *
-   * Step 3 (creation of the channel mapping algorithm object) can be performed
-   * at any time before step 4, provided that no GeometryCore instance is needed
-   * for it.
+   * 1. It initializes a AuxDetGeometryCoreobject (the "service provider") with the configuration
+   *    parameters, a user-provided geometry builder, and a user-provided geometry sorter.
+   *
+   * 2. It loads the geometry with AuxDetGeometryCore::LoadGeometryFile(), which:
+   *    a. imports the GDML file into ROOT's TGeo* system
+   *    b. builds all LArSoft geometry constructs using ROOT's geometry system according
+   *       to the user-provided builder
+   *    c. sorts all LArSoft geometry constructs according to the provided sorter.
    *
    *
    * Configuration parameters
-   * -------------------------
+   * ------------------------
    *
-   * - *Name* (string; mandatory): string identifying the detector; it can be
-   *   different from the base name of the file used to initialize the geometry;
-   *   standard names are recommended by each experiment.
-   *   This name can be used, for example, to select which channel mapping
-   *   algorithm to use.
-   * - *SurfaceY* (real; mandatory): depth of the detector, in centimetrs;
-   *   see SurfaceY() for details
-   * - *MinWireZDist* (real; default: 3)
-   * - *PositionEpsilon* (real; default: 0.01%) set the default tolerance
-   *   (see DefaultWiggle())
-   *
+   * - *GDML* (string; mandatory): string identifying GDML file that represents the
+        detector goemetry.
+   * - *RelativePath* (string; default: (empty)): string identifying path of GDML file
+        relative to any paths on the `FW_SEARCH_PATH` environment variable.
+   * - *Name* (string; default: stem of GDML file): string identifying the detector; it
+   *    can be different from the base name of the file used to initialize the geometry;
+   *    standard names are recommended by each experiment.
+   * - *Builder* (parameter set; default: {}): parameters used in constructing
+        GeometryBuilderStandard
+   * - *ThrowIfAbsent* (boolean; default: true) if true throws when the requested AuxDet
+        element is not available; otherwise logs a message and returns a nonsense value
+        when possible.
    */
+
   class AuxDetGeometryCore {
   public:
-    /// Type of list of auxiliary detectors
-    using AuxDetList_t = AuxDetGeometryData_t::AuxDetList_t;
-
     /**
      * @brief Initialize geometry from a given configuration
      * @param pset configuration parameters
-     *
-     * This constructor does not load any geometry description.
-     * The next step is to do exactly that, by GeometryCore::LoadGeometryFile().
+     * @param sorter sorter used for sorting AuxDet elements
+     * @param initializer initializer used to construct AuxDetReadoutGeom object
+     * @see   AuxDetReadoutGeom.cxx
      */
-    AuxDetGeometryCore(fhicl::ParameterSet const& pset);
+    AuxDetGeometryCore(fhicl::ParameterSet const& pset,
+                       std::unique_ptr<AuxDetGeoObjectSorter> sorter = nullptr,
+                       std::unique_ptr<AuxDetInitializer> initializer = nullptr);
 
     // You shall not copy or move or assign me!
     AuxDetGeometryCore(AuxDetGeometryCore const&) = delete;
@@ -106,20 +86,11 @@ namespace geo {
     AuxDetGeometryCore& operator=(AuxDetGeometryCore&&) = delete;
 
     /**
-     * @brief Returns the full directory path to the geometry file source
-     * @return the full directory path to the geometry file source
-     *
-     * This is the full path of the source of the detector geometry GeometryCore
-     * relies on.
-     */
-    std::string const& ROOTFile() const { return fROOTfile; }
-
-    /**
      * @brief Returns the full directory path to the GDML file source
      * @return the full directory path to the GDML file source
      *
-     * This is the full path of the source of the detector geometry handed to
-     * the detector simulation (GEANT).
+     * This is the full path of the source of the detector geometry handed to the detector
+     * simulation (GEANT).
      */
     std::string const& GDMLFile() const { return fGDMLfile; }
 
@@ -139,175 +110,99 @@ namespace geo {
     /**
      * @brief Returns the number of auxiliary detectors
      *
-     * This method returns the total number of scintillator paddles
-     * (Auxiliary Detectors aka AuxDet) outside of the cryostat
-     *
-     * @todo Change return type to size_t
+     * This method returns the total number of scintillator paddles (Auxiliary Detectors
+     * aka AuxDet) outside of the cryostat
      */
-    unsigned int NAuxDets() const { return AuxDets().size(); }
+    std::size_t NAuxDets() const { return fAuxDets.size(); }
 
     /**
      * @brief Returns the number of sensitive components of auxiliary detector
-     * @param aid ID of the auxiliary detector
+     * @param ad ID of the auxiliary detector
      * @return number of sensitive components in the auxiliary detector aid
-     * @throws cet::exception (category "Geometry") if aid does not exist
+     * @throws cet::exception (category "AuxDetGeometryCore") if ad is out of range
      */
-    unsigned int NAuxDetSensitive(size_t const& aid) const;
+    std::size_t NAuxDetSensitive(size_t ad) const;
 
     //
     // access
     //
 
     /// Returns the full list of pointer to the auxiliary detectors
-    std::vector<AuxDetGeo> const& AuxDetGeoVec() const { return AuxDets(); }
+    std::vector<AuxDetGeo> const& AuxDetGeoVec() const { return fAuxDets; }
 
     /**
      * @brief Returns the specified auxiliary detector
      * @param ad the auxiliary detector index
      * @return a constant reference to the specified auxiliary detector
+     * @throws cet::exception (category "AuxDetGeometryCore") if ad is out of range
      *
      * @todo what happens if it does not exist?
      * @todo remove the default parameter?
      */
-    AuxDetGeo const& AuxDet(unsigned int const ad = 0) const;
-
-    /**
-     * @brief Returns the index of the auxiliary detector at specified location
-     * @param worldLoc 3D coordinates of the point (world reference frame)
-     * @return the index of the detector, or UINT_MAX if no detector is there
-     *
-     * @todo replace with numeric_limits<>?
-     */
-    unsigned int FindAuxDetAtPosition(Point_t const& worldLoc, double tolerance = 0) const;
-
-    /**
-     * @brief Fills the indices of the sensitive auxiliary detector at location
-     * @param worldLoc 3D coordinates of the point (world reference frame)
-     * @param adg (output) auxiliary detector index
-     * @param sv (output) sensitive volume index
-     * @param tolerance tolerance (cm) for matches. Default 0.
-     */
-    void FindAuxDetSensitiveAtPosition(Point_t const& worldLoc,
-                                       size_t& adg,
-                                       size_t& sv,
-                                       double tolerance = 0) const;
-
-    /**
-     * @brief Returns the auxiliary detector at specified location
-     * @param worldLoc 3D coordinates of the point (world reference frame)
-     * @param ad (output) the auxiliary detector index
-     * @param tolerance tolerance (cm) for matches. Default 0
-     * @return constant reference to AuxDetGeo object of the auxiliary detector
-     *
-     * @todo what happens if it does not exist?
-     */
-    AuxDetGeo const& PositionToAuxDet(Point_t const& worldLoc,
-                                      unsigned int& ad,
-                                      double tolerance = 0) const;
-
-    /**
-     * @brief Returns the auxiliary detector at specified location
-     * @param worldLoc 3D coordinates of the point (world reference frame
-     * @param tolerance tolerance (cm) for matches. Default 0.
-     * @param ad (output) the auxiliary detector index
-     * @param sv (output) the auxiliary detector sensitive volume index
-     * @return reference to AuxDetSensitiveGeo object of the auxiliary detector
-     *
-     * @todo what happens if it does not exist?
-     */
-    AuxDetSensitiveGeo const& PositionToAuxDetSensitive(Point_t const& worldLoc,
-                                                        size_t& ad,
-                                                        size_t& sv,
-                                                        double tolerance = 0) const;
-
-    uint32_t PositionToAuxDetChannel(Point_t const& worldLoc, size_t& ad, size_t& sv) const;
+    AuxDetGeo const& AuxDet(std::size_t const ad = 0) const;
 
     Point_t AuxDetChannelToPosition(std::string const& auxDetName, uint32_t channel) const;
-
-    AuxDetGeo const& ChannelToAuxDet(
-      std::string const& auxDetName,
-      uint32_t channel) const; // return the AuxDetGeo for the given detector
-                               // name and channel
 
     AuxDetSensitiveGeo const& ChannelToAuxDetSensitive(
       std::string const& auxDetName,
       uint32_t channel) const; // return the AuxDetSensitiveGeo for the given
 
+    /**
+     * @brief Returns the index of the auxiliary detector at specified location.
+     * @param point location to be tested
+     * @param tolerance tolerance (cm) for matches. Default 0
+     * @return the index of the detector, or `std::numeric_limits<unsigned int>::max()` if
+     *        no detector is there
+     *
+     * @bug Actually, an exception is thrown.
+     */
+    std::size_t FindAuxDetAtPosition(Point_t const& point, double tolerance = 0) const;
+
+    /**
+     * @brief Returns the auxiliary detector at specified location
+     * @param point location to be tested
+     * @param tolerance tolerance (cm) for matches. Default 0.
+     * @return constant reference to AuxDetGeo object of the auxiliary detector
+     */
+    [[nodiscard]] AuxDetGeo const& PositionToAuxDet(Point_t const& point,
+                                                    double tolerance = 0.) const;
+
+    /**
+     * @brief Fills the indices of the sensitive auxiliary detector at location
+     * @param point location to be tested
+     * @param adg _(output)_ auxiliary detector index
+     * @param sv _(output)_ sensitive volume index
+     * @param tolerance tolerance (cm) for matches. Default 0.
+     */
+    void FindAuxDetSensitiveAtPosition(Point_t const& point,
+                                       std::size_t& adg,
+                                       std::size_t& sv,
+                                       double tolerance = 0) const;
+
     /// @name Geometry initialization
     /// @{
 
-    /**
-     * @brief Loads the geometry information from the specified files
-     * @param gdmlfile path to file to be used for Geant4 simulation
-     * @param rootfile path to file for internal geometry representation
-     * @see ApplyChannelMap()
-     *
-     * Both paths must directly resolve to an available file, as no search
-     * is performed for them.
-     *
-     * The gdmlfile parameter does not have to necessarily be in GDML format,
-     * as long as it's something supported by Geant4. This file is not used by
-     * the geometry, but its path is provided on request by the simulation
-     * modules (see LArSoft `LArG4` module).
-     * The rootfile also does not need to be a ROOT file, but just anything
-     * that TGeoManager::Import() supports. This file is parsed immediately
-     * and the internal geometry representation is built out of it.
-     *
-     * @note After calling this method, the detector geometry information can
-     * be considered complete, but the geometry service provider is not fully
-     * initialized yet, since it's still necessary to provide or update the
-     * channel mapping.
-     */
-    void LoadGeometryFile(std::string gdmlfile, std::string rootfile);
-
     /// Returns whether we have a channel map
-    bool hasAuxDetChannelMap() const { return bool(fChannelMapAlg); }
+    bool hasAuxDetChannelMap() const { return bool(fReadoutGeom); }
 
-    /**
-     * @brief Initializes the geometry to work with this channel map
-     * @param pChannelMap a pointer to the channel mapping algorithm to be used
-     * @see LoadGeometryFile()
-     *
-     * The specified channel mapping is used with this geometry.
-     * The algorithm object is asked and allowed to make the necessary
-     * modifications to the geometry description.
-     * These modifications typically involve some resorting of the objects.
-     *
-     * The ownership of the algorithm object is shared, usually with a calling
-     * framework: we maintain it alive as long as we need it (and no other code
-     * can delete it), and we delete it only if no other code is sharing the
-     * ownership.
-     *
-     * This method needs to be called after LoadGeometryFile() to complete the
-     * geometry initialization.
-     */
-    void ApplyChannelMap(std::unique_ptr<geo::AuxDetChannelMapAlg> pChannelMap);
     /// @}
 
-  protected:
-    /// Returns the object handling the channel map
-    geo::AuxDetChannelMapAlg const* AuxDetChannelMap() const { return fChannelMapAlg.get(); }
-
-    //@{
-    /// Return the internal auxiliary detectors list
-    AuxDetList_t& AuxDets() { return fGeoData.auxDets; }
-    AuxDetList_t const& AuxDets() const { return fGeoData.auxDets; }
-    //@}
-
   private:
-    /// Deletes the detector geometry structures
-    void ClearGeometry();
+    void LoadGeometryFile();
+    void ApplyChannelMap();
 
-    AuxDetGeometryData_t fGeoData; ///< The detector description data
+    std::vector<AuxDetGeo> fAuxDets;
 
-    std::string fDetectorName;              ///< Name of the detector.
-    std::string fGDMLfile;                  ///< path to geometry file used for Geant4 simulation
-    std::string fROOTfile;                  ///< path to geometry file for geometry in GeometryCore
+    std::unique_ptr<AuxDetGeoObjectSorter> fSorter;
+    std::unique_ptr<AuxDetInitializer> fInitializer;
+    std::string fGDMLfile; ///< path to geometry file used for Geant4 simulation
+    std::string fDetectorName;
     fhicl::ParameterSet fBuilderParameters; ///< Configuration of geometry builder.
-    std::unique_ptr<AuxDetChannelMapAlg const>
-      fChannelMapAlg; ///< Object containing the channel to wire mapping
-  };                  // class GeometryCore
+    std::unique_ptr<AuxDetReadoutGeom const>
+      fReadoutGeom; ///< Object containing the channel to wire mapping
+    bool fThrowIfAbsent;
+  }; // class GeometryCore
 
 } // namespace geo
 
-#endif // GEO_AUXDETGEOMETRYCORE_H
+#endif // LARCOREALG_GEOMETRY_AUXDETGEOMETRYCORE_H

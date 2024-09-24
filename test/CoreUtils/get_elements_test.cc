@@ -3,17 +3,17 @@
  * @brief  Test of `util::get_elements()`.
  * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
  * @date   December 13, 2019
- *
  */
 
 // testing library
 #include "larcorealg/CoreUtils/get_elements.h"
-#include "larcorealg/CoreUtils/zip.h"
-// #include "larcorealg/CoreUtils/DebugUtils.h"
 
 // Boost libraries
 #define BOOST_TEST_MODULE (get_elements_test)
 #include <boost/test/unit_test.hpp>
+
+// External libraries
+#include "range/v3/view/zip.hpp"
 
 // C/C++ libraries
 #include <cstddef> // std::size_t
@@ -24,7 +24,6 @@
 // -----------------------------------------------------------------------------
 void test_get_elements()
 {
-
   struct A {};
 
   std::vector<std::tuple<int, void const*, A>> data{{0, nullptr, A{}}, {1, nullptr, A{}}};
@@ -60,12 +59,10 @@ void test_get_elements()
     }
     BOOST_TEST((iItem == data.cend()));
   }
-
-} // test_get_elements()
+}
 
 void test_get_const_elements()
 {
-
   struct A {};
 
   std::vector<std::tuple<int, void const*, A>> const data{{0, nullptr, A{}}, {1, nullptr, A{}}};
@@ -101,13 +98,11 @@ void test_get_const_elements()
     }
     BOOST_TEST((iItem == data.cend()));
   }
-
-} // test_get_const_elements()
+}
 
 // -----------------------------------------------------------------------------
 void test_get_elements_single()
 {
-
   struct A {};
 
   std::vector<std::tuple<int, void const*, A>> data{{0, nullptr, A{}}, {1, nullptr, A{}}};
@@ -139,12 +134,10 @@ void test_get_elements_single()
     }
     BOOST_TEST((iItem == data.cend()));
   }
-
-} // test_get_elements_single()
+}
 
 void test_get_const_elements_single()
 {
-
   struct A {};
 
   std::vector<std::tuple<int, void const*, A>> const data{{0, nullptr, A{}}, {1, nullptr, A{}}};
@@ -176,13 +169,11 @@ void test_get_const_elements_single()
     }
     BOOST_TEST((iItem == data.cend()));
   }
-
-} // test_get_const_elements_single()
+}
 
 // -----------------------------------------------------------------------------
 void get_elements_documentation_test()
 {
-
   /*
    * The promise:
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,30 +215,27 @@ void get_elements_documentation_test()
   std::vector<int> const expected_exponents{0, 1, 2};
 
   BOOST_TEST(factors.size() == expected_factors.size());
-  for (auto const& [f, expected_f] : util::zip(factors, expected_factors)) {
+  for (auto const& [f, expected_f] : ranges::views::zip(factors, expected_factors)) {
     BOOST_TEST(f.first == expected_f.first);
     BOOST_TEST(f.second == expected_f.second);
-  } // for
+  }
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(
-    exponents.cbegin(), exponents.cend(), expected_exponents.begin(), expected_exponents.end());
-
-} // get_elements_documentation_test()
+  BOOST_TEST(exponents == expected_exponents);
+}
 
 // -----------------------------------------------------------------------------
 // BEGIN Test cases  -----------------------------------------------------------
 // -----------------------------------------------------------------------------
+
 BOOST_AUTO_TEST_CASE(get_elements_testcase)
 {
-
   test_get_elements();
   test_get_const_elements();
   test_get_elements_single();
   test_get_const_elements_single();
 
   get_elements_documentation_test();
-
-} // BOOST_AUTO_TEST_CASE(get_elements_testcase)
+}
 
 // -----------------------------------------------------------------------------
 // END Test cases  -------------------------------------------------------------

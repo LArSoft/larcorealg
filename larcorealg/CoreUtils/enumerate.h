@@ -39,39 +39,16 @@ namespace util {
    * std::array<int, N> twice;
    * std::vector<double> thrice(N + 1);
    *
-   * for (auto&& [i, a, b]: util::enumerate(twice, thrice)) {
-   *
+   * for (auto&& [i, a, b] : util::enumerate(twice, thrice)) {
    *   a = 2 * i;
    *   b = 3.0 * i;
-   *
    * } // for
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * In this example, `N` iterations will be run because that is the size of
-   * the first iterable given to `enumerate`. If a different leading iterable
-   * is needed, that has to be specified as an argument. The following loop
-   * is completely equivalent to the former one:
-   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.cpp}
-   * for (auto&& [i, b, a]: util::enumerate<1U>(thrice, twice)) {
-   *
-   *   a = 2 * i;
-   *   b = 3.0 * i;
-   *
-   * } // for
-   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * (the index is zero-based, so `1U` refers to the second argument).
-   *
    */
-  template <std::size_t Lead, typename... Iterables>
-  auto enumerate(Iterables&&... iterables)
-  {
-    return zip<Lead + 1>(infinite_counter(), std::forward<Iterables>(iterables)...);
-  }
-
-  /// This version of `enumerate` implicitly uses the first iterable as lead.
   template <typename... Iterables>
   auto enumerate(Iterables&&... iterables)
   {
-    return enumerate<0U>(std::forward<Iterables>(iterables)...);
+    return zip<1u>(infinite_counter(), std::forward<Iterables>(iterables)...);
   }
 
   /// @}

@@ -1,6 +1,6 @@
 #
 # Geometry test module on "generic" LArTPC detector geometry
-# 
+#
 # Version: 1.1
 #
 
@@ -9,12 +9,12 @@
 process_name: testGeo
 
 services: {
-  
+
   @table::lartpcdetector_geometry_services
-  
+
   message: {
     destinations: {
-      LogDebugFile: { 
+      LogDebugFile: {
         type:       "file"
         filename:   "geometry_lartpcdetector.txt"
         append:     false
@@ -50,8 +50,6 @@ source: {
   maxEvents:   1       # Number of events to create
 }
 
-outputs: { }
-
 physics: {
 
   analyzers: {
@@ -66,12 +64,9 @@ physics: {
     } # geotest
   }
 
-  ana:           [ geotest ]
+  ana: [ geotest ]
 
-  trigger_paths: [ ]
-  end_paths:     [ ana ]
 }
 
 # Uncomment if you want to check for overlaps
-# physics.analyzers.geotest.CheckForOverlaps: true 
-
+# physics.analyzers.geotest.CheckForOverlaps: true

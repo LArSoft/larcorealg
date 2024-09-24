@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/GeometryIDmapper.h
  * @brief  Mapping between geometry/readout ID and flat index.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   October 26, 2019
  * @ingroup Geometry
  *
  * This is a header-only library.
@@ -168,7 +166,7 @@ public:
    * The size of each dimension is taken by the matching one in `other`.
    */
   template <typename OIDType, typename OIndex>
-  void resizeAs(geo::GeoIDmapper<OIDType, OIndex> const& other);
+  void resizeAs(GeoIDmapper<OIDType, OIndex> const& other);
 
   /**
    * @brief Sets all dimension sizes to `0`.
@@ -204,8 +202,8 @@ private:
    * The `index` argument is local to the level to be filled, e.g. for cryostats
    * it goes from `0` to the number of cryostats.
    */
-  template <std::size_t Level, typename GeoID>
-  void fillID(GeoID& id, index_type index) const;
+  template <std::size_t Level, std::size_t N>
+  void fillID(std::array<unsigned int, N>& id, index_type index) const;
 
   /// Returns whether all levels of `id` up to `Level` are within range.
   template <std::size_t Level, typename GeoID>
@@ -216,8 +214,7 @@ private:
 
   /// Implementation for `resizeAs()`.
   template <typename OIDType, typename OIndex, std::size_t... Indices>
-  void resizeAsImpl(geo::GeoIDmapper<OIDType, OIndex> const& other,
-                    std::index_sequence<Indices...>);
+  void resizeAsImpl(GeoIDmapper<OIDType, OIndex> const& other, std::index_sequence<Indices...>);
 
   /// Returns the number of elements at the specified `Level`.
   /// @param dimSizes the sizes of each of the levels
@@ -253,7 +250,7 @@ template <typename Index /* = std::size_t */>
 class geo::TPCIDmapper : public geo::GeoIDmapper<geo::TPCID, Index> {
 
   /// Base class.
-  using BaseMapper_t = geo::GeoIDmapper<geo::TPCID, Index>;
+  using BaseMapper_t = GeoIDmapper<TPCID, Index>;
 
 public:
   // import types
@@ -296,10 +293,10 @@ public:
   /// @{
 
   /// Returns whether this mapping covers the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
 
   /// Returns whether this mapping covers the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
 
   /// @}
   // --- END Mapping status query ----------------------------------------------
@@ -318,7 +315,7 @@ template <typename Index /* = std::size_t */>
 class geo::PlaneIDmapper : public geo::GeoIDmapper<geo::PlaneID, Index> {
 
   /// Base class.
-  using BaseMapper_t = geo::GeoIDmapper<geo::PlaneID, Index>;
+  using BaseMapper_t = GeoIDmapper<PlaneID, Index>;
 
 public:
   // import types
@@ -370,13 +367,13 @@ public:
   /// @{
 
   /// Returns whether this mapping covers the specified cryostat.
-  bool hasCryostat(geo::CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
+  bool hasCryostat(CryostatID const& cryoid) const { return BaseMapper_t::hasElement(cryoid); }
 
   /// Returns whether this mapping covers the specified TPC.
-  bool hasTPC(geo::TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
+  bool hasTPC(TPCID const& tpcid) const { return BaseMapper_t::hasElement(tpcid); }
 
   /// Returns whether this mapping covers the specified plane.
-  bool hasPlane(geo::PlaneID const& planeid) const { return BaseMapper_t::hasElement(planeid); }
+  bool hasPlane(PlaneID const& planeid) const { return BaseMapper_t::hasElement(planeid); }
 
   /// @}
   // --- END Mapping status query ----------------------------------------------
@@ -396,7 +393,7 @@ auto geo::details::initializerListToArray(std::initializer_list<T> values)
   std::array<T, N> data{}; // <- initializing to quiet the compiler
   std::copy(values.begin(), values.end(), data.begin());
   return data;
-} // geo::details::initializerListToArray()
+}
 
 //------------------------------------------------------------------------------
 //--- geo::GeoIDmapper
@@ -438,7 +435,7 @@ unsigned int geo::GeoIDmapper<IDType, Index>::dimSize() const
     return 0U; // technically it would be 1...
   else
     return fN[Level];
-} // geo::GeoIDmapper<>::dimSize()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -464,7 +461,7 @@ GeoID geo::GeoIDmapper<IDType, Index>::firstID() const
     return GeoID(0U);
   else
     return GeoID(firstID<typename GeoID::ParentID_t>(), 0U);
-} // geo::GeoIDmapper<>::firstID()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -475,7 +472,7 @@ GeoID geo::GeoIDmapper<IDType, Index>::lastID() const
     return GeoID(fN[GeoID::Level] - 1U);
   else
     return GeoID(lastID<typename GeoID::ParentID_t>(), fN[GeoID::Level] - 1U);
-} // geo::GeoIDmapper<>::lastID()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -488,10 +485,12 @@ auto geo::GeoIDmapper<IDType, Index>::index(ID_t const& id) const -> index_type
 template <typename IDType, typename Index>
 auto geo::GeoIDmapper<IDType, Index>::ID(index_type const index) const -> ID_t
 {
-  ID_t ID;
-  fillID<ID_t::Level>(ID, index);
-  return ID;
-} // geo::GeoIDmapper<>::ID()
+  std::array<unsigned int, ID_t::Level + 1u> numbers;
+  fillID<ID_t::Level>(numbers, index);
+  auto id = std::make_from_tuple<ID_t>(numbers);
+  id.setValidity(id.Cryostat < fN[0u]);
+  return id;
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -512,22 +511,22 @@ template <typename IDType, typename Index>
 void geo::GeoIDmapper<IDType, Index>::resize(std::initializer_list<unsigned int> dims)
 {
   fN = details::initializerListToArray<dimensions()>(dims);
-} // geo::GeoIDmapper<>::resize()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
 template <typename OIDType, typename OIndex>
-void geo::GeoIDmapper<IDType, Index>::resizeAs(geo::GeoIDmapper<OIDType, OIndex> const& other)
+void geo::GeoIDmapper<IDType, Index>::resizeAs(GeoIDmapper<OIDType, OIndex> const& other)
 {
   resizeAsImpl(other, std::make_index_sequence<dimensions()>{});
-} // geo::GeoIDmapper<>::resizeAs()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
 void geo::GeoIDmapper<IDType, Index>::clear()
 {
   fN.fill(0U);
-} // geo::GeoIDmapper<>::clear()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -539,22 +538,20 @@ auto geo::GeoIDmapper<IDType, Index>::indexLevel(GeoID const& id) const -> index
   else {
     return indexLevel<(Level - 1U)>(id) * fN[Level] + id.template getIndex<Level>();
   }
-} // geo::GeoIDmapper<>::indexLevel()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
-template <std::size_t Level, typename GeoID>
-void geo::GeoIDmapper<IDType, Index>::fillID(GeoID& id, index_type index) const
+template <std::size_t Level, std::size_t N>
+void geo::GeoIDmapper<IDType, Index>::fillID(std::array<unsigned int, N>& numbers,
+                                             index_type index) const
 {
-  if constexpr (Level == 0) {
-    id.template writeIndex<0U>() = index;
-    id.setValidity(index < fN[0U]);
-  }
+  if constexpr (Level == 0) { numbers[0] = index; }
   else {
-    id.template writeIndex<Level>() = index % fN[Level];
-    fillID<(Level - 1U)>(id, index / fN[Level]);
+    numbers[Level] = index % fN[Level];
+    fillID<Level - 1U>(numbers, index / fN[Level]);
   }
-} // geo::GeoIDmapper<>::fillID()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -566,7 +563,7 @@ bool geo::GeoIDmapper<IDType, Index>::hasElementLevel(GeoID const& id) const
     return true;
   else
     return hasElementLevel<(Level - 1U)>(id);
-} // geo::GeoIDmapper<>::hasElementLevel()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -578,14 +575,14 @@ auto geo::GeoIDmapper<IDType, Index>::computeSize() const -> index_type
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
 template <typename OIDType, typename OIndex, std::size_t... Indices>
-void geo::GeoIDmapper<IDType, Index>::resizeAsImpl(geo::GeoIDmapper<OIDType, OIndex> const& other,
+void geo::GeoIDmapper<IDType, Index>::resizeAsImpl(GeoIDmapper<OIDType, OIndex> const& other,
                                                    std::index_sequence<Indices...>)
 {
   // Clang 5.0.1 does not understand `other.dimensions()` is constexpr
-  static_assert(geo::GeoIDmapper<OIDType, OIndex>::dimensions() >= dimensions(),
+  static_assert(GeoIDmapper<OIDType, OIndex>::dimensions() >= dimensions(),
                 "Can't resize a deeper mapping to a shallower one.");
   resize({other.template dimSize<Indices>()...});
-} // geo::GeoIDmapper<>::resizeAsImpl()
+}
 
 //------------------------------------------------------------------------------
 template <typename IDType, typename Index>
@@ -596,7 +593,7 @@ auto geo::GeoIDmapper<IDType, Index>::sizeLevel(Dims const& dimSizes) -> index_t
     return 1U;
   else
     return sizeLevel<(Level + 1U)>(dimSizes) * dimSizes[Level];
-} // geo::GeoIDmapper<>::sizeLevel()
+}
 
 //------------------------------------------------------------------------------
 

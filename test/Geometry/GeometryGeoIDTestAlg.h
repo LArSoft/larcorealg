@@ -5,8 +5,8 @@
  * @date   October 31, 2016
  */
 
-#ifndef LARCORE_TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H
-#define LARCORE_TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H
+#ifndef TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H
+#define TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -14,7 +14,9 @@ namespace geo {
 
   class GeometryGeoIDTestAlg {
   public:
-    explicit GeometryGeoIDTestAlg(geo::GeometryCore const* new_geo) : geom{new_geo} {}
+    explicit GeometryGeoIDTestAlg(GeometryCore const* new_geom, WireReadoutGeom const* channel_map)
+      : geom{new_geom}, wireReadoutGeom{channel_map}
+    {}
 
     /// Executes the test
     unsigned int Run() const;
@@ -28,10 +30,10 @@ namespace geo {
     /// @}
 
   private:
-    GeometryCore const* geom = nullptr; ///< pointer to the geometry description
-
+    GeometryCore const* geom = nullptr;
+    WireReadoutGeom const* wireReadoutGeom = nullptr;
   }; // class GeometryGeoIDTestAlg
 
 } // namespace geo
 
-#endif // LARCORE_TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H
+#endif // TEST_GEOMETRY_GEOMETRYGEOIDTESTALG_H

@@ -2,8 +2,6 @@
  * @file   larcorealg/Geometry/GeoVectorLocalTransformation.tcc
  * @brief  Specialization of local-to-world transformations for ROOT GenVector
  *         (template implementation).
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   January 31, 2019
  * @see    `GeoVectorLocalTransformation.h`
  *
  * This file is expected to be included directly in the header.
@@ -46,9 +44,9 @@ DestPoint geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocalImpl(
 {
   // need inverse transformation
   using geo::vect::convertTo;
-  return geo::vect::convertTo<DestPoint>(
+  return convertTo<DestPoint>(
     fGeoMatrix.ApplyInverse(convertTo<typename TransformationMatrix_t::Point>(world)));
-} // geo::LocalTransformation::WorldToLocal()
+}
 
 //......................................................................
 template <>
@@ -58,9 +56,9 @@ DestVector geo::LocalTransformation<ROOT::Math::Transform3D>::WorldToLocalVectIm
 {
   // need inverse transformation
   using geo::vect::convertTo;
-  return geo::vect::convertTo<DestVector>(
+  return convertTo<DestVector>(
     fGeoMatrix.ApplyInverse(convertTo<typename TransformationMatrix_t::Vector>(world)));
-} // geo::LocalTransformation::WorldToLocalVect()
+}
 
 //......................................................................
 template <>
@@ -71,8 +69,7 @@ DestPoint geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorldImpl(
   // need direct transformation
   using geo::vect::convertTo;
   return convertTo<DestPoint>(fGeoMatrix(convertTo<typename TransformationMatrix_t::Point>(local)));
-
-} // geo::LocalTransformation::LocalToWorld()
+}
 
 //......................................................................
 template <>
@@ -84,7 +81,7 @@ DestVector geo::LocalTransformation<ROOT::Math::Transform3D>::LocalToWorldVectIm
   using geo::vect::convertTo;
   return convertTo<DestVector>(
     fGeoMatrix(convertTo<typename TransformationMatrix_t::Vector>(local)));
-} // geo::LocalTransformation::LocalToWorldVect()
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -95,17 +92,17 @@ inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform
   if (begin == end) return {}; // identity by default construction
   auto iNode = begin;
   ROOT::Math::Transform3D matrix =
-    convertTransformationMatrix<ROOT::Math::Transform3D>(*((*iNode)->GetMatrix()));
+    convertTransformationMatrix<ROOT::Math::Transform3D>(*iNode->node->GetMatrix());
   while (++iNode != end) {
-    matrix *= convertTransformationMatrix<ROOT::Math::Transform3D>(*(*iNode)->GetMatrix());
+    matrix *= convertTransformationMatrix<ROOT::Math::Transform3D>(*iNode->node->GetMatrix());
   }
   return matrix;
-} // geo::LocalTransformation<ROOT::Transform3D>::transformationFromPath()
+}
 
 //------------------------------------------------------------------------------
 template <>
 inline ROOT::Math::Transform3D geo::transformationFromPath<ROOT::Math::Transform3D>(
-  std::vector<TGeoNode const*> const& path,
+  std::vector<GeoNodePathEntry> const& path,
   size_t depth)
 {
   return transformationFromPath<ROOT::Math::Transform3D>(path.begin(), path.begin() + depth + 1);

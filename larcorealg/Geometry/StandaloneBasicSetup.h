@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/StandaloneBasicSetup.h
  * @brief  Collection of functions for quick setup of basic facilities.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   June 22, 2017
  *
  * Currently the following functionality is provided:
  * * configuration parsing (`ParseConfiguration()`)

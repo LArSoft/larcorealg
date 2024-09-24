@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/LocalTransformation.cxx
  * @brief  Class containing local-to-world transformations (implementation file)
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 30, 2016
  * @see    LocalTransformation.h
  *
  */

@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/ReadoutDataContainers.h
  * @brief  Containers to hold one datum per TPC set or readout plane.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
- * @date   September 7, 2019
  * @ingroup Geometry
  *
  * This is a header-only library.

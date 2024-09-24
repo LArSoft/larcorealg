@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/AuxDetSensitiveGeo.h
-/// \brief Encapsulate the geometry of the sensitive portion of an auxiliary detector
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/AuxDetSensitiveGeo.h
+/// @brief Encapsulate the geometry of the sensitive portion of an auxiliary detector
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_AUXDETSENSITIVEGEO_H
@@ -30,7 +28,7 @@ class TGeoVolume;
 
 namespace geo {
 
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetSensitiveGeo {
   public:
     /// @{
@@ -54,14 +52,14 @@ namespace geo {
     struct AuxDetSensitiveGeoCoordinatesTag {};
 
     /// Type of points in the local GDML auxiliary detector frame.
-    using LocalPoint_t = geo::Point3DBase_t<AuxDetSensitiveGeoCoordinatesTag>;
+    using LocalPoint_t = Point3DBase_t<AuxDetSensitiveGeoCoordinatesTag>;
 
     /// Type of displacement vectors in the local GDML auxiliary detector frame.
-    using LocalVector_t = geo::Vector3DBase_t<AuxDetSensitiveGeoCoordinatesTag>;
+    using LocalVector_t = Vector3DBase_t<AuxDetSensitiveGeoCoordinatesTag>;
 
     ///@}
 
-    AuxDetSensitiveGeo(TGeoNode const& node, geo::TransformationMatrix&& trans);
+    AuxDetSensitiveGeo(TGeoNode const* node, TransformationMatrix&& trans);
 
     /**
      * @brief Returns the geometric center of the sensitive volume.
@@ -69,10 +67,10 @@ namespace geo {
      *               of the volume (z) [cm]
      * @return the geometric center of the sensitive volume [cm]
      */
-    geo::Point_t GetCenter(double localz = 0.0) const;
+    Point_t GetCenter(double localz = 0.0) const;
 
     /// Returns the unit normal vector to the detector.
-    geo::Vector_t GetNormalVector() const;
+    Vector_t GetNormalVector() const;
 
     //box geometry
     double Length() const { return fLength; }
@@ -85,39 +83,24 @@ namespace geo {
 
     //@{
     /// Returns the distance of `point` from the center of the detector.
-    geo::Length_t DistanceToPoint(geo::Point_t const& point) const
-    {
-      return (point - GetCenter()).R();
-    }
-    geo::Length_t DistanceToPoint(double const* point) const;
+    Length_t DistanceToPoint(Point_t const& point) const { return (point - GetCenter()).R(); }
+    Length_t DistanceToPoint(double const* point) const;
     //@}
 
     /// @{
     /// @name Coordinate transformation
 
     /// Transform point from local auxiliary detector frame to world frame.
-    geo::Point_t toWorldCoords(LocalPoint_t const& local) const
-    {
-      return fTrans.toWorldCoords(local);
-    }
+    Point_t toWorldCoords(LocalPoint_t const& local) const { return fTrans.toWorldCoords(local); }
 
     /// Transform direction vector from local to world.
-    geo::Vector_t toWorldCoords(LocalVector_t const& local) const
-    {
-      return fTrans.toWorldCoords(local);
-    }
+    Vector_t toWorldCoords(LocalVector_t const& local) const { return fTrans.toWorldCoords(local); }
 
     /// Transform point from world frame to local auxiliary detector frame.
-    LocalPoint_t toLocalCoords(geo::Point_t const& world) const
-    {
-      return fTrans.toLocalCoords(world);
-    }
+    LocalPoint_t toLocalCoords(Point_t const& world) const { return fTrans.toLocalCoords(world); }
 
     /// Transform direction vector from world to local.
-    LocalVector_t toLocalCoords(geo::Vector_t const& world) const
-    {
-      return fTrans.toLocalCoords(world);
-    }
+    LocalVector_t toLocalCoords(Vector_t const& world) const { return fTrans.toLocalCoords(world); }
 
     /// @}
 
@@ -157,7 +140,7 @@ namespace geo {
 
   private:
     using LocalTransformation_t =
-      geo::LocalTransformationGeo<ROOT::Math::Transform3D, LocalPoint_t, LocalVector_t>;
+      LocalTransformationGeo<ROOT::Math::Transform3D, LocalPoint_t, LocalVector_t>;
 
     LocalTransformation_t fTrans;   ///< Auxiliary detector-to-world transformation.
     const TGeoVolume* fTotalVolume; ///< Total volume of AuxDet, called vol*
@@ -171,8 +154,8 @@ namespace geo {
 
   }; // class AuxDetSensitiveGeo
 
-  static_assert(std::is_move_assignable_v<geo::AuxDetSensitiveGeo>);
-  static_assert(std::is_move_constructible_v<geo::AuxDetSensitiveGeo>);
+  static_assert(std::is_move_assignable_v<AuxDetSensitiveGeo>);
+  static_assert(std::is_move_constructible_v<AuxDetSensitiveGeo>);
 
 } // namespace geo
 

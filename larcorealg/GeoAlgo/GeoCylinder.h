@@ -38,19 +38,19 @@ namespace geoalgo {
     virtual ~Cylinder(){};
 
     /// Alternative ctor (0)
-    Cylinder(const double x_min,
-             const double y_min,
-             const double z_min,
-             const double x_max,
-             const double y_max,
-             const double z_max,
-             const double radius);
+    Cylinder(double const x_min,
+             double const y_min,
+             double const z_min,
+             double const x_max,
+             double const y_max,
+             double const z_max,
+             double const radius);
 
     /// Altenartive ctor (1)
-    Cylinder(const Point_t& min, const Vector_t& max, const double radius);
+    Cylinder(Point_t const& min, Vector_t const& max, double const radius);
 
     /// Containment evaluation
-    bool Contain(const Point_t& pt) const; ///< Test if a point is contained within the box
+    bool Contain(Point_t const& pt) const; ///< Test if a point is contained within the box
 
     /// Getters
     double GetRadius() { return _radius; }

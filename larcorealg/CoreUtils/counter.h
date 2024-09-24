@@ -10,8 +10,8 @@
 #ifndef LARCOREALG_COREUTILS_COUNTER_H
 #define LARCOREALG_COREUTILS_COUNTER_H
 
-// LArSoft libraries
-#include "larcorealg/CoreUtils/span.h"
+// External libraries
+#include "range/v3/view.hpp"
 
 // C/C++ libraries
 #include <cstddef> // std::size_t
@@ -50,7 +50,6 @@ namespace util {
    */
   template <typename T = std::size_t>
   class count_iterator {
-
   public:
     // --- BEGIN -- Traits and data types --------------------------------------
     /// @name Traits and data types
@@ -246,7 +245,7 @@ namespace util::details {
     using count_iterator_t = count_iterator<T>;
 
   public:
-    // mock-up of stuff required by `util::span`
+    // mock-up of stuff required by `ranges::subrange`
     using value_type = T;
     using reference = T const&;
     using pointer = T const*;
@@ -286,23 +285,21 @@ namespace util::details {
     return false;
   }
 
-  //----------------------------------------------------------------------------
-
 } // namespace util::details
 
 //------------------------------------------------------------------------------
 template <typename T>
 auto util::counter(T begin, T end)
 {
-  return util::span(count_iterator(begin), count_iterator(end));
+  return ranges::make_subrange(count_iterator(begin), count_iterator(end));
 }
 
 //------------------------------------------------------------------------------
 template <typename T>
 auto util::infinite_counter(T begin)
 {
-  return util::span(count_iterator(begin), details::infinite_endcount_iterator<T>());
-} // util::infinite_counter()
+  return ranges::make_subrange(count_iterator(begin), details::infinite_endcount_iterator<T>());
+}
 
 //------------------------------------------------------------------------------
 

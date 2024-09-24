@@ -120,9 +120,6 @@ namespace util::details {
     /// @name Constructors
     /// @{
 
-    /// Constructor: all iterators are default-constructed.
-    zip_iterator() = default;
-
     /// Constructor: copies all iterator values.
     zip_iterator(Iters&&... iterators) : fIterators(std::forward<Iters>(iterators)...) {}
 
@@ -207,96 +204,37 @@ namespace util::details {
     template <std::size_t... Indices>
     auto dereference_impl(std::index_sequence<Indices...>) const
     {
-      // this complicate syntax appears to guarantee that the tuple types
-      // include a l-value reference when the dereference operator returns
-      // a l-value reference, and a r-value when the dereference operator
-      // returns one. Using `std::forward_as_reference()` instead,
-      // r-values are saved as r-value references. Using `std::tuple()`
-      // instead, all referenceness is stripped away, including l-value ones.
-      return std::tuple<decltype(*std::get<Indices>(fIterators))...>(
-        *std::get<Indices>(fIterators)...);
+      // std::tie returns a tuple of references, which is what we want.
+      return std::tie(*std::get<Indices>(fIterators)...);
     }
 
   }; // class zip_iterator
 
   //----------------------------------------------------------------------------
-  // This is more of a curiosity than anything else.
-  template <std::size_t Lead>
-  class zip_iterator<Lead> {
-
-    /// Type of this object.
-    using this_iterator_t = zip_iterator<Lead>;
-
-  public:
-    using difference_type = std::ptrdiff_t;
-    using reference = std::tuple<>;
-    using value_type = std::remove_cv_t<reference>;
-    using pointer = std::add_pointer_t<std::remove_reference_t<reference>>;
-    using iterator_category = std::forward_iterator_tag;
-
-    zip_iterator() = default;
-
-    std::tuple<> operator*() const { return {}; }
-
-    /// Increments all the iterators.
-    this_iterator_t& operator++() { return *this; }
-
-    this_iterator_t operator++(int)
-    {
-      this_iterator_t old(*this);
-      operator++();
-      return old;
-    }
-
-    // All these iterators look the same.
-    template <std::size_t OtherLead, typename... OtherIter>
-    bool operator!=(zip_iterator<OtherLead, OtherIter...> const& other) const
-    {
-      return false;
-    }
-
-    // All these iterators look the same.
-    template <std::size_t OtherLead, typename... OtherIter>
-    bool operator==(zip_iterator<OtherLead, OtherIter...> const& other) const
-    {
-      return true;
-    }
-
-  }; // class zip_iterator<>
-
-  //----------------------------------------------------------------------------
   template <std::size_t Lead, typename... Iterables>
   auto make_zip_begin_iterator(Iterables&&... iterables)
   {
-
     using std::begin;
     return zip_iterator<Lead, decltype(begin(iterables))...>{begin(iterables)...};
-
-  } // make_zip_begin_iterator()
+  }
 
   //----------------------------------------------------------------------------
   template <std::size_t Lead, typename... Iterables>
   auto make_zip_end_iterator(Iterables&&... iterables)
   {
-
     using std::end;
     return zip_iterator<Lead, decltype(end(iterables))...>{end(iterables)...};
-
-  } // make_zip_end_iterator()
-
-  //----------------------------------------------------------------------------
-
+  }
 } // namespace util::details
 
 //------------------------------------------------------------------------------
 template <std::size_t Lead /* = 0U */, typename... Iterables>
 auto util::zip(Iterables&&... iterables)
 {
-
-  return util::span(details::make_zip_begin_iterator<Lead>(iterables...),
-                    details::make_zip_end_iterator<Lead>(iterables...));
-
-} // util::zip()
+  static_assert(sizeof...(Iterables) > 0, "Must zip at least one iterable.");
+  return span{details::make_zip_begin_iterator<Lead>(iterables...),
+              details::make_zip_end_iterator<Lead>(iterables...)};
+}
 
 //------------------------------------------------------------------------------
 

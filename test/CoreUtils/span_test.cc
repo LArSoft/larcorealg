@@ -7,16 +7,18 @@
  */
 
 // Boost libraries
-#define BOOST_TEST_MODULE (RealComparisons_test)
+#define BOOST_TEST_MODULE (span_test)
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/test/unit_test.hpp>
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/counter.h"
-#include "larcorealg/CoreUtils/enumerate.h"
-#include "larcorealg/CoreUtils/operations.h" // util::dereference()
+#include "larcorealg/CoreUtils/operations.h"
 #include "larcorealg/CoreUtils/span.h"
 #include "larcorealg/CoreUtils/zip.h"
+
+#include "range/v3/view/enumerate.hpp"
+#include "range/v3/view/zip.hpp"
 
 // C/C++ standard libraries
 #include <iostream>    // std::cout
@@ -29,7 +31,6 @@
 template <typename Iter, typename Cont>
 void test_span(Cont& v)
 {
-
   auto r = util::make_span(v);
 
   // check the type of the object
@@ -50,16 +51,14 @@ void test_span(Cont& v)
     BOOST_TEST(i == *iV);
     ++n;
     ++iV;
-  } // for
+  }
   BOOST_TEST(n == v.size());
-
-} // test_span()
+}
 
 //------------------------------------------------------------------------------
 template <typename Iter, typename Cont>
 void test_const_span(Cont& v)
 {
-
   auto r = util::make_const_span(v);
 
   // check the type of the object
@@ -80,16 +79,14 @@ void test_const_span(Cont& v)
     BOOST_TEST(i == *iV);
     ++n;
     ++iV;
-  } // for
+  }
   BOOST_TEST(n == v.size());
-
-} // test_const_span()
+}
 
 //------------------------------------------------------------------------------
 template <typename Iter, typename Cont>
 void test_adapted_span(Cont& v)
 {
-
   /*
    * In this test we create a container of pointers to `v` elements and iterate
    * `v` values through that one. The iteration is supposed to be transparent,
@@ -109,20 +106,18 @@ void test_adapted_span(Cont& v)
   BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
-  for (auto&& [rangeValue, value] : util::zip(r, v)) {
+  for (auto&& [rangeValue, value] : ranges::views::zip(r, v)) {
     BOOST_TEST(&rangeValue == &value);
     BOOST_TEST(rangeValue == value);
     ++n;
-  } // for
+  }
   BOOST_TEST(n == v.size());
-
-} // test_adapted_span()
+}
 
 //------------------------------------------------------------------------------
 template <typename Iter, typename Cont>
 void test_transformed_span(Cont& v)
 {
-
   /*
    * In this test we create a container of pointers to `v` elements and iterate
    * `v` values through that one. The iteration is supposed to be transparent,
@@ -149,16 +144,14 @@ void test_transformed_span(Cont& v)
     BOOST_TEST(&rangeValue == &value);
     BOOST_TEST(rangeValue == value);
     ++n;
-  } // for
+  }
   BOOST_TEST(n == v.size());
-
-} // test_transformed_span()
+}
 
 //------------------------------------------------------------------------------
 template <typename Iter, typename Cont>
 void test_transformed_span_with_unmoveable_values(Cont& v)
 {
-
   /*
    * In this test we create a container of unique_ptr to `v` elements and
    * iterate `v` values through it. The iteration is supposed to be transparent,
@@ -183,14 +176,13 @@ void test_transformed_span_with_unmoveable_values(Cont& v)
   BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
-  for (auto&& [rangeValue, value] : util::zip(r, v)) {
+  for (auto&& [rangeValue, value] : ranges::views::zip(r, v)) {
     BOOST_TEST(&rangeValue == &value);
     BOOST_TEST(rangeValue == value);
     ++n;
-  } // for
+  }
   BOOST_TEST(n == v.size());
-
-} // test_transformed_span_with_unmoveable_values()
+}
 
 //------------------------------------------------------------------------------
 
@@ -203,11 +195,10 @@ struct SpanDocumentation1TestClass {
     for (auto v : r)
       s += v;
     return s;
-  } // sum
+  }
 
   void analyse()
   {
-
     Data_t v(10U);
     std::iota(v.begin(), v.end(), 1); // { 1, 2, 3, 4 ,5 ,6, 7, 8, 9, 10 }
 
@@ -219,29 +210,16 @@ struct SpanDocumentation1TestClass {
 
     auto full_span = util::make_span(v);
     std::cout << "Sum of all numbers: " << sum(full_span) << std::endl;
-
-  } // analyse()
+  }
 
 }; // struct SpanDocumentation1TestClass
 
 //------------------------------------------------------------------------------
 
 struct makeAdaptedSpanDocumentation1TestClass {
-  /*
-   * float accumulate(std::vector<std::unique_ptr<float>> const& v) {
-   *
-   *   using src_iterator = std::vector<std::unique_ptr<float>>::const_iterator;
-   *
-   *   float sum = 0.0F;
-   *   for (float v: util::make_adapted_span(v, boost::make_indirect_iterator<src_iterator>))
-   *     sum += v;
-   *
-   * } // accumulate()
-   */
 
   float accumulate(std::vector<std::unique_ptr<float>> const& v)
   {
-
     using src_iterator = std::vector<std::unique_ptr<float>>::const_iterator;
 
     float sum = 0.0F;
@@ -249,7 +227,7 @@ struct makeAdaptedSpanDocumentation1TestClass {
       sum += v;
 
     return sum;
-  } // accumulate()
+  }
 
   void analyse()
   {
@@ -264,25 +242,13 @@ struct makeAdaptedSpanDocumentation1TestClass {
     float const expectedSum = (N * (N - 1) / 2) * salt;
 
     BOOST_TEST(sum == expectedSum);
-
-  } // analyse()
+  }
 
 }; // struct makeAdaptedSpanDocumentation1TestClass
 
 //------------------------------------------------------------------------------
 
 struct makeTransformedSpanDocumentation1TestClass {
-
-  /*
-   * float accumulate(std::vector<std::unique_ptr<float>> const& v) {
-   *
-   *   float sum = 0.0F;
-   *   for (float v: util::make_transformed_span(v, [](auto& ptr){ return *ptr; }))
-   *     sum += v;
-   *
-   *   return sum;
-   * } // accumulate()
-   */
 
   float accumulate(std::vector<std::unique_ptr<float>> const& v)
   {
@@ -291,24 +257,13 @@ struct makeTransformedSpanDocumentation1TestClass {
       sum += v;
 
     return sum;
-  } // accumulate()
-
-  /*
-   * void scale(std::vector<std::unique_ptr<float>>& v, float factor) {
-   *
-   *   for (float& v: util::make_transformed_span(v, [](auto& ptr) -> float& { return *ptr; }))
-   *     v *= factor;
-   *
-   * } // scale()
-   */
+  }
 
   void scale(std::vector<std::unique_ptr<float>>& v, float factor)
   {
-
     for (float& v : util::make_transformed_span(v, [](auto& ptr) -> float& { return *ptr; }))
       v *= factor;
-
-  } // scale()
+  }
 
   void analyse_accumulate()
   {
@@ -323,13 +278,12 @@ struct makeTransformedSpanDocumentation1TestClass {
     float const expectedSum = (N * (N - 1) / 2) * salt;
 
     BOOST_TEST(sum == expectedSum);
-
-  } // analyse_accumulate()
+  }
 
   void analyse_scale()
   {
     constexpr std::size_t N = 10;
-    const float factor = 3.0F;
+    float const factor = 3.0F;
 
     std::vector<std::unique_ptr<float>> data;
     for (auto i : util::counter(N))
@@ -337,10 +291,9 @@ struct makeTransformedSpanDocumentation1TestClass {
 
     scale(data, factor);
 
-    for (auto&& [i, ptr] : util::enumerate(data))
+    for (auto&& [i, ptr] : data | ranges::views::enumerate)
       BOOST_TEST(*ptr == factor * i);
-
-  } // analyse_scale()
+  }
 
   void analyse()
   {
@@ -353,7 +306,6 @@ struct makeTransformedSpanDocumentation1TestClass {
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(span_testcase)
 {
-
   using TestVector_t = std::vector<int>;
 
   TestVector_t ev;
@@ -367,13 +319,11 @@ BOOST_AUTO_TEST_CASE(span_testcase)
   TestVector_t const cv4{1, 2, 3, 4};
   test_span<TestVector_t::const_iterator>(cv4);
   test_const_span<TestVector_t::const_iterator>(cv4);
-
-} // BOOST_AUTO_TEST_CASE(span_testcase)
+}
 
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(adapted_span_testcase)
 {
-
   using TestVector_t = std::vector<int>;
 
   TestVector_t ev;
@@ -384,13 +334,11 @@ BOOST_AUTO_TEST_CASE(adapted_span_testcase)
 
   TestVector_t const cv4{1, 2, 3, 4};
   test_adapted_span<TestVector_t::const_iterator>(cv4);
-
-} // BOOST_AUTO_TEST_CASE(adapted_span_testcase)
+}
 
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(transformed_span_testcase)
 {
-
   using TestVector_t = std::vector<int>;
 
   TestVector_t ev;
@@ -402,35 +350,28 @@ BOOST_AUTO_TEST_CASE(transformed_span_testcase)
 
   TestVector_t const cv4{1, 2, 3, 4};
   test_transformed_span<TestVector_t::const_iterator>(cv4);
-
-} // BOOST_AUTO_TEST_CASE(transformed_span_testcase)
+}
 
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(span_documentation_testcase)
 {
-
   // this only checks that the example compiles and runs
   SpanDocumentation1TestClass doc1;
   doc1.analyse();
-
-} // BOOST_AUTO_TEST_CASE(span_documentation_testcase)
+}
 
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(adapted_span_documentation_testcase)
 {
-
   makeAdaptedSpanDocumentation1TestClass doc1;
   doc1.analyse();
-
-} // BOOST_AUTO_TEST_CASE(span_documentation_testcase)
+}
 
 //------------------------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(transformed_span_documentation_testcase)
 {
-
   makeTransformedSpanDocumentation1TestClass doc1;
   doc1.analyse();
-
-} // BOOST_AUTO_TEST_CASE(span_documentation_testcase)
+}
 
 //------------------------------------------------------------------------------

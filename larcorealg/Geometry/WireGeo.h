@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/WireGeo.h
-/// \brief Encapsulate the geometry of a wire
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  larcorealg/Geometry/WireGeo.h
+/// @brief Encapsulate the geometry of a wire
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
 
 #ifndef LARCOREALG_GEOMETRY_WIREGEO_H
@@ -156,7 +154,7 @@ namespace geo {
      * A pointer to the node and a copy of the transformation matrix are kept
      * in the `WireGeo` object.
      */
-    WireGeo(TGeoNode const& node, TransformationMatrix&& trans);
+    WireGeo(TGeoNode const* node, TransformationMatrix&& trans);
 
     // -- BEGIN -- Size and coordinates ----------------------------------------
     /// @name Size and coordinates

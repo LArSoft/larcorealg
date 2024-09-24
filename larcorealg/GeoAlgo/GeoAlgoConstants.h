@@ -5,13 +5,13 @@
 #include <limits>
 namespace geoalgo {
 
-  static const double kPI = 3.141592653589793238462643383279502884;
+  static double const kPI = 3.141592653589793238462643383279502884;
 
-  static const double kINVALID_DOUBLE = std::numeric_limits<double>::max();
+  static double const kINVALID_DOUBLE = std::numeric_limits<double>::max();
 
-  static const double kMAX_DOUBLE = std::numeric_limits<double>::max();
+  static double const kMAX_DOUBLE = std::numeric_limits<double>::max();
 
-  static const double kMIN_DOUBLE = std::numeric_limits<double>::min();
+  static double const kMIN_DOUBLE = std::numeric_limits<double>::min();
 
 }
 #endif

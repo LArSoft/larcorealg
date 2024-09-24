@@ -1,8 +1,6 @@
 /**
  * @file   larcorealg/Geometry/LocalTransformationGeo.h
  * @brief  Local-to-world transformations with LArSoft geometry vectors.
- * @author Gianluca Petrillo (petrillo@fnal.gov)
- * @date   November 30, 2016
  *
  */
 
@@ -44,17 +42,15 @@ namespace geo {
    * explicitly tagged to be in the global coordinate frame, but mechanically
    * it will work just the same.
    */
-  template <typename StoredMatrix,
-            typename LocalPoint = geo::Point_t,
-            typename LocalVector = geo::Vector_t>
-  class LocalTransformationGeo : public geo::LocalTransformation<StoredMatrix> {
-    using Base_t = geo::LocalTransformation<StoredMatrix>;
+  template <typename StoredMatrix, typename LocalPoint = Point_t, typename LocalVector = Vector_t>
+  class LocalTransformationGeo : public LocalTransformation<StoredMatrix> {
+    using Base_t = LocalTransformation<StoredMatrix>;
 
   public:
-    using GlobalPoint_t = geo::Point_t;   ///< Type for global 3D point.
-    using GlobalVector_t = geo::Vector_t; ///< Type for global 3D displacement.
-    using LocalPoint_t = LocalPoint;      ///< Type for local 3D point.
-    using LocalVector_t = LocalVector;    ///< Type for local 3D displacement.
+    using GlobalPoint_t = Point_t;     ///< Type for global 3D point.
+    using GlobalVector_t = Vector_t;   ///< Type for global 3D displacement.
+    using LocalPoint_t = LocalPoint;   ///< Type for local 3D point.
+    using LocalVector_t = LocalVector; ///< Type for local 3D displacement.
 
     using typename Base_t::TransformationMatrix_t;
 

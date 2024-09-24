@@ -32,6 +32,7 @@ find_package(cetlib REQUIRED EXPORT)
 find_package(cetlib_except REQUIRED EXPORT)
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED EXPORT)
+## v10 find_package(Boost COMPONENTS headers filesystem unit_test_framework REQUIRED EXPORT)
 find_package(CLHEP COMPONENTS Geometry Vector REQUIRED EXPORT)
 find_package(ROOT COMPONENTS Core GenVector Geom MathCore Matrix Physics REQUIRED EXPORT)
 

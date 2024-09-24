@@ -1,7 +1,6 @@
 /**
  * @file   larcorealg/Geometry/LineClosestPoint.h
  * @brief  Utility for intersection of two 3D lines.
- * @author Gianluca Petrillo (petrillo@slac.stanford.edu)
  * @see    larcorealg/Geometry/LineClosestPoint.tcc,
  *         larcorealg/Geometry/WireGeo.h
  *

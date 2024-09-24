@@ -61,13 +61,13 @@ namespace geoalgo {
     return false;
   }
 
-  void Trajectory::push_back(const Point_t& obj)
+  void Trajectory::push_back(Point_t const& obj)
   {
     compat(obj);
     if (!(size() && obj == (*rbegin()))) std::vector<geoalgo::Point_t>::push_back(obj);
   }
 
-  void Trajectory::compat(const Point_t& obj) const
+  void Trajectory::compat(Point_t const& obj) const
   {
 
     if (!size()) return;
@@ -80,7 +80,7 @@ namespace geoalgo {
     }
   }
 
-  void Trajectory::compat(const Trajectory& obj) const
+  void Trajectory::compat(Trajectory const& obj) const
   {
 
     if (!size() || !(obj.size())) return;

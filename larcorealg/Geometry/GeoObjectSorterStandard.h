@@ -1,42 +1,29 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorterStandard.h
-/// \brief Interface to algorithm class for standard sorting of geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorterStandard.h
+/// @brief Standard algorithm class for sorting of geo::XXXGeo objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
-#ifndef GEO_GEOOBJECTSORTERSTANDARD_H
-#define GEO_GEOOBJECTSORTERSTANDARD_H
 
-#include <vector>
+#ifndef LARCOREALG_GEOMETRY_GEOOBJECTSORTERSTANDARD_H
+#define LARCOREALG_GEOMETRY_GEOOBJECTSORTERSTANDARD_H
 
 #include "fhiclcpp/fwd.h"
 #include "larcorealg/Geometry/GeoObjectSorter.h"
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h" // for DriftDirec...
+#include "larcorealg/Geometry/fwd.h"
 
 namespace geo {
-
-  class AuxDetGeo;
-  class AuxDetSensitiveGeo;
-  class CryostatGeo;
-  class PlaneGeo;
-  class TPCGeo;
-  class WireGeo;
 
   /// @ingroup Geometry
   class GeoObjectSorterStandard : public GeoObjectSorter {
   public:
-    GeoObjectSorterStandard(fhicl::ParameterSet const& p);
+    GeoObjectSorterStandard();
+    explicit GeoObjectSorterStandard(fhicl::ParameterSet const&);
 
-    void SortAuxDets(std::vector<geo::AuxDetGeo>& adgeo) const override;
-    void SortAuxDetSensitive(std::vector<geo::AuxDetSensitiveGeo>& adsgeo) const override;
-    void SortCryostats(std::vector<geo::CryostatGeo>& cgeo) const override;
-    void SortTPCs(std::vector<geo::TPCGeo>& tgeo) const override;
-    void SortPlanes(std::vector<geo::PlaneGeo>& pgeo,
-                    geo::DriftDirection_t driftDir) const override;
-    void SortWires(std::vector<geo::WireGeo>& wgeo) const override;
+  private:
+    bool compareCryostats(CryostatGeo const& c1, CryostatGeo const& c2) const override;
+    bool compareTPCs(TPCGeo const& t1, TPCGeo const& t2) const override;
   };
 
 }
 
-#endif // GEO_GEOOBJECTSORTERSTANDARD_H
+#endif // LARCOREALG_GEOMETRY_GEOOBJECTSORTERSTANDARD_H

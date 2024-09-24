@@ -31,19 +31,19 @@ namespace geoalgo {
     virtual ~Sphere() {} ///< Default dtor
 
     /// Alternative ctor (0)
-    Sphere(const double& x, const double& y, const double& z, const double& r);
+    Sphere(double const& x, double const& y, double const& z, double const& r);
 
     /// Altenartive ctor (1) - 1 Point
-    Sphere(const Point_t& center, const double r = 0);
+    Sphere(Point_t const& center, double const r = 0);
 
     /// Alternative ctor (2) - 2 Points
-    Sphere(const Point_t& pt1, const Point_t& pt2);
+    Sphere(Point_t const& pt1, Point_t const& pt2);
 
     /// Alternative ctor (3) - 3 Points
-    Sphere(const Point_t& A, const Point_t& B, const Point_t& C);
+    Sphere(Point_t const& A, Point_t const& B, Point_t const& C);
 
     //  Alternative ctor (4) - 4 Points
-    Sphere(const Point_t& A, const Point_t& B, const Point_t& C, const Point_t& D);
+    Sphere(Point_t const& A, Point_t const& B, Point_t const& C, Point_t const& D);
 
     // Alternative ctor (5) - Set of points
     Sphere(const std::vector<::geoalgo::Point_t>& pts);
@@ -51,24 +51,24 @@ namespace geoalgo {
     //
     // Getters
     //
-    const Point_t& Center() const; ///< Center getter
+    Point_t const& Center() const; ///< Center getter
     double Radius() const;         ///< Radius getter
 
     //
     // Setters
     //
-    void Center(const double x, const double y, const double z); ///< Center setter
-    void Center(const Point_t& pt);                              ///< Center setter
-    void Radius(const double& r);                                ///< Radius setter
+    void Center(double const x, double const y, double const z); ///< Center setter
+    void Center(Point_t const& pt);                              ///< Center setter
+    void Radius(double const& r);                                ///< Radius setter
 
     //
     // Utilities
     //
-    bool Contain(const Point_t& p) const; ///< Judge if a point is contained within a sphere
+    bool Contain(Point_t const& p) const; ///< Judge if a point is contained within a sphere
 
   protected:
-    void compat(const Point_t& p, const double r = 0) const; ///< 3D point compatibility check
-    void compat(const double& r) const; ///< Positive radius compatibility check
+    void compat(Point_t const& p, double const r = 0) const; ///< 3D point compatibility check
+    void compat(double const& r) const; ///< Positive radius compatibility check
 
     /// Center of Sphere
     Point_t _center;
@@ -82,21 +82,21 @@ namespace geoalgo {
     //
     /*
 #ifndef __CINT__ // Not sure why but CINT has a problem with this ctor. FIXME
-    template <class T> Sphere(const T& center, const double r=0)
+    template <class T> Sphere(T const& center, double const r=0)
       : Sphere(Point_t(center),r)
     {}
 #endif
     */
     template <class T>
-    Sphere(const T& pt1, const T& pt2) : Sphere(Point_t(pt1), Point_t(pt2))
+    Sphere(T const& pt1, T const& pt2) : Sphere(Point_t(pt1), Point_t(pt2))
     {}
 
     template <class T>
-    Sphere(const T& A, const T& B, const T& C) : Sphere(Point_t(A), Point_t(B), Point_t(C))
+    Sphere(T const& A, T const& B, T const& C) : Sphere(Point_t(A), Point_t(B), Point_t(C))
     {}
 
     template <class T>
-    Sphere(const T& A, const T& B, const T& C, const T& D)
+    Sphere(T const& A, T const& B, T const& C, T const& D)
       : Sphere(Point_t(A), Point_t(B), Point_t(C), Point_t(D))
     {}
 
@@ -111,13 +111,13 @@ namespace geoalgo {
     }
 
     template <class T>
-    void Center(const T& pt)
+    void Center(T const& pt)
     {
       Center(Point_t(pt));
     }
 
     template <class T>
-    bool Contain(const T& p) const
+    bool Contain(T const& p) const
     {
       return Contain(Point_t(p));
     }

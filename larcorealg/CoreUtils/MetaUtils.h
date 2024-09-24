@@ -336,7 +336,7 @@ namespace util {
    *      `std::size_t`), will cause a compilation error. For example, GCC 7.2
    *      reports:
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * error: type/value mismatch at argument 1 in template parameter list for ‘template<template<class ...> class Template, class T> constexpr const bool util::is_instance_of_v<Template, T>’
+   * error: type/value mismatch at argument 1 in template parameter list for ‘template<template<class ...> class Template, class T> constexpr bool const util::is_instance_of_v<Template, T>’
    * static_assert(util::is_instance_of_v<std::array, std::array<int, 2U>>);
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *

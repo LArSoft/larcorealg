@@ -107,19 +107,17 @@ cet_make_library(LIBRARY_NAME geoVectorUtils INTERFACE
 )
 
 cet_make_library(SOURCE
-  AuxDetChannelMapAlg.cxx
   AuxDetGeo.cxx
   AuxDetGeometryCore.cxx
+  AuxDetGeoObjectSorter.cxx
+  AuxDetGeoObjectSorterStandard.cxx
+  AuxDetReadoutGeom.cxx
   AuxDetSensitiveGeo.cxx
   BoxBoundedGeo.cxx
-  ChannelMapAlg.cxx
-  ChannelMapStandardAlg.cxx
   CryostatGeo.cxx
   Decomposer.h
-  DriftPartitions.cxx
   GeometryBuilder.h
   GeometryBuilderStandard.cxx
-  GeometryBuilderWireless.cxx
   GeometryCore.cxx
   GeoNodePath.cxx
   GeoObjectSorter.cxx
@@ -133,10 +131,17 @@ cet_make_library(SOURCE
   StandaloneGeometrySetup.cxx
   TPCGeo.cxx
   WireGeo.cxx
+  WireReadoutGeom.cxx
+  WireReadoutGeomBuilderStandard.cxx
+  WireReadoutSorterStandard.cxx
+  WireReadoutStandardGeom.cxx
   details/extractMaxGeometryElements.h
-  details/helpers.cxx
+  details/GeometryIterationPolicy.cxx
+  details/ReadoutIterationPolicy.cxx
+  details/maybe_default_detector_name.cxx
   LIBRARIES
   PUBLIC
+  larcorealg::CoreUtils
   larcorealg::GeometryDataContainers
   larcorealg::GeometryIDmapper
   larcorealg::LineClosestPoint
@@ -152,11 +157,13 @@ cet_make_library(SOURCE
   cetlib_except::cetlib_except
   CLHEP::Geometry
   CLHEP::Vector
+  range-v3::range-v3
   ROOT::Core
   ROOT::GenVector
   ROOT::Geom
   ROOT::Physics
   PRIVATE
+  Boost::filesystem
   larcorealg::Exceptions
   larcorealg::geo_vectors_utils_TVector
   messagefacility::MF_MessageLogger

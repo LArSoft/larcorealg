@@ -1,7 +1,6 @@
 /**
  * @file   SimpleGeo.h
  * @brief  Some simple functions to represent geometry entities
- * @author Gianluca Petrillo (petrillo@fnal.gov)
  * @ingroup Geometry
  *
  * This library is simple and header-only.

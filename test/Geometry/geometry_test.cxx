@@ -9,30 +9,30 @@
  *
  * By default, GeometryTestParameterSet is set to "physics.analysers.geotest".
  *
- * This unit test uses geometry_unit_test_base.h to build an environment with a
- * geometry set up.
- * For an example of use with Boost unit test module, see
+ * This unit test uses geometry_unit_test_base.h to build an environment with a geometry
+ * set up.  For an example of use with Boost unit test module, see
  * geometry_iterator_test.cxx .
  */
 
 // LArSoft libraries
 #include "GeometryTestAlg.h"
-#include "larcorealg/Geometry/ChannelMapStandardAlg.h"
-#include "larcorealg/Geometry/GeometryCore.h"
+#include "larcorealg/Geometry/AuxDetGeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/AuxDetGeometryCore.h"
+#include "larcorealg/Geometry/GeoObjectSorterStandard.h"
+#include "larcorealg/Geometry/StandaloneGeometrySetup.h"
 #include "larcorealg/TestUtils/geometry_unit_test_base.h"
 
-// utility libraries
+// art libraries
+#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //------------------------------------------------------------------------------
 //---  The test environment
 //---
 
-// we define here all the configuration that is needed;
-// we use an existing class provided for this purpose, since our test
-// environment allows us to tailor it at run time.
-using StandardGeometryConfiguration =
-  testing::BasicGeometryEnvironmentConfiguration<geo::ChannelMapStandardAlg>;
+// we define here all the configuration that is needed; we use an existing class provided
+// for this purpose, since our test environment allows us to tailor it at run time.
+using StandardGeometryConfiguration = testing::BasicGeometryEnvironmentConfiguration;
 
 /*
  * GeometryTesterFixture, configured with the object above, is used in a
@@ -42,7 +42,7 @@ using StandardGeometryConfiguration =
  * - `geo::GeometryCore const* GlobalGeometry()` (static member)
  */
 using StandardGeometryTestEnvironment =
-  testing::GeometryTesterEnvironment<StandardGeometryConfiguration>;
+  testing::GeometryTesterEnvironment<StandardGeometryConfiguration, geo::GeoObjectSorterStandard>;
 
 //------------------------------------------------------------------------------
 //---  The tests
@@ -59,21 +59,17 @@ using StandardGeometryTestEnvironment =
  * 0. name of the executable ("Geometry_test")
  * 1. path to the FHiCL configuration file
  * 2. FHiCL path to the configuration of the geometry test
- *    (default: physics.analysers.geotest)
+ *    (default: physics.analyzers.geotest)
  * 3. FHiCL path to the configuration of the geometry
  *    (default: services.Geometry)
- *
  */
 //------------------------------------------------------------------------------
 int main(int argc, char const** argv)
 {
-
   StandardGeometryConfiguration config("geometry_test");
   config.SetMainTesterParameterSetName("geotest");
 
-  //
   // parameter parsing
-  //
   int iParam = 0;
 
   // first argument: configuration file (mandatory)
@@ -87,25 +83,25 @@ int main(int argc, char const** argv)
   // (optional; default: "services.Geometry" from the inherited object)
   if (++iParam < argc) config.SetGeometryParameterSetPath(argv[iParam]);
 
-  //
   // testing environment setup
-  //
   StandardGeometryTestEnvironment TestEnvironment(config);
+  auto const wireReadoutGeom = lar::standalone::SetupReadout(
+    TestEnvironment.ServiceParameters("WireReadout"), TestEnvironment.Geometry());
+  auto const auxDetGeom =
+    lar::standalone::SetupAuxDetGeometry(TestEnvironment.ServiceParameters("AuxDetGeometry"));
 
-  //
   // run the test algorithm
-  //
 
   // 1. we initialize it from the configuration in the environment,
-  geo::GeometryTestAlg Tester(TestEnvironment.TesterParameters());
+  geo::GeometryTestAlg Tester{TestEnvironment.Geometry(),
+                              wireReadoutGeom.get(),
+                              auxDetGeom.get(),
+                              TestEnvironment.TesterParameters()};
 
-  // 2. we set it up with the geometry from the environment
-  Tester.Setup(*(TestEnvironment.Provider<geo::GeometryCore>()));
-
-  // 3. then we run it!
+  // 2. then we run it!
   unsigned int nErrors = Tester.Run();
 
-  // 4. And finally we cross fingers.
+  // 3. And finally we cross fingers.
   if (nErrors > 0) { mf::LogError("geometry_test") << nErrors << " errors detected!"; }
 
   return nErrors;

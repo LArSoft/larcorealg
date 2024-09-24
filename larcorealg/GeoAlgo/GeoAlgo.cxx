@@ -8,8 +8,8 @@ namespace geoalgo {
 
   // Ref. RTCD 5.3.2 p. 177
   // Intersection of a HalfLine w/ AABox
-  std::vector<Point_t> GeoAlgo::Intersection(const AABox_t& box,
-                                             const HalfLine_t& line,
+  std::vector<Point_t> GeoAlgo::Intersection(AABox_t const& box,
+                                             HalfLine_t const& line,
                                              bool back) const
   {
     // Result container
@@ -114,7 +114,7 @@ namespace geoalgo {
   }
 
   // AABox_t & LineSegment_t intersection search. Make a use of AABox_t & HalfLine_t function
-  std::vector<Point_t> GeoAlgo::Intersection(const AABox_t& box, const LineSegment_t& line) const
+  std::vector<Point_t> GeoAlgo::Intersection(AABox_t const& box, LineSegment_t const& line) const
   {
     auto const& st = line.Start();
     auto const& ed = line.End();
@@ -136,7 +136,7 @@ namespace geoalgo {
   }
 
   // AABox_t & Trajectory_t intersection search. Make a use of AABox_t & HalfLine_t function
-  std::vector<Point_t> GeoAlgo::Intersection(const AABox_t& box, const Trajectory_t& trj) const
+  std::vector<Point_t> GeoAlgo::Intersection(AABox_t const& box, Trajectory_t const& trj) const
   {
 
     std::vector<Point_t> result;
@@ -165,7 +165,7 @@ namespace geoalgo {
   }
 
   // LineSegment sub-segment of HalfLine inside an AABox w/o checks
-  LineSegment_t GeoAlgo::BoxOverlap(const AABox_t& box, const HalfLine_t& line) const
+  LineSegment_t GeoAlgo::BoxOverlap(AABox_t const& box, HalfLine_t const& line) const
   {
     // First find interection point of half-line and box
     auto xs_v = Intersection(box, line);
@@ -179,7 +179,7 @@ namespace geoalgo {
   }
 
   /// Get Trajectory inside box given some input trajectory -> now assumes trajectory cannot exit and re-enter box
-  Trajectory_t GeoAlgo::BoxOverlap(const AABox_t& box, const Trajectory_t& trj) const
+  Trajectory_t GeoAlgo::BoxOverlap(AABox_t const& box, Trajectory_t const& trj) const
   {
 
     // if first & last points inside, then return full trajectory
@@ -190,7 +190,7 @@ namespace geoalgo {
 
   // Ref. RTCD 5.1.8 p. 146
   // Distance between two infinite lines
-  double GeoAlgo::_SqDist_(const Line_t& l1, const Line_t& l2, Point_t& L1, Point_t& L2) const
+  double GeoAlgo::_SqDist_(Line_t const& l1, Line_t const& l2, Point_t& L1, Point_t& L2) const
   {
 
     // closest approach when segment connecting the two lines
@@ -246,8 +246,8 @@ namespace geoalgo {
   // "after" start point. Otherwise need
   // to re-calculate using start point
   // for one or both of the half-lines
-  double GeoAlgo::_SqDist_(const HalfLine_t& l1,
-                           const HalfLine_t& l2,
+  double GeoAlgo::_SqDist_(HalfLine_t const& l1,
+                           HalfLine_t const& l2,
                            Point_t& L1,
                            Point_t& L2) const
   {
@@ -303,8 +303,8 @@ namespace geoalgo {
   // "after" start point. Otherwise need
   // to re-calculate using start point
   // for one or both of the half-lines
-  double GeoAlgo::_SqDist_(const HalfLine_t& hline,
-                           const LineSegment_t& seg,
+  double GeoAlgo::_SqDist_(HalfLine_t const& hline,
+                           LineSegment_t const& seg,
                            Point_t& L1,
                            Point_t& L2) const
   {
@@ -374,7 +374,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 130
-  double GeoAlgo::_SqDist_(const Point_t& pt, const Point_t& line_s, const Point_t& line_e) const
+  double GeoAlgo::_SqDist_(Point_t const& pt, Point_t const& line_s, Point_t const& line_e) const
   {
     auto const ab = line_e - line_s;
     auto const ac = pt - line_s;
@@ -387,7 +387,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 128-129
-  Point_t GeoAlgo::_ClosestPt_(const Point_t& pt, const LineSegment_t& line) const
+  Point_t GeoAlgo::_ClosestPt_(Point_t const& pt, LineSegment_t const& line) const
   {
 
     auto const& ab = line.Dir();
@@ -407,7 +407,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 130
-  double GeoAlgo::_SqDist_(const Point_t& pt, const HalfLine_t& line) const
+  double GeoAlgo::_SqDist_(Point_t const& pt, HalfLine_t const& line) const
   {
     auto const& ab = line.Dir();
     auto const ac = pt - line.Start();
@@ -420,7 +420,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 128-129
-  Point_t GeoAlgo::_ClosestPt_(const Point_t& pt, const HalfLine_t& line) const
+  Point_t GeoAlgo::_ClosestPt_(Point_t const& pt, HalfLine_t const& line) const
   {
     auto const& ab = line.Dir();
     auto t = (pt - line.Start()) * ab;
@@ -433,7 +433,7 @@ namespace geoalgo {
   }
 
   // Point & Infinite Line min Distance
-  double GeoAlgo::_SqDist_(const Line_t& line, const Point_t& pt) const
+  double GeoAlgo::_SqDist_(Line_t const& line, Point_t const& pt) const
   {
     auto const ab = line.Pt2() - line.Pt1();
     auto const ac = pt - line.Pt1();
@@ -445,7 +445,7 @@ namespace geoalgo {
   }
 
   // Point & Infinite Line Closest Point
-  Point_t GeoAlgo::_ClosestPt_(const Line_t& line, const Point_t& pt) const
+  Point_t GeoAlgo::_ClosestPt_(Line_t const& line, Point_t const& pt) const
   {
     auto const& ab = line.Pt2() - line.Pt1();
     auto t = (pt - line.Pt1()) * ab;
@@ -454,7 +454,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 131-132 ... modified to consider distance to the box's wall
-  double GeoAlgo::_SqDist_(const Point_t& pt, const AABox_t& box) const
+  double GeoAlgo::_SqDist_(Point_t const& pt, AABox_t const& box) const
   {
     double dist = kINVALID_DOUBLE;
 
@@ -499,7 +499,7 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Ch 5.1 p. 130-131 ... modified to consider a point on the surface
-  Point_t GeoAlgo::_ClosestPt_(const Point_t& pt, const AABox_t& box) const
+  Point_t GeoAlgo::_ClosestPt_(Point_t const& pt, AABox_t const& box) const
   {
     // Result
     auto res = pt;
@@ -520,7 +520,7 @@ namespace geoalgo {
   // Loop over segments that make up the trajectory and keep track
   // of shortest distance between any of them and the point
   // The smallest such distance is the return
-  double GeoAlgo::SqDist(const Point_t& pt, const Trajectory_t& trj) const
+  double GeoAlgo::SqDist(Point_t const& pt, Trajectory_t const& trj) const
   {
 
     // Make sure trajectory object is properly defined
@@ -542,7 +542,7 @@ namespace geoalgo {
   // Distance between vector of Trajectories and a Point
   // Loop over Trajectories and find the closest one
   // then keep track of that closest one
-  double GeoAlgo::SqDist(const Point_t& pt,
+  double GeoAlgo::SqDist(Point_t const& pt,
                          const std::vector<Trajectory_t>& trj,
                          int& trackIdx) const
   {
@@ -569,7 +569,7 @@ namespace geoalgo {
   // Loop over segments that make up the trajectory and keep track
   // of shortest distance between any of them and the point
   // For the shortest distance find the point at which it is found
-  Point_t GeoAlgo::ClosestPt(const Point_t& pt, const Trajectory_t& trj, int& idx) const
+  Point_t GeoAlgo::ClosestPt(Point_t const& pt, Trajectory_t const& trj, int& idx) const
   {
 
     // Make sure trajectory object is properly defined
@@ -599,7 +599,7 @@ namespace geoalgo {
   // Loop over segments that make up the trajectory and keep track
   // of shortest distance between any of them and the point
   // For the shortest distance find the point at which it is found
-  Point_t GeoAlgo::ClosestPt(const Point_t& pt,
+  Point_t GeoAlgo::ClosestPt(Point_t const& pt,
                              const std::vector<Trajectory_t>& trj,
                              int& TrackIdx) const
   {
@@ -630,8 +630,8 @@ namespace geoalgo {
   // Closest Approach between a segment and a Trajectory
   // loop over segments in trajectory and find the one that
   // is closest. Then find distance
-  double GeoAlgo::SqDist(const LineSegment_t& seg,
-                         const Trajectory_t& trj,
+  double GeoAlgo::SqDist(LineSegment_t const& seg,
+                         Trajectory_t const& trj,
                          Point_t& c1,
                          Point_t& c2) const
   {
@@ -664,8 +664,8 @@ namespace geoalgo {
   // Closest Approach between a Trajectory and a Trajectory
   // loop over segments in trajectory1 and those in
   // trahectory2 and find the best point
-  double GeoAlgo::SqDist(const Trajectory_t& trj1,
-                         const Trajectory_t& trj2,
+  double GeoAlgo::SqDist(Trajectory_t const& trj1,
+                         Trajectory_t const& trj2,
                          Point_t& c1,
                          Point_t& c2) const
   {
@@ -702,8 +702,8 @@ namespace geoalgo {
   // Closest Approach between a HalfLine and a Trajectory
   // loop over segments in trajectory and find the one that
   // is closest. Then find distance
-  double GeoAlgo::SqDist(const HalfLine_t& hline,
-                         const Trajectory_t& trj,
+  double GeoAlgo::SqDist(HalfLine_t const& hline,
+                         Trajectory_t const& trj,
                          Point_t& c1,
                          Point_t& c2) const
   {
@@ -737,7 +737,7 @@ namespace geoalgo {
   // keep track of points of closest approach both on nearest
   // track as well as on segment
   // keep track of which track has the point of closest approcah
-  double GeoAlgo::SqDist(const LineSegment& seg,
+  double GeoAlgo::SqDist(LineSegment const& seg,
                          const std::vector<Trajectory_t>& trj,
                          Point_t& c1,
                          Point_t& c2,
@@ -773,8 +773,8 @@ namespace geoalgo {
   }
 
   // Ref. RTCD Sec. 5.1.9 - pg. 148-150
-  double GeoAlgo::_SqDist_(const LineSegment_t& seg1,
-                           const LineSegment_t& seg2,
+  double GeoAlgo::_SqDist_(LineSegment_t const& seg1,
+                           LineSegment_t const& seg2,
                            Point_t& c1,
                            Point_t& c2) const
   {
@@ -849,7 +849,7 @@ namespace geoalgo {
   // Clamp function:
   // if 1st argument out of bounds w.r.t. min & max
   // return the boundary point
-  double GeoAlgo::_Clamp_(const double n, const double min, const double max) const
+  double GeoAlgo::_Clamp_(double const n, double const min, double const max) const
   {
     if (n < min) { return min; }
     if (n > max) { return max; }
@@ -857,7 +857,7 @@ namespace geoalgo {
   }
 
   /// Common origin: Half Line & Half Line. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const Line_t& lin1, const Line_t& lin2, Point_t& origin) const
+  double GeoAlgo::_commonOrigin_(Line_t const& lin1, Line_t const& lin2, Point_t& origin) const
   {
 
     // Function Description:
@@ -906,8 +906,8 @@ namespace geoalgo {
   }
 
   /// Common origin: Half Line & Half Line. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const HalfLine_t& lin1,
-                                 const HalfLine_t& lin2,
+  double GeoAlgo::_commonOrigin_(HalfLine_t const& lin1,
+                                 HalfLine_t const& lin2,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -966,8 +966,8 @@ namespace geoalgo {
     //    return dot;
   }
   /// Common origin: Line Segment & Half Line. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const HalfLine_t& lin,
-                                 const LineSegment_t& seg,
+  double GeoAlgo::_commonOrigin_(HalfLine_t const& lin,
+                                 LineSegment_t const& seg,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -978,8 +978,8 @@ namespace geoalgo {
     return _commonOrigin_(lin, lin2, origin, backwards);
   }
   /// Common origin: Line Segment & Line Segment. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const LineSegment_t& seg1,
-                                 const LineSegment_t& seg2,
+  double GeoAlgo::_commonOrigin_(LineSegment_t const& seg1,
+                                 LineSegment_t const& seg2,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -992,8 +992,8 @@ namespace geoalgo {
   }
 
   /// Common origin: Trajectory & Trajectory/ Keep track of origin
-  double GeoAlgo::_commonOrigin_(const Trajectory_t& trj1,
-                                 const Trajectory_t& trj2,
+  double GeoAlgo::_commonOrigin_(Trajectory_t const& trj1,
+                                 Trajectory_t const& trj2,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -1005,8 +1005,8 @@ namespace geoalgo {
   }
 
   /// Common origin: Trajectory & Line Segment. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const Trajectory_t& trj,
-                                 const LineSegment_t& seg,
+  double GeoAlgo::_commonOrigin_(Trajectory_t const& trj,
+                                 LineSegment_t const& seg,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -1018,8 +1018,8 @@ namespace geoalgo {
   }
 
   /// Common origin: Trajectory & Half Line. Keep track of origin
-  double GeoAlgo::_commonOrigin_(const Trajectory_t& trj,
-                                 const HalfLine_t& lin,
+  double GeoAlgo::_commonOrigin_(Trajectory_t const& trj,
+                                 HalfLine_t const& lin,
                                  Point_t& origin,
                                  bool backwards) const
   {
@@ -1068,7 +1068,7 @@ namespace geoalgo {
   }
 
   Sphere_t GeoAlgo::_RemainingPoints_(std::vector<Point_t>& remaining,
-                                      const Sphere_t& thisSphere) const
+                                      Sphere_t const& thisSphere) const
   {
 
     // if no points lef -> done...return the current sphere

@@ -11,7 +11,7 @@ namespace geoalgo {
       v = 0;
   }
 
-  Sphere::Sphere(const double& x, const double& y, const double& z, const double& r) : Sphere()
+  Sphere::Sphere(double const& x, double const& y, double const& z, double const& r) : Sphere()
   {
     _center[0] = x;
     _center[1] = y;
@@ -19,12 +19,12 @@ namespace geoalgo {
     _radius = r;
   }
 
-  Sphere::Sphere(const Point_t& center, const double r) : _radius(r)
+  Sphere::Sphere(Point_t const& center, double const r) : _radius(r)
   {
     _center = center;
   }
 
-  Sphere::Sphere(const Point_t& pt1, const Point_t& pt2)
+  Sphere::Sphere(Point_t const& pt1, Point_t const& pt2)
   {
     compat(pt1);
     compat(pt2);
@@ -35,7 +35,7 @@ namespace geoalgo {
   //  3-Point Constructor
   //  Real-Time Collision Blog
   //  http://realtimecollisiondetection.net/blog/?p=20
-  Sphere::Sphere(const Point_t& A, const Point_t& B, const Point_t& C)
+  Sphere::Sphere(Point_t const& A, Point_t const& B, Point_t const& C)
   {
     compat(A);
     compat(B);
@@ -113,7 +113,7 @@ namespace geoalgo {
   //  Real-Time Collision Blog
   //  http://realtimecollisiondetection.net/blog/?p=20
   /*
-  Sphere::Sphere(const Point_t& A, const Point_t& B, const Point_t& C, const Point_t& D){
+  Sphere::Sphere(Point_t const& A, Point_t const& B, Point_t const& C, Point_t const& D){
 
     compat(A);
     compat(B);
@@ -186,7 +186,7 @@ namespace geoalgo {
   */
 
   // 4-point constructor
-  Sphere::Sphere(const Point_t& A, const Point_t& B, const Point_t& C, const Point_t& D)
+  Sphere::Sphere(Point_t const& A, Point_t const& B, Point_t const& C, Point_t const& D)
   {
 
     compat(A);
@@ -333,7 +333,7 @@ namespace geoalgo {
     }
   }
 
-  const Point_t& Sphere::Center() const
+  Point_t const& Sphere::Center() const
   {
     return _center;
   }
@@ -343,38 +343,38 @@ namespace geoalgo {
     return _radius;
   }
 
-  void Sphere::Center(const double x, const double y, const double z)
+  void Sphere::Center(double const x, double const y, double const z)
   {
     _center[0] = x;
     _center[1] = y;
     _center[2] = z;
   }
 
-  void Sphere::Center(const Point_t& center)
+  void Sphere::Center(Point_t const& center)
   {
     compat(center);
     _center = center;
   }
 
-  void Sphere::Radius(const double& r)
+  void Sphere::Radius(double const& r)
   {
     compat(r);
     _radius = r;
   }
 
-  bool Sphere::Contain(const Point_t& p) const
+  bool Sphere::Contain(Point_t const& p) const
   {
     _center.compat(p);
     return (p._Dist_(_center) < _radius);
   }
 
-  void Sphere::compat(const Point_t& p, const double r) const
+  void Sphere::compat(Point_t const& p, double const r) const
   {
     if (p.size() != 3) throw GeoAlgoException("Only 3D points allowed for sphere");
     compat(r);
   }
 
-  void Sphere::compat(const double& r) const
+  void Sphere::compat(double const& r) const
   {
     if (r < 0) throw GeoAlgoException("Only positive value allowed for radius");
   }

@@ -5,8 +5,8 @@
  * @date   June 26th, 2015
  */
 
-#ifndef GEO_CHANNELMAPSTANDARDTESTALG_H
-#define GEO_CHANNELMAPSTANDARDTESTALG_H
+#ifndef TEST_GEOMETRY_CHANNELMAPSTANDARDTESTALG_H
+#define TEST_GEOMETRY_CHANNELMAPSTANDARDTESTALG_H
 
 #include "larcorealg/Geometry/fwd.h"
 
@@ -14,7 +14,10 @@ namespace geo {
 
   class ChannelMapStandardTestAlg {
   public:
-    explicit ChannelMapStandardTestAlg(geo::GeometryCore const* new_geo) : geom{new_geo} {}
+    explicit ChannelMapStandardTestAlg(GeometryCore const* new_geo,
+                                       WireReadoutGeom const* wireReadoutGeom)
+      : geom{new_geo}, wireReadoutGeom{wireReadoutGeom}
+    {}
 
     /// Executes the test
     unsigned int Run();
@@ -24,10 +27,11 @@ namespace geo {
     void ChannelMappingTest() const;
 
   private:
-    GeometryCore const* geom = nullptr;
+    GeometryCore const* geom;
+    WireReadoutGeom const* wireReadoutGeom;
 
   }; // class ChannelMapStandardTestAlg
 
 } // namespace geo
 
-#endif // GEO_CHANNELMAPSTANDARDTESTALG_H
+#endif // TEST_GEOMETRY_CHANNELMAPSTANDARDTESTALG_H

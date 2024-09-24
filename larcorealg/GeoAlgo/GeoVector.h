@@ -47,10 +47,10 @@ namespace geoalgo {
     /// Default ctor w/ a bare std::vector<double>
     Vector(const std::vector<double>& obj) : std::vector<double>(obj) {}
 
-    Vector(const double x, const double y);                 ///< ctor w/ x & y
-    Vector(const double x, const double y, const double z); ///< ctor w/ x, y & z
-    Vector(const TVector3& pt);                             ///< ctor w/ TVector3
-    Vector(const TLorentzVector& pt);                       ///< ctor w/ TLorentzVector
+    Vector(double const x, double const y);                 ///< ctor w/ x & y
+    Vector(double const x, double const y, double const z); ///< ctor w/ x, y & z
+    Vector(TVector3 const& pt);                             ///< ctor w/ TVector3
+    Vector(TLorentzVector const& pt);                       ///< ctor w/ TLorentzVector
 
     void Normalize(); ///< Normalize itself
 
@@ -61,68 +61,68 @@ namespace geoalgo {
     double Phi() const;      ///< Compute the angle Phi
     double Theta() const;    ///< Compute the angle theta
 
-    double SqDist(const Vector& obj) const; ///< Compute the squared distance to another vector
-    double Dist(const Vector& obj) const;   ///< Compute the distance to another vector
-    double Dot(const Vector& obj) const;    /// Compute a dot product of two vectors
-    Vector Cross(const Vector& obj) const;  /// Compute a cross product of two vectors
-    double Angle(const Vector& obj) const;  /// Compute an opening angle w.r.t. the given vector
+    double SqDist(Vector const& obj) const; ///< Compute the squared distance to another vector
+    double Dist(Vector const& obj) const;   ///< Compute the distance to another vector
+    double Dot(Vector const& obj) const;    /// Compute a dot product of two vectors
+    Vector Cross(Vector const& obj) const;  /// Compute a cross product of two vectors
+    double Angle(Vector const& obj) const;  /// Compute an opening angle w.r.t. the given vector
 
     TLorentzVector ToTLorentzVector()
       const; ///< Convert geovector to TLorentzVector (with 4th element set equal to 0)
 
     /// Dimensional check for a compatibility
-    void compat(const Vector& obj) const;
+    void compat(Vector const& obj) const;
 
     /// rotation operations
-    void RotateX(const double& theta);
-    void RotateY(const double& theta);
-    void RotateZ(const double& theta);
+    void RotateX(double const& theta);
+    void RotateY(double const& theta);
+    void RotateZ(double const& theta);
 
   protected:
     /// Compute the squared-distance to another vector w/o dimension check
-    double _SqDist_(const Vector& obj) const;
+    double _SqDist_(Vector const& obj) const;
     /// Compute the distance to another vector w/o dimension check
-    double _Dist_(const Vector& obj) const;
+    double _Dist_(Vector const& obj) const;
     /// Compute a dot product w/o dimention check.
-    double _Dot_(const Vector& obj) const;
+    double _Dot_(Vector const& obj) const;
     /// Compute a cross product w/o dimension check.
-    Vector _Cross_(const Vector& obj) const;
+    Vector _Cross_(Vector const& obj) const;
     /// Compute the angle in degrees between 2 vectors w/o dimension check.
-    double _Angle_(const Vector& obj) const;
+    double _Angle_(Vector const& obj) const;
 
   public:
     //
     // binary/uniry operators
     //
-    inline Vector& operator+=(const Vector& rhs)
+    inline Vector& operator+=(Vector const& rhs)
     {
       for (size_t i = 0; i < size(); ++i)
         (*this)[i] += rhs[i];
       return *this;
     }
 
-    inline Vector& operator-=(const Vector& rhs)
+    inline Vector& operator-=(Vector const& rhs)
     {
       for (size_t i = 0; i < size(); ++i)
         (*this)[i] -= rhs[i];
       return *this;
     }
 
-    inline Vector& operator*=(const double rhs)
+    inline Vector& operator*=(double const rhs)
     {
       for (auto& v : *this)
         v *= rhs;
       return *this;
     }
 
-    inline Vector& operator/=(const double rhs)
+    inline Vector& operator/=(double const rhs)
     {
       for (auto& v : *this)
         v /= rhs;
       return *this;
     }
 
-    inline Vector& operator=(const Vector& rhs)
+    inline Vector& operator=(Vector const& rhs)
     {
       this->resize(rhs.size());
       for (size_t i = 0; i < rhs.size(); ++i)
@@ -130,21 +130,21 @@ namespace geoalgo {
       return (*this);
     }
 
-    inline Vector operator+(const Vector& rhs) const
+    inline Vector operator+(Vector const& rhs) const
     {
       Vector res((*this));
       res += rhs;
       return res;
     }
 
-    inline Vector operator-(const Vector& rhs) const
+    inline Vector operator-(Vector const& rhs) const
     {
       Vector res((*this));
       res -= rhs;
       return res;
     }
 
-    inline double operator*(const Vector& rhs) const
+    inline double operator*(Vector const& rhs) const
     {
       double res = 0;
       for (size_t i = 0; i < size(); ++i)
@@ -152,21 +152,21 @@ namespace geoalgo {
       return res;
     }
 
-    inline Vector operator*(const double& rhs) const
+    inline Vector operator*(double const& rhs) const
     {
       Vector res((*this));
       res *= rhs;
       return res;
     }
 
-    inline Vector operator/(const double& rhs) const
+    inline Vector operator/(double const& rhs) const
     {
       Vector res((*this));
       res /= rhs;
       return res;
     }
 
-    inline bool operator<(const Vector& rhs) const
+    inline bool operator<(Vector const& rhs) const
     {
       compat(rhs);
       for (size_t i = 0; i < size(); ++i)
@@ -174,9 +174,9 @@ namespace geoalgo {
       return false;
     }
 
-    inline bool operator<(const double& rhs) const { return Length() < rhs; }
+    inline bool operator<(double const& rhs) const { return Length() < rhs; }
 
-    inline bool operator==(const Vector& rhs) const
+    inline bool operator==(Vector const& rhs) const
     {
       compat(rhs);
       for (size_t i = 0; i < size(); ++i)
@@ -184,7 +184,7 @@ namespace geoalgo {
       return true;
     }
 
-    inline bool operator!=(const Vector& rhs) const { return !(*this == rhs); }
+    inline bool operator!=(Vector const& rhs) const { return !(*this == rhs); }
 
 /// Streamer
 #ifndef __CINT__

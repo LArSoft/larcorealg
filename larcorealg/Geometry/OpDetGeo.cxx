@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  larcorealg/Geometry/OpDetGeo.cxx
-/// \brief Encapsulate the geometry of an OpDet
+/// @file  larcorealg/Geometry/OpDetGeo.cxx
+/// @brief Encapsulate the geometry of an OpDet
 ///
-/// \author  bjpjones@mit.edu
 ////////////////////////////////////////////////////////////////////////
 
 // class header
@@ -23,12 +22,9 @@
 namespace geo {
 
   //-----------------------------------------
-  OpDetGeo::OpDetGeo(TGeoNode const& node, geo::TransformationMatrix&& trans)
-    : fTrans(std::move(trans))
-  {
-    fOpDetNode = &node;
-    fCenter = toWorldCoords(geo::origin<LocalPoint_t>());
-  }
+  OpDetGeo::OpDetGeo(TGeoNode const* node, TransformationMatrix&& trans)
+    : fTrans(std::move(trans)), fOpDetNode{node}, fCenter{toWorldCoords(origin<LocalPoint_t>())}
+  {}
 
   //......................................................................
 
@@ -95,7 +91,7 @@ namespace geo {
   }
 
   //......................................................................
-  double OpDetGeo::DistanceToPoint(geo::Point_t const& point) const
+  double OpDetGeo::DistanceToPoint(Point_t const& point) const
   {
     return (point - GetCenter()).R();
   }
@@ -110,14 +106,14 @@ namespace geo {
   }
 
   //......................................................................
-  double OpDetGeo::CosThetaFromNormal(geo::Point_t const& point) const
+  double OpDetGeo::CosThetaFromNormal(Point_t const& point) const
   {
     auto const& local = toLocalCoords(point);
     return local.Z() / local.R();
   }
 
   //......................................................................
-  void OpDetGeo::UpdateAfterSorting(geo::OpDetID opdetid)
+  void OpDetGeo::UpdateAfterSorting(OpDetID opdetid)
   {
     fID = opdetid;
   }

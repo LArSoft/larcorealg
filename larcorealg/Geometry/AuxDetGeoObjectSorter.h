@@ -1,34 +1,30 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  GeoObjectSorter.h
-/// \brief Interface to algorithm class for sorting geo::XXXGeo objects
-/// \ingroup Geometry
-///
-/// \author  brebel@fnal.gov
+/// @file  GeoObjectSorter.h
+/// @brief Interface to algorithm class for sorting geo::AuxDet objects
+/// @ingroup Geometry
 ////////////////////////////////////////////////////////////////////////
-#ifndef GEO_AUXDETGEOOBJECTSORTER_H
-#define GEO_AUXDETGEOOBJECTSORTER_H
+#ifndef LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H
+#define LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H
+
+#include "larcorealg/Geometry/fwd.h"
 
 #include <vector>
 
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-
-#include "fhiclcpp/ParameterSet.h"
-
 namespace geo {
 
-  class AuxDetGeo;
-  class AuxDetSensitiveGeo;
-
-  /// \ingroup Geometry
+  /// @ingroup Geometry
   class AuxDetGeoObjectSorter {
-
   public:
     virtual ~AuxDetGeoObjectSorter() = default;
+    void sort(std::vector<AuxDetGeo>& ads) const;
+    void sort(std::vector<AuxDetSensitiveGeo>& adss) const;
 
-    virtual void SortAuxDets(std::vector<geo::AuxDetGeo>& adgeo) const = 0;
-    virtual void SortAuxDetSensitive(std::vector<geo::AuxDetSensitiveGeo>& adsgeo) const = 0;
+  private:
+    virtual bool compareAuxDets(AuxDetGeo const& ad1, AuxDetGeo const& ad2) const = 0;
+    virtual bool compareAuxDetSensitives(AuxDetSensitiveGeo const& ads1,
+                                         AuxDetSensitiveGeo const& ads2) const = 0;
   };
 
 }
 
-#endif // GEO_GEOOBJECTSORTER_H
+#endif // LARCOREALG_GEOMETRY_AUXDETGEOOBJECTSORTER_H

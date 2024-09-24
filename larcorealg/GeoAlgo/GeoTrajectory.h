@@ -54,9 +54,9 @@ namespace geoalgo {
     //
     // Setters
     //
-    void push_back(const Point_t& obj); ///< push_back overrie w/ dimensionality check
+    void push_back(Point_t const& obj); ///< push_back overrie w/ dimensionality check
 
-    inline Trajectory& operator+=(const Point_t& rhs)
+    inline Trajectory& operator+=(Point_t const& rhs)
     {
       push_back(rhs);
       return *this;
@@ -65,8 +65,8 @@ namespace geoalgo {
     //
     // utility
     //
-    void compat(const Point_t& obj) const;    ///< Dimensionality check function w/ Trajectory
-    void compat(const Trajectory& obj) const; ///< Dimensionality check function w/ Point_t
+    void compat(Point_t const& obj) const;    ///< Dimensionality check function w/ Trajectory
+    void compat(Trajectory const& obj) const; ///< Dimensionality check function w/ Point_t
 
   protected:
     /// Returns a direction vector at a specified trajectory point w/o size check
@@ -78,7 +78,7 @@ namespace geoalgo {
     //
     /// push_back template
     template <class T>
-    void push_back(const T& obj)
+    void push_back(T const& obj)
     {
       Point_t pt(obj);
       push_back(pt);

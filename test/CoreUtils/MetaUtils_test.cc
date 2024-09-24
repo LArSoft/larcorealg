@@ -12,7 +12,9 @@
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/MetaUtils.h"
-#include "larcorealg/CoreUtils/zip.h"
+
+// External libraries
+#include "range/v3/view/zip.hpp"
 
 // C/C++ standard libraries
 #include <array>
@@ -295,7 +297,6 @@ static_assert(
 //------------------------------------------------------------------------------
 void referenced_address_test()
 {
-
   int v;
   int& ref = v;
   int const& cref = v;
@@ -306,13 +307,11 @@ void referenced_address_test()
   BOOST_TEST(util::referenced_address(cref) == std::addressof(v));
   BOOST_TEST(util::referenced_address(refw) == std::addressof(v));
   BOOST_TEST(util::referenced_address(crefw) == std::addressof(v));
-
-} // referenced_address_test()
+}
 
 //------------------------------------------------------------------------------
 void referenced_addresser_documentation_test()
 {
-
   /*
    * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * std::vector<int> data(4U, 0);
@@ -328,16 +327,14 @@ void referenced_addresser_documentation_test()
     data.cbegin(), data.cend(), std::back_inserter(dataPtr), util::reference_addresser());
 
   // test
-  for (auto&& [data, dataPtr] : util::zip(data, dataPtr)) {
+  for (auto&& [data, dataPtr] : ranges::views::zip(data, dataPtr)) {
     BOOST_TEST(dataPtr == &data);
-  } // for
-
-} // referenced_addresser_documentation_testreferenced_addresser_documentation_test()
+  }
+}
 
 //------------------------------------------------------------------------------
 void lvalue_reference_into_wrapper_test()
 {
-
   int obj = 1;
   int& ref = obj;
   int const& cref = obj;
@@ -367,18 +364,15 @@ void lvalue_reference_into_wrapper_test()
   BOOST_TEST(util::referenced_address(ref_cref) == util::referenced_address(obj));
   BOOST_TEST(util::referenced_address(ref_refw) == util::referenced_address(obj));
   BOOST_TEST(util::referenced_address(ref_crefw) == util::referenced_address(obj));
-
-} // lvalue_reference_into_wrapper_test()
+}
 
 //------------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_CASE(ReferencesTestCase)
 {
-
   referenced_address_test();
   referenced_addresser_documentation_test();
   lvalue_reference_into_wrapper_test();
-
-} // BOOST_AUTO_TEST_CASE(ReferencesTestCase)
+}
 
 //------------------------------------------------------------------------------

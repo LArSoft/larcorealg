@@ -15,8 +15,10 @@
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/DebugUtils.h"
-#include "larcorealg/CoreUtils/enumerate.h"
 #include "larcorealg/CoreUtils/fromFutureImport.h" // util::pre_std::identity<>
+
+// External libraries
+#include "range/v3/view/enumerate.hpp"
 
 // C/C++ standard library
 #include <cstddef> // std::size_t
@@ -69,19 +71,13 @@ namespace util {
 template <typename Coll, typename Extractor>
 decltype(auto) util::makeValueIndex(Coll const& coll, Extractor getter)
 {
-
   using Value_t = typename Coll::value_type;
-  using Key_t
-#if 0  // this is C++17...
-    = std::remove_reference_t<std::invoke_result_t<Extractor, Value_t>>;
-#else  // ... and this is what Clang 5.0 understands:
-    = std::remove_reference_t<decltype(getter(std::declval<Value_t>()))>;
-#endif // 0
+  using Key_t = std::remove_reference_t<std::invoke_result_t<Extractor, Value_t>>;
 
-    using Map_t = std::map<Key_t, std::size_t>;
+  using Map_t = std::map<Key_t, std::size_t>;
 
   Map_t index;
-  for (auto&& [iValue, collValue] : util::enumerate(coll)) {
+  for (auto&& [iValue, collValue] : coll | ranges::views::enumerate) {
 
     Key_t const& key = getter(collValue);
     auto const iKey = index.lower_bound(key);
@@ -91,11 +87,10 @@ decltype(auto) util::makeValueIndex(Coll const& coll, Extractor getter)
                                " has the same key as #" + std::to_string(iKey->second));
     }
     index.emplace_hint(iKey, key, iValue);
-  } // for
+  }
 
   return index;
-
-} // util::makeValueIndex()
+}
 
 //------------------------------------------------------------------------------
 

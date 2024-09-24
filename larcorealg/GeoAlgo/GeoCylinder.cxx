@@ -5,24 +5,24 @@ namespace geoalgo {
 
   Cylinder::Cylinder() : Line(), _radius(0.) {}
 
-  Cylinder::Cylinder(const double x_min,
-                     const double y_min,
-                     const double z_min,
-                     const double x_max,
-                     const double y_max,
-                     const double z_max,
-                     const double radius)
+  Cylinder::Cylinder(double const x_min,
+                     double const y_min,
+                     double const z_min,
+                     double const x_max,
+                     double const y_max,
+                     double const z_max,
+                     double const radius)
     : Line(x_min, y_min, z_min, x_max, y_max, z_max), _radius(radius)
   {}
 
-  Cylinder::Cylinder(const Point_t& min, const Vector_t& max, const double radius)
+  Cylinder::Cylinder(Point_t const& min, Vector_t const& max, double const radius)
     : Line(min, max), _radius(radius)
   {
     if (min.size() != 3 || max.size() != 3)
       throw GeoAlgoException("Cylinder ctor accepts only 3D Point!");
   }
 
-  bool Cylinder::Contain(const Point_t& pt) const
+  bool Cylinder::Contain(Point_t const& pt) const
   {
 
     // get a vector that defines the axis of the cylinder
