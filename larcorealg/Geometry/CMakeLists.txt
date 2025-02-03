@@ -131,6 +131,7 @@ cet_make_library(SOURCE
   StandaloneGeometrySetup.cxx
   TPCGeo.cxx
   WireGeo.cxx
+  WireReadoutDumper.cxx
   WireReadoutGeom.cxx
   WireReadoutGeomBuilderStandard.cxx
   WireReadoutSorterStandard.cxx

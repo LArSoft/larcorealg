@@ -284,6 +284,11 @@ void geo::TPCGeo::PrintTPCInfo(Stream&& out,
 
   if (verbosity-- <= 0) return; // 1
 
+  //----------------------------------------------------------------------------
+  out << "\n"
+      << indent << "drift direction " << DriftDir() << " from cathode around " << GetCathodeCenter()
+      << " through " << DriftDistance() << " cm";
+
   if (verbosity-- <= 0) return; // 2
 
   if (verbosity-- <= 0) return; // 3
