@@ -82,9 +82,10 @@ namespace geo {
     fActiveHalfHeight = active_volume_box->GetDY();
     fActiveLength = 2.0 * active_volume_box->GetDZ();
 
-    fHalfWidth = active_volume_box->GetDX();
-    fHalfHeight = active_volume_box->GetDY();
-    fLength = 2.0 * active_volume_box->GetDZ();
+    auto const* total_volume_box = static_cast<TGeoBBox const*>(fTotalVolume->GetShape());
+    fHalfWidth = total_volume_box->GetDX();
+    fHalfHeight = total_volume_box->GetDY();
+    fLength = 2.0 * total_volume_box->GetDZ();
 
     // Check that the rotation matrix to the world is the identity, if not we need to
     // change the width, height and length values; the correspondence of these to x, y and
@@ -94,7 +95,6 @@ namespace geo {
     // TODO: there must be a more general way to do this...
     double Rxx, Rxy, Rxz, Ryx, Ryy, Ryz, Rzx, Rzy, Rzz;
     fTrans.Matrix().Rotation().GetComponents(Rxx, Rxy, Rxz, Ryx, Ryy, Ryz, Rzx, Rzy, Rzz);
-    auto const* total_volume_box = static_cast<TGeoBBox const*>(fTotalVolume->GetShape());
     if (Rxx != 1) {
       if (std::abs(Rxz) == 1) {
         fActiveHalfWidth = active_volume_box->GetDZ();
