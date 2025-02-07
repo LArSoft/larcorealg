@@ -335,7 +335,6 @@ namespace geo {
      * @brief Computes the intersection between two wires.
      * @param wid1 ID of the first wire
      * @param wid2 ID of the other wire
-     * @param widIntersect (output) the coordinate of the intersection point
      * @return whether an intersection was found within the TPC
      *
      * The "intersection" refers to the projection of the wires into the same @f$ x = 0
