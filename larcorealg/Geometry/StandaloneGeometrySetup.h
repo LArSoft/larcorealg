@@ -118,12 +118,12 @@ namespace lar::standalone {
   template <typename ObjectSorter = geo::AuxDetGeoObjectSorterStandard>
   std::unique_ptr<geo::AuxDetGeometryCore> SetupAuxDetGeometry(
     fhicl::ParameterSet const& pset,
-    std::unique_ptr<geo::AuxDetInitializer> initializer = nullptr)
+    geo::AuxDetInitializer* initializer = nullptr)
   {
     auto sorting_parameters = pset.get<fhicl::ParameterSet>("SortingParameters", {});
     return AuxDetGeometryFor(pset,
                              detail::make_unique_maybe_default<ObjectSorter>(sorting_parameters),
-                             std::move(initializer));
+                             std::move(std::unique_ptr<geo::AuxDetInitializer>(initializer)));
   }
 
   template <typename ObjectSorter = geo::WireReadoutSorterStandard,
