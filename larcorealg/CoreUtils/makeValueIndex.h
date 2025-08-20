@@ -60,9 +60,12 @@ namespace util {
   template <typename Coll>
   auto makeValueIndex(Coll const& coll)
   {
+#if (__cplusplus < 202000L)
     return makeValueIndex(coll, util::pre_std::identity());
+#else
+    return makeValueIndex(coll, std::identity());
+#endif
   }
-
 } // namespace util
 
 //------------------------------------------------------------------------------
