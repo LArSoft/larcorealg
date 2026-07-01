@@ -14,7 +14,7 @@
 #include "larcorealg/CoreUtils/MetaUtils.h"
 
 // External libraries
-#include "range/v3/view/zip.hpp"
+#include "larcorealg/CoreUtils/zip.h"
 
 // C/C++ standard libraries
 #include <array>
@@ -327,7 +327,7 @@ void referenced_addresser_documentation_test()
     data.cbegin(), data.cend(), std::back_inserter(dataPtr), util::reference_addresser());
 
   // test
-  for (auto&& [data, dataPtr] : ranges::views::zip(data, dataPtr)) {
+  for (auto&& [data, dataPtr] : util::zip(data, dataPtr)) {
     BOOST_TEST(dataPtr == &data);
   }
 }

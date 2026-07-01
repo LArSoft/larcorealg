@@ -11,7 +11,7 @@
 #define LARCOREALG_COREUTILS_COUNTER_H
 
 // External libraries
-#include "range/v3/view.hpp"
+#include <ranges>
 
 // C/C++ libraries
 #include <cstddef> // std::size_t
@@ -291,14 +291,14 @@ namespace util::details {
 template <typename T>
 auto util::counter(T begin, T end)
 {
-  return ranges::make_subrange(count_iterator(begin), count_iterator(end));
+  return std::ranges::subrange(count_iterator(begin), count_iterator(end));
 }
 
 //------------------------------------------------------------------------------
 template <typename T>
 auto util::infinite_counter(T begin)
 {
-  return ranges::make_subrange(count_iterator(begin), details::infinite_endcount_iterator<T>());
+  return std::ranges::subrange(count_iterator(begin), details::infinite_endcount_iterator<T>());
 }
 
 //------------------------------------------------------------------------------

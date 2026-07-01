@@ -13,12 +13,10 @@
 
 // LArSoft libraries
 #include "larcorealg/CoreUtils/counter.h"
+#include "larcorealg/CoreUtils/enumerate.h"
 #include "larcorealg/CoreUtils/operations.h"
 #include "larcorealg/CoreUtils/span.h"
 #include "larcorealg/CoreUtils/zip.h"
-
-#include "range/v3/view/enumerate.hpp"
-#include "range/v3/view/zip.hpp"
 
 // C/C++ standard libraries
 #include <iostream>    // std::cout
@@ -106,7 +104,7 @@ void test_adapted_span(Cont& v)
   BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
-  for (auto&& [rangeValue, value] : ranges::views::zip(r, v)) {
+  for (auto&& [rangeValue, value] : util::zip(r, v)) {
     BOOST_TEST(&rangeValue == &value);
     BOOST_TEST(rangeValue == value);
     ++n;
@@ -176,7 +174,7 @@ void test_transformed_span_with_unmoveable_values(Cont& v)
   BOOST_TEST(r.size() == v.size());
 
   unsigned int n = 0;
-  for (auto&& [rangeValue, value] : ranges::views::zip(r, v)) {
+  for (auto&& [rangeValue, value] : util::zip(r, v)) {
     BOOST_TEST(&rangeValue == &value);
     BOOST_TEST(rangeValue == value);
     ++n;
@@ -291,7 +289,7 @@ struct makeTransformedSpanDocumentation1TestClass {
 
     scale(data, factor);
 
-    for (auto&& [i, ptr] : data | ranges::views::enumerate)
+    for (auto&& [i, ptr] : util::enumerate(data))
       BOOST_TEST(*ptr == factor * i);
   }
 

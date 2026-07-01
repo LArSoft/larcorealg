@@ -13,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 // External libraries
-#include "range/v3/view/zip.hpp"
+#include "larcorealg/CoreUtils/zip.h"
 
 // C/C++ libraries
 #include <cstddef> // std::size_t
@@ -215,7 +215,7 @@ void get_elements_documentation_test()
   std::vector<int> const expected_exponents{0, 1, 2};
 
   BOOST_TEST(factors.size() == expected_factors.size());
-  for (auto const& [f, expected_f] : ranges::views::zip(factors, expected_factors)) {
+  for (auto const& [f, expected_f] : util::zip(factors, expected_factors)) {
     BOOST_TEST(f.first == expected_f.first);
     BOOST_TEST(f.second == expected_f.second);
   }

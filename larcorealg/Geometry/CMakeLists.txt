@@ -158,7 +158,6 @@ cet_make_library(SOURCE
   cetlib_except::cetlib_except
   CLHEP::Geometry
   CLHEP::Vector
-  range-v3::range-v3
   ROOT::Core
   ROOT::GenVector
   ROOT::Geom

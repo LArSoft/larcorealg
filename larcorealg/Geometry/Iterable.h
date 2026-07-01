@@ -8,7 +8,7 @@
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
 
 // External libraries
-#include "range/v3/view.hpp"
+#include <ranges>
 
 // C/C++ standard libraries
 #include <type_traits>
@@ -49,7 +49,7 @@ namespace geo {
     };
 
     template <typename Begin, typename End>
-    using RangeType = decltype(ranges::make_subrange(std::declval<Begin>(), std::declval<End>()));
+    using RangeType = decltype(std::ranges::subrange(std::declval<Begin>(), std::declval<End>()));
   }
 
   template <typename IterationPolicy, typename Transform = void_tag>
@@ -120,13 +120,13 @@ namespace geo {
     template <typename T>
     range_type<T> Iterate() const
     {
-      return ranges::make_subrange(begin<T>(), end<T>());
+      return std::ranges::subrange(begin<T>(), end<T>());
     }
 
     template <typename T, typename ID>
     range_type<T> Iterate(ID const& id) const
     {
-      return ranges::make_subrange(begin<T>(id), end<T>(id));
+      return std::ranges::subrange(begin<T>(id), end<T>(id));
     }
 
   private:

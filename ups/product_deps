@@ -249,7 +249,6 @@ gdmldir	product_dir
 ####################################
 product		version		qual	flags		<table_format=2>
 larcoreobj	v10_00_01	-
-range           v3_0_12_0
 cetmodules	v3_27_04	-	only_for_build
 end_product_list
 ####################################
@@ -305,11 +304,11 @@ end_product_list
 #   case it is optional.
 #
 ####################################
-qualifier	larcoreobj   range      notes
-c14:debug	c14:debug    -nq-
-c14:prof	c14:prof     -nq-
-e26:debug	e26:debug    -nq-
-e26:prof	e26:prof     -nq-
+qualifier	larcoreobj   notes
+c14:debug	c14:debug
+c14:prof	c14:prof
+e26:debug	e26:debug
+e26:prof	e26:prof
 end_qualifier_list
 ####################################
 

@@ -18,7 +18,7 @@
 #include "larcorealg/CoreUtils/fromFutureImport.h" // util::pre_std::identity<>
 
 // External libraries
-#include "range/v3/view/enumerate.hpp"
+#include "larcorealg/CoreUtils/enumerate.h"
 
 // C/C++ standard library
 #include <cstddef> // std::size_t
@@ -80,7 +80,7 @@ decltype(auto) util::makeValueIndex(Coll const& coll, Extractor getter)
   using Map_t = std::map<Key_t, std::size_t>;
 
   Map_t index;
-  for (auto&& [iValue, collValue] : coll | ranges::views::enumerate) {
+  for (auto&& [iValue, collValue] : util::enumerate(coll)) {
 
     Key_t const& key = getter(collValue);
     auto const iKey = index.lower_bound(key);

@@ -15,7 +15,7 @@
 #include "larcorealg/CoreUtils/operations.h"
 
 // External libraries
-#include "range/v3/view/zip.hpp"
+#include "larcorealg/CoreUtils/zip.h"
 
 // C/C++ standard libraries
 #include <algorithm>
@@ -44,7 +44,7 @@ void test_AddressTaker_documentation()
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // the test
   BOOST_TEST(ptrs.size() == data.size());
-  for (auto&& [value, ptr] : ranges::views::zip(data, ptrs)) {
+  for (auto&& [value, ptr] : util::zip(data, ptrs)) {
     BOOST_TEST(ptr);
     BOOST_TEST(*ptr == value);
     BOOST_TEST(ptr == &value);
@@ -70,7 +70,7 @@ void test_takeAddress_documentation()
 
   // the test
   BOOST_TEST(ptrs.size() == data.size());
-  for (auto&& [value, ptr] : ranges::views::zip(data, ptrs)) {
+  for (auto&& [value, ptr] : util::zip(data, ptrs)) {
     BOOST_TEST(ptr);
     BOOST_TEST(*ptr == value);
     BOOST_TEST(ptr == &value);
@@ -86,7 +86,7 @@ void test_takeAddress()
   std::vector<int const*> dataPtr;
   std::transform(data.cbegin(), data.cend(), std::back_inserter(dataPtr), util::takeAddress());
 
-  for (auto&& [value, ptr] : ranges::views::zip(data, dataPtr)) {
+  for (auto&& [value, ptr] : util::zip(data, dataPtr)) {
     BOOST_TEST(ptr);
     BOOST_TEST(*ptr == value);
     BOOST_TEST(ptr == &value);
@@ -108,7 +108,7 @@ void test_takeAddress_whyBother()
   std::transform(
     data.cbegin(), data.cend(), std::back_inserter(dataPtr), ((addressof_t)&std::addressof));
 
-  for (auto&& [value, ptr] : ranges::views::zip(data, dataPtr)) {
+  for (auto&& [value, ptr] : util::zip(data, dataPtr)) {
     BOOST_TEST(ptr);
     BOOST_TEST(*ptr == value);
     BOOST_TEST(ptr == &value);
@@ -122,7 +122,7 @@ void test_takeAddress_whyBother()
 
   std::transform(data.cbegin(), data.cend(), std::back_inserter(dataPtr), takeAddress);
 
-  for (auto&& [value, ptr] : ranges::views::zip(data, dataPtr)) {
+  for (auto&& [value, ptr] : util::zip(data, dataPtr)) {
     BOOST_TEST(ptr);
     BOOST_TEST(*ptr == value);
     BOOST_TEST(ptr == &value);
@@ -151,7 +151,7 @@ void test_Dereferencer_documentation()
 
   // the test
   BOOST_TEST(values.size() == data.size());
-  for (auto&& [value, orig] : ranges::views::zip(data, values)) {
+  for (auto&& [value, orig] : util::zip(data, values)) {
     BOOST_TEST(value == orig);
   }
 }
@@ -178,7 +178,7 @@ void test_dereference_documentation()
 
   // the test
   BOOST_TEST(values.size() == data.size());
-  for (auto&& [value, orig] : ranges::views::zip(data, values)) {
+  for (auto&& [value, orig] : util::zip(data, values)) {
     BOOST_TEST(value == orig);
   }
 }
@@ -197,7 +197,7 @@ void test_dereference_C_ptr()
     dataPtrs.cbegin(), dataPtrs.cend(), std::back_inserter(dataAgain), util::dereference());
 
   BOOST_TEST(dataAgain.size() == data.size());
-  for (auto&& [value, valueAgain] : ranges::views::zip(data, dataAgain)) {
+  for (auto&& [value, valueAgain] : util::zip(data, dataAgain)) {
     BOOST_TEST(valueAgain == value);
     BOOST_TEST(&valueAgain != &value);
   }
@@ -219,7 +219,7 @@ void test_dereference_unique_ptr()
     dataPtrs.cbegin(), dataPtrs.cend(), std::back_inserter(dataAgain), util::dereference());
 
   BOOST_TEST(dataAgain.size() == data.size());
-  for (auto&& [value, valueAgain] : ranges::views::zip(data, dataAgain)) {
+  for (auto&& [value, valueAgain] : util::zip(data, dataAgain)) {
     BOOST_TEST(valueAgain == value);
     BOOST_TEST(&valueAgain != &value);
   }
