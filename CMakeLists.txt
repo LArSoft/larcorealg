@@ -16,10 +16,22 @@ project(larcorealg VERSION 10.00.04 LANGUAGES CXX)
 include(CetCMakeEnv)
 cet_cmake_env()
 
+# Force C++20. LArSoft v10_21_01 / e26 defaults to C++17 (CETPKG_CXX_STANDARD=17,
+# buildtool passes -DCMAKE_CXX_STANDARD=17), but the range-v3 removal in
+# Geometry/Iterable.h uses std::ranges, which is only available in C++20.
+# cetmodules delegates the standard to CMAKE_CXX_STANDARD (cet_set_compiler_flags
+# has no CXX_STANDARD option); this normal variable overrides the cache value.
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 cet_set_compiler_flags(DIAGS CAUTIOUS
   WERROR
   NO_UNDEFINED
-  EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+  # -Wno-error=cpp: the cvmfs ROOT (v6_28_12) is built for C++17 and its headers
+  # emit a #warning when consumed under a different standard; WERROR would turn
+  # that into an error. (Diagnostic only -- C++20 code against a C++17 ROOT is not
+  # a supported configuration.)
+  EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs -Wno-error=cpp
 )
 
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
