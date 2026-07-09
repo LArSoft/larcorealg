@@ -258,7 +258,7 @@ bool geo::OpDetGeo::isShapeLike() const
 //------------------------------------------------------------------------------
 template <typename Stream>
 void geo::OpDetGeo::PrintOpDetInfo(Stream&& out,
-                                   std::string indent /* = "" */,
+                                   std::string indent [[maybe_unused]] /* = "" */,
                                    unsigned int verbosity /* = 0 */
 ) const
 {
