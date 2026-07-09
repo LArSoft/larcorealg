@@ -966,7 +966,10 @@ namespace geo {
       Vector* v = nullptr;
       unsigned int index = std::numeric_limits<unsigned int>::max();
 
-      decltype(auto) access(unsigned int c) const { return vect::bindCoord(v, index); }
+      decltype(auto) access(unsigned int c [[maybe_unused]]) const
+      {
+        return vect::bindCoord(v, index);
+      }
 
       iterator_t copy() const { return *this; }
 

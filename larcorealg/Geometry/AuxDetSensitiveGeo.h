@@ -164,7 +164,7 @@ namespace geo {
 //---
 template <typename Stream>
 void geo::AuxDetSensitiveGeo::PrintAuxDetInfo(Stream&& out,
-                                              std::string indent /* = "" */,
+                                              std::string indent [[maybe_unused]] /* = "" */,
                                               unsigned int verbosity /* = 0 */
 ) const
 {
