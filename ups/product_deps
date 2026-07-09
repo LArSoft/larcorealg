@@ -248,7 +248,7 @@ gdmldir	product_dir
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-larcoreobj	v10_00_01	-
+larcoreobj	v10_00_02	-
 range           v3_0_12_0
 cetmodules	v3_27_04	-	only_for_build
 end_product_list
