@@ -87,7 +87,7 @@
 #>  define_pythonpath
 ####################################
 parent		larcorealg
-defaultqual	e26
+defaultqual	e28
 ####################################
 
 ####################################
@@ -248,7 +248,7 @@ gdmldir	product_dir
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-larcoreobj	v10_00_03	-
+larcoreobj	v11_00_00rc0	-
 range           v3_0_12_0
 cetmodules	v3_27_04	-	only_for_build
 end_product_list
@@ -306,10 +306,6 @@ end_product_list
 #
 ####################################
 qualifier	larcoreobj   range      notes
-c14:debug	c14:debug    -nq-
-c14:prof	c14:prof     -nq-
-e26:debug	e26:debug    -nq-
-e26:prof	e26:prof     -nq-
 e28:debug	e28:debug    -nq-
 e28:prof	e28:prof     -nq-
 end_qualifier_list
