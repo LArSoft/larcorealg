@@ -5,6 +5,7 @@
  */
 
 // class header
+#include "TSystem.h"
 #include "larcorealg/Geometry/AuxDetGeometryCore.h"
 
 // LArSoft includes
@@ -81,6 +82,10 @@ namespace geo {
       TGeoManager::LockDefaultUnits(false);
       TGeoManager::SetDefaultUnits(TGeoManager::kRootUnits);
       TGeoManager::LockDefaultUnits(true);
+      // TGeoManager::Import() reaches the GDML reader through the interpreter. If libGdml is not loaded yet,
+      // cling looks for the symbol in every library on the search path, which costs hundreds of MB of memory.
+      // Loading the library first makes the lookup trivial.
+      gSystem->Load("libGdml");
       TGeoManager::Import(fGDMLfile.c_str());
       gGeoManager->LockGeometry();
     }
